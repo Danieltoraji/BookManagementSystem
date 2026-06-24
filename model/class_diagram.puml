@@ -1,0 +1,254 @@
+@startuml BookManagementSystem
+' ============================================================
+'  BookManagementSystem — Data Model Class Diagram
+' ============================================================
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam packageStyle rectangle
+
+' ── Value types (no dependencies) ──────────────────────────
+
+class Date {
+  - year : short
+  - month : short
+  - day : short
+  --
+  + Date()
+  + getYear() : short
+  + getMonth() : short
+  + getDay() : short
+  + setYear(short)
+  + setMonth(short)
+  + setDay(short)
+  + setDate(year, month, day)
+}
+
+class Location {
+  - lib : std::string
+  - floor : short
+  - row : short
+  - unit : short
+  - level : short
+  --
+  + Location()
+  + getLib() : std::string
+  + getFloor() : short
+  + getRow() : short
+  + getUnit() : short
+  + getLevel() : short
+  + setLib(string)
+  + setFloor(short)
+  + setRow(short)
+  + setUnit(short)
+  + setLevel(short)
+  + setLocation(lib, floor, row, unit, level)
+}
+
+' ── Core entities ──────────────────────────────────────────
+
+class User {
+  # id : std::string
+  # username : std::string
+  # phone : std::string
+  # email : std::string
+  --
+  + User()
+  + getId() : std::string
+  + getUsername() : std::string
+  + getPhone() : std::string
+  + getEmail() : std::string
+  + setId(string)
+  + setUsername(string)
+  + setPhone(string)
+  + setEmail(string)
+}
+
+class Admin {
+  + Admin()
+}
+
+class Patron {
+  - borrowLimit : int
+  - currentBorrowBooks : std::list<std::string>
+  - unfinishedFineList : std::list<std::string>
+  --
+  + Patron()
+  + getBorrowLimit() : int
+  + getCurrentBorrowBooks() : std::list<std::string>
+  + getUnfinishedFineList() : std::list<std::string>
+  + setBorrowLimit(int)
+  + setCurrentBorrowBooks(list<string>)
+  + setUnfinishedFineList(list<string>)
+  + displayInfo() : std::string
+  + getBorrowBooks() : std::list<std::string>
+  + payFine()
+  + addFine()
+  + canBorrow() : bool
+}
+
+class Book {
+  - ISBN : std::string
+  - Title : std::string
+  - Author : std::string
+  - Publisher : std::string
+  - PublishingYear : int
+  - Category : std::string
+  - Copies : std::list<std::string>
+  --
+  + Book()
+  + getISBN() : std::string
+  + getTitle() : std::string
+  + getAuthor() : std::string
+  + getPublisher() : std::string
+  + getPublishingYear() : int
+  + getCategory() : std::string
+  + getCopies() : std::list<std::string>
+  + setISBN(string)
+  + setTitle(string)
+  + setAuthor(string)
+  + setPublisher(string)
+  + setPublishingYear(int)
+  + setCategory(string)
+  + addCopy(libCode)
+  + removeCopy(libCode)
+  + hasCopy(libCode) : bool
+}
+
+class BookCopy {
+  - ISBN : std::string
+  - libCode : std::string
+  - bookLocation : Location
+  --
+  + BookCopy()
+  + getISBN() : std::string
+  + getLibCode() : std::string
+  + getBookLocation() : Location
+  + setISBN(string)
+  + setLibCode(string)
+  + setBookLocation(Location)
+}
+
+' ── Transaction entities ───────────────────────────────────
+
+class Loan {
+  - id : std::string
+  - libCode : std::string
+  - userId : std::string
+  - loanDate : Date
+  - dueDate : Date
+  - returnDate : Date
+  --
+  + Loan()
+  + getId() : std::string
+  + getLibCode() : std::string
+  + getUserId() : std::string
+  + getLoanDate() : Date
+  + getDueDate() : Date
+  + getReturnDate() : Date
+  + setId(string)
+  + setLibCode(string)
+  + setUserId(string)
+  + setLoanDate(Date)
+  + setDueDate(Date)
+  + setReturnDate(Date)
+}
+
+class Borrow {
+  - id : std::string
+  - libCode : std::string
+  - userId : std::string
+  - borrowDate : Date
+  --
+  + Borrow()
+  + getId() : std::string
+  + getLibCode() : std::string
+  + getUserId() : std::string
+  + getBorrowDate() : Date
+  + setId(string)
+  + setLibCode(string)
+  + setUserId(string)
+  + setBorrowDate(Date)
+}
+
+class Reservation {
+  - id : std::string
+  - libCode : std::string
+  - userId : std::string
+  - reservationDate : Date
+  --
+  + Reservation()
+  + getId() : std::string
+  + getLibCode() : std::string
+  + getUserId() : std::string
+  + getReservationDate() : Date
+  + setId(string)
+  + setLibCode(string)
+  + setUserId(string)
+  + setReservationDate(Date)
+}
+
+class Fine {
+  - id : std::string
+  - userId : std::string
+  - amount : double
+  --
+  + Fine()
+  + getId() : std::string
+  + getUserId() : std::string
+  + getAmount() : double
+  + setId(string)
+  + setUserId(string)
+  + setAmount(double)
+}
+
+' ── Inheritance ────────────────────────────────────────────
+
+User <|-- Admin
+User <|-- Patron
+
+' ── Composition ────────────────────────────────────────────
+
+BookCopy *-- Location  : "1 ⬥  contains"
+
+' ── Aggregation / Dependency ──────────────────────────────
+
+Loan ..> Date    : uses
+Borrow ..> Date  : uses
+Reservation ..> Date : uses
+
+' ── Associations (by string keys) ──────────────────────────
+
+Book    "1" --{ "0..*" BookCopy     : ISBN
+BookCopy "1" --{ "0..*" Loan         : libCode
+BookCopy "1" --{ "0..*" Borrow       : libCode
+BookCopy "1" --{ "0..*" Reservation  : libCode
+User    "1" --{ "0..*" Loan          : userId
+User    "1" --{ "0..*" Borrow        : userId
+User    "1" --{ "0..*" Reservation   : userId
+User    "1" --{ "0..*" Fine          : userId
+
+' ── Notes ──────────────────────────────────────────────────
+
+note top of BookCopy
+  <b>libCode</b> is the unique identifier
+  for each physical copy.
+end note
+
+note top of Book
+  <b>Copies</b> stores a list of
+  libCode strings referencing
+  individual BookCopy instances.
+end note
+
+note right of Loan
+  A <b>Loan</b> tracks the full lifecycle:
+  borrow date → due date → return date.
+end note
+
+note bottom of Borrow
+  <b>Borrow</b> represents a single
+  borrow action (simpler than Loan).
+end note
+
+@enduml
