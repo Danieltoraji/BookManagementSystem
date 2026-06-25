@@ -31,6 +31,12 @@ qt_add_executable(BookManagementSystem
     model/user.h
     model/date.h
     model/date.cpp
+    dao/bookdao.h dao/bookdao.cpp
+    dao/bookcopydao.h dao/bookcopydao.cpp
+    dao/userdao.h dao/userdao.cpp
+    dao/loandao.h dao/loandao.cpp
+    dao/finedao.h dao/finedao.cpp
+    dao/reservationdao.h dao/reservationdao.cpp
 
 )
 
