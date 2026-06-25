@@ -1,7 +1,7 @@
 #include "user.h"
 
-User::User()
-    : id(""), username(""), phone(""), email("")
+User::User(std::string id, std::string username, std::string phone, std::string email)
+    : id(id), username(username), phone(phone), email(email)
 {
 }
 

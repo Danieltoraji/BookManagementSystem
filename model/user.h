@@ -12,7 +12,7 @@ protected:
     std::string email;
 
 public:
-    User();
+    User(std::string id = "", std::string username = "", std::string phone = "", std::string email = "");
 
     // Getters
     std::string getId() const;

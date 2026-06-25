@@ -16,7 +16,8 @@ private:
     std::list<std::string> Copies;
 
 public:
-    Book();
+    // Initialization
+    Book(const std::string &isbn, const std::string &title, const std::string &author, const std::string &publisher, int year, const std::string &category);
 
     // Getters
     std::string getISBN() const;

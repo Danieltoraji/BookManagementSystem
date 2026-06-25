@@ -1,7 +1,7 @@
 #include "location.h"
 
-Location::Location()
-    : lib(""), floor(0), row(0), unit(0), level(0)
+Location::Location(std::string lib, short floor, short row, short unit, short level)
+    : lib(lib), floor(floor), row(row), unit(unit), level(level)
 {
 }
 

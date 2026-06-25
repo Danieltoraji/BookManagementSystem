@@ -1,8 +1,9 @@
 #include "loan.h"
 
-Loan::Loan()
-    : id(""), libCode(""), userId(""),
-      loanDate(), dueDate(), returnDate()
+Loan::Loan(std::string id, std::string libCode, std::string ISBN, std::string userId,
+           Date loanDate, Date dueDate, Date returnDate):
+    id(id), libCode(libCode), ISBN(ISBN), userId(userId),
+    loanDate(loanDate), dueDate(dueDate), returnDate(returnDate)
 {
 }
 

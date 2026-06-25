@@ -1,9 +1,8 @@
 #include "book.h"
 #include <algorithm>
 
-Book::Book()
-    : ISBN(""), Title(""), Author(""), Publisher(""),
-      PublishingYear(0), Category(""), Copies()
+Book::Book(const std::string &isbn, const std::string &title, const std::string &author, const std::string &publisher, int year, const std::string &category)
+    : ISBN(isbn), Title(title), Author(author), Publisher(publisher), PublishingYear(year), Category(category), Copies()
 {
 }
 

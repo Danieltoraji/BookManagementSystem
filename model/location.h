@@ -12,7 +12,7 @@ private:
     short level;
 
 public:
-    Location();
+    Location(std::string lib, short floor, short row, short unit, short level);
 
     // Getters
     std::string getLib() const;

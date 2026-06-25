@@ -31,12 +31,7 @@ qt_add_executable(BookManagementSystem
     model/user.h
     model/date.h
     model/date.cpp
-    model/borrow.h
-    dao/bookdao.h dao/bookdao.cpp
-    model/borrow.cpp
-    dao/databasemanager.h dao/databasemanager.cpp
-    dao/bookdao.h dao/bookdao.cpp
-    dao/datastore.h dao/datastore.cpp
+
 )
 
 qt_add_translations(
