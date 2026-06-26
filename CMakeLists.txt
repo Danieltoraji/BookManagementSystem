@@ -37,6 +37,18 @@ qt_add_executable(BookManagementSystem
     dao/loandao.h dao/loandao.cpp
     dao/finedao.h dao/finedao.cpp
     dao/reservationdao.h dao/reservationdao.cpp
+    services/bookmanager.h services/bookmanager.cpp
+    services/bookcopymanager.h services/bookcopymanager.cpp
+    services/reservationmanager.h services/reservationmanager.cpp
+    services/bookservice.h services/bookservice.cpp
+    services/bookcopyservice.h services/bookcopyservice.cpp
+    services/loanservice.h services/loanservice.cpp
+    services/loanrecordservice.h services/loanrecordservice.cpp
+    services/userservice.h services/userservice.cpp
+    services/locationservice.h services/locationservice.cpp
+    services/fineservice.h services/fineservice.cpp
+    services/reservationservice.h services/reservationservice.cpp
+
 
 )
 
