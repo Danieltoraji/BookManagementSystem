@@ -14,10 +14,13 @@ private:
     int PublishingYear;
     std::string Category;
     std::list<std::string> Copies;
+    std::string Remarks;
 
 public:
     // Initialization
-    Book(const std::string &isbn, const std::string &title, const std::string &author, const std::string &publisher, int year, const std::string &category);
+    Book(const std::string &isbn, const std::string &title, const std::string &author,
+         const std::string &publisher, int year, const std::string &category,
+          const std::string &remarks, const std::list<std::string> &copies = {});
 
     // Getters
     std::string getISBN() const;
@@ -27,6 +30,7 @@ public:
     int getPublishingYear() const;
     std::string getCategory() const;
     std::list<std::string> getCopies() const;
+    std::string getRemarks() const;
 
     // Setters
     void setISBN(const std::string &value);
@@ -35,6 +39,7 @@ public:
     void setPublisher(const std::string &value);
     void setPublishingYear(int year);
     void setCategory(const std::string &value);
+    void setRemarks(const std::string &value);
 
     // Copy management
     void addCopy(const std::string &libCode);
