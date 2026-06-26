@@ -69,6 +69,10 @@ std::vector<const Book*> BookService::searchBooks(const searchQuery& query) cons
     std::vector<const Book*> result;
     std::vector<bool> flag1, flag2;
     switch(query.field1){
+        case searchQuery::Field::Empty:
+            for (size_t i = 0; i < books.size(); ++i) {
+                flag1.push_back(true);
+            }
         case searchQuery::Field::ISBN:
             switch(query.condition1){
                 case searchQuery::Condition::Equals:
@@ -137,6 +141,10 @@ std::vector<const Book*> BookService::searchBooks(const searchQuery& query) cons
     }
             
     switch(query.field2){
+        case searchQuery::Field::Empty:
+            for (size_t i = 0; i < books.size(); ++i) {
+                flag2.push_back(true);
+            }
         case searchQuery::Field::ISBN:
             switch(query.condition2){
                 case searchQuery::Condition::Equals:
@@ -217,4 +225,5 @@ std::vector<const Book*> BookService::searchBooks(const searchQuery& query) cons
             }
         break;
     }
+    return result;
 }

@@ -10,7 +10,7 @@
 字段1 判断1 内容1 逻辑 字段2 判断2 内容2
 字段包括ISBN、标题、作者，判断包括等于、包含、前段相同，逻辑包括与、或。*/
 struct searchQuery{
-    enum class Field { ISBN, Title, Author };
+    enum class Field { Empty, ISBN, Title, Author };
     enum class Condition { Equals, Contains, StartsWith };
     enum class Logic { And, Or };
     Field field1;
