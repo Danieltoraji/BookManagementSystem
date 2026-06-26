@@ -6,13 +6,18 @@
 #include "model/book.h"
 #include "dao/bookdao.h"
 
-class bookService
+class BookService
 {
 public:
-    bookService();
-private:
-    // 数据主存
-    std::vector<Book> books;
+    static BookService& getInstance();
+    BookService(const BookService&) = delete;
+    BookService& operator=(const BookService&) = delete;
+    BookService(BookService&&) = delete;
+    BookService& operator=(BookService&&) = delete;
+
+    // 强制存写
+    bool readBooksFromFile();
+    bool writeBooksToFile() const;
 
     // 图书管理
     std::vector<Book> getAllBooks();
@@ -20,10 +25,12 @@ private:
     bool removeBook(const std::string& isbn);
     bool updateBook(const std::string& isbn, const Book& book);
 
-    std::vector<const Book*> searchBooksByISBN(const std::string& isbn) const;
-    std::vector<const Book*> searchBooksByTitle(const std::string& title) const;
-    std::vector<const Book*> searchBooksByAuthor(const std::string& author) const;
+    
+private:
+    BookService();
 
+    // 数据主存
+    std::vector<Book> books;
 };
 
 #endif // BOOKSERVICE_H

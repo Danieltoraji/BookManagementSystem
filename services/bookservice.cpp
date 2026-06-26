@@ -1,6 +1,28 @@
 #include "bookservice.h"
+#include <algorithm>
 
-bookService::bookService() {}
+BookService& BookService::getInstance()
+{
+	static BookService instance;
+	return instance;
+}
+
+BookService::BookService() {}
+bool BookService::readBooksFromFile()
+{
+    books = BookDao::getInstance().loadBooksFromFile("data/books.txt");
+    return !books.empty();
+}
+
+bool BookService::writeBooksToFile() const
+{
+    return BookDao::getInstance().saveBooksToFile("data/books.txt", books);
+}
+
+std::vector<Book> BookService::getAllBooks()
+{
+    return books;
+}
 
 bool BookService::addBook(const Book& book)
 {
@@ -42,6 +64,9 @@ bool BookService::updateBook(const std::string& isbn, const Book& book)
 	return false;
 }
 
+
+
+/*
 std::vector<const Book*> BookService::searchBooksByISBN(const std::string& isbn) const
 {
 	std::vector<const Book*> result;
@@ -52,29 +77,4 @@ std::vector<const Book*> BookService::searchBooksByISBN(const std::string& isbn)
 	}
 	return result;
 }
-
-std::vector<const Book*> BookService::searchBooksByTitle(const std::string& title) const
-{
-	std::vector<const Book*> result;
-	for (const auto& book : books) {
-		if (book.getTitle() == title) {
-			result.push_back(&book);
-		}
-	}
-	return result;
-}
-
-std::vector<const Book*> BookService::searchBooksByAuthor(const std::string& author) const
-{
-	std::vector<const Book*> result;
-	for (const auto& book : books) {
-		if (book.getAuthor() == author) {
-			result.push_back(&book);
-		}
-	}
-	return result;
-}
-std::vector<Book> BookDao::getAllBooks()
-{
-	return books;
-}
+*/

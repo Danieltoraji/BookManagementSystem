@@ -8,9 +8,9 @@ qt_standard_project_setup()
 qt_add_executable(BookManagementSystem
     WIN32 MACOSX_BUNDLE
     main.cpp
-    bookmanagementsystem.cpp
-    bookmanagementsystem.h
-    bookmanagementsystem.ui
+    ui/bookmanagementsystem.cpp
+    ui/bookmanagementsystem.h
+    ui/bookmanagementsystem.ui
     model/admin.cpp
     model/admin.h
     model/book.cpp
@@ -37,17 +37,15 @@ qt_add_executable(BookManagementSystem
     dao/loandao.h dao/loandao.cpp
     dao/finedao.h dao/finedao.cpp
     dao/reservationdao.h dao/reservationdao.cpp
-    services/bookmanager.h services/bookmanager.cpp
-    services/bookcopymanager.h services/bookcopymanager.cpp
-    services/reservationmanager.h services/reservationmanager.cpp
     services/bookservice.h services/bookservice.cpp
     services/bookcopyservice.h services/bookcopyservice.cpp
     services/loanservice.h services/loanservice.cpp
-    services/loanrecordservice.h services/loanrecordservice.cpp
     services/userservice.h services/userservice.cpp
     services/locationservice.h services/locationservice.cpp
     services/fineservice.h services/fineservice.cpp
     services/reservationservice.h services/reservationservice.cpp
+    ui/usersystem.h ui/usersystem.cpp ui/usersystem.ui
+    ui/adminsystem.h ui/adminsystem.cpp ui/adminsystem.ui
 
 
 )
@@ -63,6 +61,8 @@ target_link_libraries(BookManagementSystem
         Qt::Widgets
         Qt::Sql
 )
+
+target_include_directories(BookManagementSystem PRIVATE ${CMAKE_SOURCE_DIR})
 
 install(TARGETS BookManagementSystem
     BUNDLE  DESTINATION .
