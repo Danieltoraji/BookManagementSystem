@@ -10,13 +10,14 @@ BookDao& BookDao::getInstance()
 	return instance;
 }
 
-bool BookDao::loadBooksFromFile(const std::string& filename)
+std::vector<Book> BookDao::loadBooksFromFile(const std::string& filename)
 {
+	std::vector<Book> books;
 	books.clear();
 
 	std::ifstream file(filename);
 	if (!file.is_open()) {
-		return false;
+		return books;
 	}
 
 	std::string line;
@@ -26,10 +27,10 @@ bool BookDao::loadBooksFromFile(const std::string& filename)
 		}
 		books.push_back(stringToBook(line));
 	}
-	return true;
+	return books;
 }
 
-bool BookDao::saveBooksToFile(const std::string& filename) const
+bool BookDao::saveBooksToFile(const std::string& filename, const std::vector<Book>& books) const
 {
 	std::ofstream file(filename, std::ios::trunc);
 	if (!file.is_open()) {
@@ -42,83 +43,7 @@ bool BookDao::saveBooksToFile(const std::string& filename) const
 	return true;
 }
 
-std::vector<Book> BookDao::getAllBooks()
-{
-	return books;
-}
 
-bool BookDao::addBook(const Book& book)
-{
-	auto it = std::find_if(books.begin(), books.end(),
-    [&](const Book& b) { return b.getISBN() == book.getISBN(); });
-
-    if (it == books.end()) {
-        books.push_back(book);
-        return true;
-    }
-    return false;
-}
-
-bool BookDao::removeBook(const std::string& isbn)
-{
-	auto it = std::find_if(books.begin(), books.end(),
-    [&](const Book& b) { return b.getISBN() == isbn; });
-
-    if (it == books.end()) {
-        return false;
-    }
-    books.erase(it);
-    return true;
-}
-
-bool BookDao::updateBook(const std::string& isbn, const Book& book)
-{
-	auto it = std::find_if(books.begin(), books.end(), [&](const Book& item) {
-		return item.getISBN() == isbn;
-	});
-
-	Book updatedBook = book;
-	updatedBook.setISBN(isbn);
-
-	if (it != books.end()) {
-		*it = updatedBook;
-		return true;
-	}
-	return false;
-}
-
-std::vector<const Book*> BookDao::searchBooksByISBN(const std::string& isbn) const
-{
-	std::vector<const Book*> result;
-	for (const auto& book : books) {
-		if (book.getISBN() == isbn) {
-			result.push_back(&book);
-		}
-	}
-	return result;
-}
-
-std::vector<const Book*> BookDao::searchBooksByTitle(const std::string& title) const
-{
-	std::vector<const Book*> result;
-	for (const auto& book : books) {
-		if (book.getTitle() == title) {
-			result.push_back(&book);
-		}
-	}
-	return result;
-}
-
-std::vector<const Book*> BookDao::searchBooksByAuthor(const std::string& author) const
-{
-	std::vector<const Book*> result;
-	for (const auto& book : books) {
-		if (book.getAuthor() == author) {
-			result.push_back(&book);
-		}
-	}
-	return result;
-}
 
 std::string BookDao::bookToString(const Book& book) const
 {
