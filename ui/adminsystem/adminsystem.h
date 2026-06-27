@@ -24,6 +24,8 @@ private slots:
 
     void on_addbook_clicked();
 
+    void on_delbook_clicked();
+
 private:
     void refreshBookTable(const auto &books);//用来显示的函数
     bool convertTableBackToBooks();//同步表格信息更新

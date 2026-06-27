@@ -15,6 +15,9 @@ public:
     explicit DelBookDialog(QWidget *parent = nullptr);
     ~DelBookDialog();
 
+private slots:
+    void on_buttonBox_accepted();
+
 private:
     Ui::DelBookDialog *ui;
 };

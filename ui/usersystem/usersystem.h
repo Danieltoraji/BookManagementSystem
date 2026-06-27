@@ -17,8 +17,10 @@ public:
 
 private slots:
     void on_pushButton_clicked();
+    void on_getbooks_clicked();
 
 private:
+    void refreshBookTable(const auto &books);//用来显示搜索结果的函数
     Ui::UserSystem *ui;
 };
 
