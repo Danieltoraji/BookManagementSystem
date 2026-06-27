@@ -18,10 +18,9 @@ private:
 
 public:
     // Initialization
-    Book(const std::string &isbn, const std::string &title, const std::string &author,
-         const std::string &publisher, int year, const std::string &category,
-          const std::string &remarks, const std::list<std::string> &copies = {});
-    Book();
+    Book(const std::string &isbn = "", const std::string &title = "", const std::string &author = "",
+         const std::string &publisher = "", int year = 0, const std::string &category = "",
+          const std::string &remarks = "", const std::list<std::string> &copies = {});
 
     // Getters
     std::string getISBN() const;

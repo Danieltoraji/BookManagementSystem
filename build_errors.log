@@ -1,0 +1,18 @@
+mingw32-make: Entering directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Release'
+mingw32-make[1]: Entering directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Release'
+mingw32-make[2]: Entering directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Release'
+mingw32-make[2]: Leaving directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Release'
+[  0%] Built target BookManagementSystem_autogen_timestamp_deps
+mingw32-make[2]: Entering directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Release'
+mingw32-make[2]: Leaving directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Release'
+[  2%] Built target BookManagementSystem_autogen
+mingw32-make[2]: Entering directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Release'
+mingw32-make[2]: Leaving directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Release'
+mingw32-make[2]: Entering directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Release'
+[  5%] Building CXX object CMakeFiles/BookManagementSystem.dir/BookManagementSystem_autogen/mocs_compilation.cpp.obj
+mingw32-make[2]: *** [CMakeFiles\BookManagementSystem.dir\build.make:88: CMakeFiles/BookManagementSystem.dir/BookManagementSystem_autogen/mocs_compilation.cpp.obj] Error 1
+mingw32-make[2]: Leaving directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Release'
+mingw32-make[1]: *** [CMakeFiles\Makefile2:90: CMakeFiles/BookManagementSystem.dir/all] Error 2
+mingw32-make[1]: Leaving directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Release'
+mingw32-make: *** [Makefile:135: all] Error 2
+mingw32-make: Leaving directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Release'

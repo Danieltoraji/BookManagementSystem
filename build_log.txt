@@ -1,0 +1,32 @@
+mingw32-make: Entering directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug'
+mingw32-make[1]: Entering directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug'
+mingw32-make[2]: Entering directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug'
+mingw32-make[2]: Entering directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug'
+mingw32-make[2]: Leaving directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug'
+mingw32-make[2]: Leaving directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug'
+[  0%] Built target BookManagementSystem_autogen_timestamp_deps
+[  2%] Built target BookManagementSystem_lrelease
+mingw32-make[2]: Entering directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug'
+mingw32-make[2]: Leaving directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug'
+mingw32-make[2]: Entering directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug'
+[  5%] Automatic MOC and UIC for target BookManagementSystem
+mingw32-make[2]: Leaving directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug'
+[  5%] Built target BookManagementSystem_autogen
+mingw32-make[2]: Entering directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug'
+mingw32-make[2]: Leaving directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug'
+mingw32-make[2]: Entering directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug'
+[  8%] Building CXX object CMakeFiles/BookManagementSystem.dir/services/bookservice.cpp.obj
+[ 11%] Building CXX object CMakeFiles/BookManagementSystem.dir/ui/adminsystem.cpp.obj
+In file included from F:\coding\QtSrc\BookManagementSystem\ui\adminsystem.cpp:1:
+F:\coding\QtSrc\BookManagementSystem\ui\adminsystem.h:26:33: warning: use of 'auto' in parameter declaration only available with '-std=c++20' or '-fconcepts'
+   26 |     void refreshBookTable(const auto &books);
+      |                                 ^~~~
+F:\coding\QtSrc\BookManagementSystem\ui\adminsystem.cpp:97:42: warning: use of 'auto' in parameter declaration only available with '-std=c++20' or '-fconcepts'
+   97 | void AdminSystem::refreshBookTable(const auto &books)
+      |                                          ^~~~
+[ 14%] Linking CXX executable BookManagementSystem.exe
+Copying data folder to build directory...
+mingw32-make[2]: Leaving directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug'
+[100%] Built target BookManagementSystem
+mingw32-make[1]: Leaving directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug'
+mingw32-make: Leaving directory 'F:/coding/QtSrc/BookManagementSystem/build/Desktop_Qt_6_11_1_MinGW_64_bit_Debug'

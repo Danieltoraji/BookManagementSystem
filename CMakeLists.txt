@@ -8,9 +8,9 @@ qt_standard_project_setup()
 qt_add_executable(BookManagementSystem
     WIN32 MACOSX_BUNDLE
     main.cpp
-    ui/bookmanagementsystem.cpp
-    ui/bookmanagementsystem.h
-    ui/bookmanagementsystem.ui
+    ui/main/bookmanagementsystem.cpp
+    ui/main/bookmanagementsystem.h
+    ui/main/bookmanagementsystem.ui
     model/admin.cpp
     model/admin.h
     model/book.cpp
@@ -44,8 +44,10 @@ qt_add_executable(BookManagementSystem
     services/locationservice.h services/locationservice.cpp
     services/fineservice.h services/fineservice.cpp
     services/reservationservice.h services/reservationservice.cpp
-    ui/usersystem.h ui/usersystem.cpp ui/usersystem.ui
-    ui/adminsystem.h ui/adminsystem.cpp ui/adminsystem.ui
+    ui/usersystem/usersystem.h ui/usersystem/usersystem.cpp ui/usersystem/usersystem.ui
+    ui/adminsystem/adminsystem.h ui/adminsystem/adminsystem.cpp ui/adminsystem/adminsystem.ui
+    ui/adminsystem/addbookdialog/addbookdialog.h ui/adminsystem/addbookdialog/addbookdialog.cpp ui/adminsystem/addbookdialog/addbookdialog.ui
+    ui/adminsystem/delbookdialog/delbookdialog.h ui/adminsystem/delbookdialog/delbookdialog.cpp ui/adminsystem/delbookdialog/delbookdialog.ui
 )
 
 qt_add_translations(

@@ -1,7 +1,7 @@
 #include "bookmanagementsystem.h"
 #include "ui_bookmanagementsystem.h"
-#include "usersystem.h"
-#include "adminsystem.h"
+#include "ui/usersystem/usersystem.h"
+#include "ui/adminsystem/adminsystem.h"
 
 BookManagementSystem::BookManagementSystem(QWidget *parent)
     : QMainWindow(parent)

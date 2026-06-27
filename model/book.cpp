@@ -8,7 +8,6 @@ Book::Book(const std::string &isbn, const std::string &title, const std::string 
      PublishingYear(year), Category(category), Copies(copies), Remarks(remarks)
 {
 }
-Book::Book() : ISBN(""), Title(""), Author(""), Publisher(""), PublishingYear(0), Category(""), Remarks("") {}
 
 // Getters
 std::string Book::getISBN() const { return ISBN; }

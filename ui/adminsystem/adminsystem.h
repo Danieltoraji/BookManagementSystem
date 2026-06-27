@@ -22,9 +22,11 @@ private slots:
 
     void on_save_clicked();
 
+    void on_addbook_clicked();
+
 private:
-    void refreshBookTable(const auto &books);
-    void convertTableBackToBooks();
+    void refreshBookTable(const auto &books);//用来显示的函数
+    bool convertTableBackToBooks();//同步表格信息更新
     Ui::AdminSystem *ui;
 };
 

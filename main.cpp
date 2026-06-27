@@ -1,4 +1,4 @@
-#include "ui/bookmanagementsystem.h"
+#include "ui/main/bookmanagementsystem.h"
 
 #include <QApplication>
 #include <QLocale>
