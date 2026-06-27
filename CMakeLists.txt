@@ -46,8 +46,6 @@ qt_add_executable(BookManagementSystem
     services/reservationservice.h services/reservationservice.cpp
     ui/usersystem.h ui/usersystem.cpp ui/usersystem.ui
     ui/adminsystem.h ui/adminsystem.cpp ui/adminsystem.ui
-
-
 )
 
 qt_add_translations(
@@ -63,6 +61,13 @@ target_link_libraries(BookManagementSystem
 )
 
 target_include_directories(BookManagementSystem PRIVATE ${CMAKE_SOURCE_DIR})
+
+add_custom_command(TARGET BookManagementSystem POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/data"
+        "$<TARGET_FILE_DIR:BookManagementSystem>/data"
+    COMMENT "Copying data folder to build directory..."
+)
 
 install(TARGETS BookManagementSystem
     BUNDLE  DESTINATION .
