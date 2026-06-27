@@ -8,6 +8,7 @@ Book::Book(const std::string &isbn, const std::string &title, const std::string 
      PublishingYear(year), Category(category), Copies(copies), Remarks(remarks)
 {
 }
+Book::Book() : ISBN(""), Title(""), Author(""), Publisher(""), PublishingYear(0), Category(""), Remarks("") {}
 
 // Getters
 std::string Book::getISBN() const { return ISBN; }
@@ -29,6 +30,11 @@ void Book::setCategory(const std::string &value) { Category = value; }
 void Book::setRemarks(const std::string &value) { Remarks = value; }
 
 // Copy management
+void Book::setCopies(const std::list<std::string> &copies)
+{
+     Copies = copies; 
+}
+
 void Book::addCopy(const std::string &libCode)
 {
     Copies.push_back(libCode);

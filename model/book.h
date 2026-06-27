@@ -21,6 +21,7 @@ public:
     Book(const std::string &isbn, const std::string &title, const std::string &author,
          const std::string &publisher, int year, const std::string &category,
           const std::string &remarks, const std::list<std::string> &copies = {});
+    Book();
 
     // Getters
     std::string getISBN() const;
@@ -42,6 +43,7 @@ public:
     void setRemarks(const std::string &value);
 
     // Copy management
+    void setCopies(const std::list<std::string> &copies);
     void addCopy(const std::string &libCode);
     void removeCopy(const std::string &libCode);
     bool hasCopy(const std::string &libCode) const;

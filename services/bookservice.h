@@ -44,11 +44,10 @@ public:
     // 图书搜索
     std::vector<const Book*> searchBooks(const searchQuery& query) const;
 
-private:
-    BookService();
-
     // 数据主存
     std::vector<Book> books;
+private:
+    BookService();
 };
 
 #endif // BOOKSERVICE_H

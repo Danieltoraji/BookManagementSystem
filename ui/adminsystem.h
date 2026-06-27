@@ -20,7 +20,11 @@ private slots:
 
     void on_readFromFileButton_clicked();
 
+    void on_save_clicked();
+
 private:
+    void refreshBookTable(const auto &books);
+    void convertTableBackToBooks();
     Ui::AdminSystem *ui;
 };
 
