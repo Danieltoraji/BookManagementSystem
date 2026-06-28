@@ -12,7 +12,7 @@ private:
     short level;
 
 public:
-    Location(std::string lib, short floor, short row, short unit, short level);
+    Location(std::string lib = "", short floor = 0, short row = 0, short unit = 0, short level = 0);
 
     // Getters
     std::string getLib() const;
@@ -27,10 +27,10 @@ public:
     void setRow(short value);
     void setUnit(short value);
     void setLevel(short value);
-
-    // Convenience
     void setLocation(const std::string &lib, short floor,
                      short row, short unit, short level);
-};
 
+    // operators
+    friend std::ostream& operator<<(std::ostream& os, const Location& l);
+};
 #endif // LOCATION_H

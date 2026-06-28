@@ -1,4 +1,5 @@
 #include "location.h"
+#include <ostream>
 
 Location::Location(std::string lib, short floor, short row, short unit, short level)
     : lib(lib), floor(floor), row(row), unit(unit), level(level)
@@ -27,4 +28,9 @@ void Location::setLocation(const std::string &lib, short floor,
     this->row = row;
     this->unit = unit;
     this->level = level;
+}
+
+std::ostream& operator<<(std::ostream& os, const Location &l){
+    os << l.lib << "," << l.floor << "," << l.row << "," << l.unit << "," << l.level;
+    return os;
 }

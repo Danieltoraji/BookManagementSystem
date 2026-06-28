@@ -13,7 +13,7 @@ private:
     bookstatus status;
 
 public:
-    BookCopy(const std::string &isbn, const std::string &libCode, const Location &location, const bookstatus &status);
+    BookCopy(const std::string &isbn = "", const std::string &libCode = "", const Location &location = Location(), const bookstatus &status = available);
 
     // Getters
     std::string getISBN() const;
