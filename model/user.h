@@ -13,6 +13,7 @@ protected:
 
 public:
     User(std::string id = "", std::string username = "", std::string phone = "", std::string email = "");
+    virtual ~User() = default;
 
     // Getters
     std::string getId() const;
