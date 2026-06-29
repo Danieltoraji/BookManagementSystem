@@ -17,16 +17,12 @@ qt_add_executable(BookManagementSystem
     model/book.h
     model/bookcopy.cpp
     model/bookcopy.h
-    model/fine.cpp
-    model/fine.h
     model/loan.cpp
     model/loan.h
     model/location.cpp
     model/location.h
     model/patron.cpp
     model/patron.h
-    model/reservation.cpp
-    model/reservation.h
     model/user.cpp
     model/user.h
     model/date.h
@@ -35,15 +31,11 @@ qt_add_executable(BookManagementSystem
     dao/bookcopydao.h dao/bookcopydao.cpp
     dao/userdao.h dao/userdao.cpp
     dao/loandao.h dao/loandao.cpp
-    dao/finedao.h dao/finedao.cpp
-    dao/reservationdao.h dao/reservationdao.cpp
     services/bookservice.h services/bookservice.cpp
     services/bookcopyservice.h services/bookcopyservice.cpp
     services/loanservice.h services/loanservice.cpp
     services/userservice.h services/userservice.cpp
     services/locationservice.h services/locationservice.cpp
-    services/fineservice.h services/fineservice.cpp
-    services/reservationservice.h services/reservationservice.cpp
     ui/usersystem/usersystem.h ui/usersystem/usersystem.cpp ui/usersystem/usersystem.ui
     ui/adminsystem/adminsystem.h ui/adminsystem/adminsystem.cpp ui/adminsystem/adminsystem.ui
     ui/adminsystem/addbookdialog/addbookdialog.h ui/adminsystem/addbookdialog/addbookdialog.cpp ui/adminsystem/addbookdialog/addbookdialog.ui

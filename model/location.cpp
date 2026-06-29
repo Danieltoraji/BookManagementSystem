@@ -1,5 +1,8 @@
 #include "location.h"
 #include <ostream>
+#include <sstream>
+#include <vector>
+
 
 Location::Location(std::string lib, short floor, short row, short unit, short level)
     : lib(lib), floor(floor), row(row), unit(unit), level(level)
@@ -28,6 +31,22 @@ void Location::setLocation(const std::string &lib, short floor,
     this->row = row;
     this->unit = unit;
     this->level = level;
+}
+
+void Location::setLocation(const std::string &locFields){
+    std::vector<std::string> fields;
+    std::stringstream ss(locFields);
+    std::string field;
+    while (std::getline(ss, field, '-')) {
+        fields.push_back(field);
+    }
+    if (fields.size() >= 5) {
+        lib = fields[0];
+        floor = std::stoi(fields[1]);
+        row = std::stoi(fields[2]);
+        unit = std::stoi(fields[3]);
+        level = std::stoi(fields[4]);
+    }
 }
 
 std::ostream& operator<<(std::ostream& os, const Location &l){

@@ -29,6 +29,7 @@ public:
     void setLevel(short value);
     void setLocation(const std::string &lib, short floor,
                      short row, short unit, short level);
+    void setLocation(const std::string &locFields);
 
     // operators
     friend std::ostream& operator<<(std::ostream& os, const Location& l);

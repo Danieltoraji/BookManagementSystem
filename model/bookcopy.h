@@ -3,7 +3,7 @@
 #include <string>
 #include "location.h"
 
-enum bookstatus{available,borrowed,reserved,cancelled};
+enum bookstatus{available,borrowed,cancelled};
 class BookCopy
 {
 private:

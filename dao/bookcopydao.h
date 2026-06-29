@@ -21,7 +21,7 @@ public:
 
 
 private:
-    std::string bookCopyToString(const BookCopy& bookcopy);
+    std::string bookCopyToString(const BookCopy& bookcopy) const;
     BookCopy stringToBookCopy (const std::string& bookcopystr) const;
     BookCopyDao();
 };

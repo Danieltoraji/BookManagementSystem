@@ -71,19 +71,14 @@ class Admin {
 class Patron {
   - borrowLimit : int
   - currentBorrowBooks : std::list<std::string>
-  - unfinishedFineList : std::list<std::string>
   --
   + Patron()
   + getBorrowLimit() : int
   + getCurrentBorrowBooks() : std::list<std::string>
-  + getUnfinishedFineList() : std::list<std::string>
   + setBorrowLimit(int)
   + setCurrentBorrowBooks(list<string>)
-  + setUnfinishedFineList(list<string>)
   + displayInfo() : std::string
   + getBorrowBooks() : std::list<std::string>
-  + payFine()
-  + addFine()
   + canBorrow() : bool
 }
 
@@ -171,37 +166,6 @@ class Borrow {
   + setBorrowDate(Date)
 }
 
-class Reservation {
-  - id : std::string
-  - libCode : std::string
-  - userId : std::string
-  - reservationDate : Date
-  --
-  + Reservation()
-  + getId() : std::string
-  + getLibCode() : std::string
-  + getUserId() : std::string
-  + getReservationDate() : Date
-  + setId(string)
-  + setLibCode(string)
-  + setUserId(string)
-  + setReservationDate(Date)
-}
-
-class Fine {
-  - id : std::string
-  - userId : std::string
-  - amount : double
-  --
-  + Fine()
-  + getId() : std::string
-  + getUserId() : std::string
-  + getAmount() : double
-  + setId(string)
-  + setUserId(string)
-  + setAmount(double)
-}
-
 ' ── Inheritance ────────────────────────────────────────────
 
 User <|-- Admin
@@ -215,18 +179,14 @@ BookCopy *-- Location  : "1 ⬥  contains"
 
 Loan ..> Date    : uses
 Borrow ..> Date  : uses
-Reservation ..> Date : uses
 
 ' ── Associations (by string keys) ──────────────────────────
 
 Book    "1" --{ "0..*" BookCopy     : ISBN
 BookCopy "1" --{ "0..*" Loan         : libCode
 BookCopy "1" --{ "0..*" Borrow       : libCode
-BookCopy "1" --{ "0..*" Reservation  : libCode
 User    "1" --{ "0..*" Loan          : userId
 User    "1" --{ "0..*" Borrow        : userId
-User    "1" --{ "0..*" Reservation   : userId
-User    "1" --{ "0..*" Fine          : userId
 
 ' ── Notes ──────────────────────────────────────────────────
 
