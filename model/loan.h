@@ -10,13 +10,14 @@ private:
     std::string libCode;
     std::string ISBN;
     std::string userId;
-    Date loanDate;
-    Date dueDate;
-    Date returnDate;
+    Date loanDate;//借书
+    Date dueDate;//到期
+    Date returnDate;//还书
+    bool isReturned; // 判断是否已归还
 
 public:
     Loan(std::string id, std::string libCode, std::string ISBN, std::string userId,
-         Date loanDate, Date dueDate, Date returnDate);
+         Date loanDate, Date dueDate, Date returnDate, bool isReturned = false);
 
     // Getters
     std::string getId() const;
@@ -26,6 +27,7 @@ public:
     Date getLoanDate() const;
     Date getDueDate() const;
     Date getReturnDate() const;
+    bool getIsReturned() const;
 
     // Setters
     void setId(const std::string &value);
@@ -35,6 +37,7 @@ public:
     void setLoanDate(const Date &value);
     void setDueDate(const Date &value);
     void setReturnDate(const Date &value);
+    void setIsReturned(bool value);
 };
 
 #endif // LOAN_H
