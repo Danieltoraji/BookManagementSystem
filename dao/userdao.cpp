@@ -20,7 +20,8 @@ std::string UserDao::userToString(User* user) const
                << user->getId() << '|'
                << user->getUsername() << '|'
                << user->getPhone() << '|'
-               << user->getEmail();
+               << user->getEmail() << '|'
+               << user->getPassword();
     } else if (dynamic_cast<Patron*>(user)) {
         Patron* patron = dynamic_cast<Patron*>(user);
         stream << "Patron|"
@@ -28,6 +29,7 @@ std::string UserDao::userToString(User* user) const
                << patron->getUsername() << '|'
                << patron->getPhone() << '|'
                << patron->getEmail() << '|'
+               << patron->getPassword() << '|'
                << patron->getBorrowLimit() << '|';
         bool first = true;
         for (const auto& book : patron->getCurrentBorrowBooks()) {
@@ -49,20 +51,19 @@ User* UserDao::stringToUser(const std::string& userStr) const
     }
     if (fields.empty()) return nullptr;
 
-    if (fields[0] == "Admin" && fields.size() >= 5) {
-        return new Admin();
-        // Admin 使用默认构造，字段信息暂不设置（Admin 无额外属性）
-    } else if (fields[0] == "Patron" && fields.size() >= 7) {
+    if (fields[0] == "Admin" && fields.size() >= 6) {
+        return new Admin(fields[1], fields[2], fields[3], fields[4], fields[5]);
+    } else if (fields[0] == "Patron" && fields.size() >= 8) {
         std::list<std::string> borrowBooks;
-        if (!fields[6].empty()) {
-            std::istringstream bookStream(fields[6]);
+        if (!fields[7].empty()) {
+            std::istringstream bookStream(fields[7]);
             std::string bookCode;
             while (std::getline(bookStream, bookCode, ',')) {
                 borrowBooks.push_back(bookCode);
             }
         }
         return new Patron(fields[1], fields[2], fields[3], fields[4],
-                          std::stoi(fields[5]), borrowBooks);
+                          fields[5], std::stoi(fields[6]), borrowBooks);
     }
     return nullptr;
 }

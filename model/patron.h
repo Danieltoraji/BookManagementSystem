@@ -12,6 +12,7 @@ private:
 
 public:
     Patron(const std::string &id, const std::string &username, const std::string &phone, const std::string &email,
+        const std::string &password,
         int borrowLimit = 5, const std::list<std::string> &currentBorrowBooks = {});
 
     // Getters

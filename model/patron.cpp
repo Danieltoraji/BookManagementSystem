@@ -1,8 +1,9 @@
 #include "patron.h"
 
 Patron::Patron(const std::string &id, const std::string &username, const std::string &phone, const std::string &email,
+               const std::string &password,
                int borrowLimit, const std::list<std::string> &currentBorrowBooks)
-    : User(id, username, phone, email), borrowLimit(borrowLimit), currentBorrowBooks(currentBorrowBooks)
+    : User(id, username, phone, email, password), borrowLimit(borrowLimit), currentBorrowBooks(currentBorrowBooks)
 {
 }
 
