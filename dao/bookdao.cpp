@@ -13,7 +13,6 @@ BookDao& BookDao::getInstance()
 std::vector<Book> BookDao::loadBooksFromFile(const std::string& filename)
 {
 	std::vector<Book> books;
-	books.clear();
 
 	std::ifstream file(filename);
 	if (!file.is_open()) {
