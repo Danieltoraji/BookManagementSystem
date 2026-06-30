@@ -5,6 +5,11 @@
 #include "model/user.h"
 #include "dao/userdao.h"
 
+/*密码加密约定：
+明文：add和update函数的形参。
+加密：add和update函数内部。加密方法：以用户ID为密钥的异或加密。
+密文：构造函数的形参，文件的存储，主存的数据。
+*/
 class userService
 {
 public:
@@ -20,19 +25,29 @@ public:
 
     // 用户管理
     std::vector<User*> getAllUsers() const;
-    bool addUser(User* user);
+    bool addPatron(const std::string& id, const std::string& username, const std::string& phone,
+                   const std::string& email, const std::string& plainPassword, int borrowLimit = 5);
+    bool addAdmin(const std::string& id, const std::string& username, const std::string& phone,
+                  const std::string& email, const std::string& plainPassword);
     bool removeUser(const std::string& id);
-    bool updateUser(const std::string& id, User* user);
+    bool updatePatron(const std::string& id, const std::string& username, const std::string& phone,
+                      const std::string& email, const std::string& plainPassword, int borrowLimit = 5);
+    bool updateAdmin(const std::string& id, const std::string& username, const std::string& phone,
+                     const std::string& email, const std::string& plainPassword);
 
     // 用户查询
+
     User* getUserById(const std::string& id) const;
     User* getUserByUsername(const std::string& username) const;
 
     // 用户验证
-    User* authenticate(const std::string& username) const;
+    User* authenticate(const std::string& username, const std::string& password) const;
+    std::string encryptPassword(const std::string& password, const std::string& key) const;
+    std::string decryptPassword(const std::string& encryptedPassword, const std::string& key) const;
 
     // 数据主存
     std::vector<User*> users;
+    mutable User* currentUser = nullptr; // 当前登录用户
 private:
     userService();
 };
