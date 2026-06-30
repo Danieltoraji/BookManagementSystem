@@ -12,6 +12,7 @@ private:
 
 public:
     Date(const short &year, const short &month, const short &day);
+    static Date fromString(const std::string &dateStr);
     // Getters
     short getYear() const;
     short getMonth() const;
@@ -28,6 +29,7 @@ public:
     bool operator!=(const Date &other) const;
     bool operator<(const Date &other) const;
     bool operator>(const Date &other) const;
+    friend std::ostream& operator<<(std::ostream &os, const Date &date);
     Date operator+(const int days) const;
 };
 

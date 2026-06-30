@@ -1,8 +1,19 @@
 #include "date.h"
+#include <string>
+#include <sstream>
+
 
 Date::Date(const short &year, const short &month, const short &day)
     : year(year), month(month), day(day)
 {
+}
+Date Date::fromString(const std::string &dateStr)
+{
+    std::istringstream iss(dateStr);
+    short year, month, day;
+    char dash1, dash2;
+    iss >> year >> dash1 >> month >> dash2 >> day;
+    return Date(year, month, day);
 }
 
 // Getters
@@ -44,7 +55,6 @@ bool Date::operator>(const Date &other) const
 }
 Date Date::operator+(const int days) const
 {
-    //handle all date addition logic here, considering month/year overflow,simplification not allowed
     Date newDate = *this;
     newDate.day += days;
     bool flag = false;
@@ -62,6 +72,12 @@ Date Date::operator+(const int days) const
         }
     }
     return newDate;
+}
+std::ostream& operator<<(std::ostream &os, const Date &date)
+{
+    os << date.year << '-' << (date.month < 10 ? "0" : "") << date.month
+       << '-' << (date.day < 10 ? "0" : "") << date.day;
+    return os;
 }
 
 //Assistant functions
