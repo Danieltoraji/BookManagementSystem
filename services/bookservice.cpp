@@ -4,6 +4,7 @@
 BookService& BookService::getInstance()
 {
 	static BookService instance;
+    instance.readBooksFromFile();
 	return instance;
 }
 

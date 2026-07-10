@@ -10,6 +10,7 @@ loanService::loanService() {}
 
  loanService& loanService::getInstance(){
     static loanService instance;
+    instance.readLoansFromFile();
     return instance;
 }
 

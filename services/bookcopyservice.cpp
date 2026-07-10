@@ -13,6 +13,7 @@ bookCopyService::bookCopyService() {}
 bookCopyService& bookCopyService::getInstance()
 {
     static bookCopyService instance;
+    instance.readBookCopiesFromFile();
     return instance;
 }
 

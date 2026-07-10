@@ -7,6 +7,7 @@
 userService& userService::getInstance()
 {
     static userService instance;
+    instance.readUsersFromFile();
     return instance;
 }
 
