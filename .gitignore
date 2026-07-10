@@ -1,0 +1,57 @@
+# This file is used to ignore files which are generated
+# ----------------------------------------------------------------------------
+
+*~
+*.autosave
+*.a
+*.core
+*.o
+*.obj
+*.orig
+*.rej
+*.so
+*.so.*
+core
+!core/
+tags
+.DS_Store
+.directory
+*.debug
+Thumbs.db
+
+# Vim temporary files
+.*.swp
+
+# Visual Studio generated files
+*.ib_pdb_index
+*.idb
+*.ilk
+*.pdb
+*.suo
+*.ncb
+*.sdf
+*.opensdf
+.vs/
+
+# MinGW generated files
+*.Debug
+*.Release
+
+# Python byte code
+*.pyc
+
+# Binaries
+# --------
+*.dll
+*.exe
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+CMakeUserPresets.json
+
+# Build directories
+/build*/
+/out/
