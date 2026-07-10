@@ -121,7 +121,6 @@ void App::doRegister()
     }
 
     if (userService::getInstance().addPatron(id, username, phone, email, password)) {
-        userService::getInstance().writeUsersToFile();
         std::cout << "注册成功！请登录使用系统。" << std::endl;
     } else {
         std::cout << "注册失败，请重试。" << std::endl;

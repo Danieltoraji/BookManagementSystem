@@ -6,11 +6,13 @@
 #include "dao/loandao.h"
 
 
-loanService::loanService() {}
+loanService::loanService()
+{
+    readLoansFromFile();
+}
 
- loanService& loanService::getInstance(){
+loanService& loanService::getInstance(){
     static loanService instance;
-    instance.readLoansFromFile();
     return instance;
 }
 

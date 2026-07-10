@@ -8,12 +8,14 @@
 #include <vector>
 
 
-bookCopyService::bookCopyService() {}
+bookCopyService::bookCopyService()
+{
+    readBookCopiesFromFile();
+}
 
 bookCopyService& bookCopyService::getInstance()
 {
     static bookCopyService instance;
-    instance.readBookCopiesFromFile();
     return instance;
 }
 

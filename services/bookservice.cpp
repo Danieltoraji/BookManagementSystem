@@ -4,11 +4,13 @@
 BookService& BookService::getInstance()
 {
 	static BookService instance;
-    instance.readBooksFromFile();
 	return instance;
 }
 
-BookService::BookService() {}
+BookService::BookService()
+{
+	readBooksFromFile();
+}
 bool BookService::readBooksFromFile()
 {
     books = BookDao::getInstance().loadBooksFromFile("data/books.txt");

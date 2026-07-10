@@ -7,11 +7,13 @@
 userService& userService::getInstance()
 {
     static userService instance;
-    instance.readUsersFromFile();
     return instance;
 }
 
-userService::userService() {}
+userService::userService()
+{
+    readUsersFromFile();
+}
 
 bool userService::readUsersFromFile()
 {
