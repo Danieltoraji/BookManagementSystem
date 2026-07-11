@@ -4,18 +4,18 @@
 #include <algorithm>
 #include <cstdio>
 
-userService& userService::getInstance()
+UserService& UserService::getInstance()
 {
-    static userService instance;
+    static UserService instance;
     return instance;
 }
 
-userService::userService()
+UserService::UserService()
 {
     readUsersFromFile();
 }
 
-bool userService::readUsersFromFile()
+bool UserService::readUsersFromFile()
 {
     // 释放旧数据
     for (User* user : users) {
@@ -27,17 +27,17 @@ bool userService::readUsersFromFile()
     return !users.empty();
 }
 
-bool userService::writeUsersToFile() const
+bool UserService::writeUsersToFile() const
 {
     return UserDao::getInstance().saveUsersToFile("data/users.txt", users);
 }
 
-std::vector<User*> userService::getAllUsers() const
+std::vector<User*> UserService::getAllUsers() const
 {
     return users;
 }
 
-bool userService::addPatron(const std::string& id, const std::string& username, const std::string& phone,
+bool UserService::addPatron(const std::string& id, const std::string& username, const std::string& phone,
                             const std::string& email, const std::string& plainPassword, int borrowLimit)
 {
     if (getUserById(id)) {
@@ -50,7 +50,7 @@ bool userService::addPatron(const std::string& id, const std::string& username, 
     return true;
 }
 
-bool userService::addAdmin(const std::string& id, const std::string& username, const std::string& phone,
+bool UserService::addAdmin(const std::string& id, const std::string& username, const std::string& phone,
                            const std::string& email, const std::string& plainPassword)
 {
     if (getUserById(id)) {
@@ -63,7 +63,7 @@ bool userService::addAdmin(const std::string& id, const std::string& username, c
     return true;
 }
 
-bool userService::removeUser(const std::string& id)
+bool UserService::removeUser(const std::string& id)
 {
     auto it = std::find_if(users.begin(), users.end(),
     [&](User* u) { return u->getId() == id; });
@@ -77,7 +77,7 @@ bool userService::removeUser(const std::string& id)
     return true;
 }
 
-bool userService::updatePatron(const std::string& id, const std::string& username, const std::string& phone,
+bool UserService::updatePatron(const std::string& id, const std::string& username, const std::string& phone,
                                const std::string& email, const std::string& plainPassword, int borrowLimit)
 {
     auto it = std::find_if(users.begin(), users.end(), [&](User* u) {
@@ -94,7 +94,7 @@ bool userService::updatePatron(const std::string& id, const std::string& usernam
     return true;
 }
 
-bool userService::updateAdmin(const std::string& id, const std::string& username, const std::string& phone,
+bool UserService::updateAdmin(const std::string& id, const std::string& username, const std::string& phone,
                               const std::string& email, const std::string& plainPassword)
 {
     auto it = std::find_if(users.begin(), users.end(), [&](User* u) {
@@ -111,7 +111,7 @@ bool userService::updateAdmin(const std::string& id, const std::string& username
     return true;
 }
 
-User* userService::getUserById(const std::string& id) const
+User* UserService::getUserById(const std::string& id) const
 {
     auto it = std::find_if(users.begin(), users.end(),
     [&](User* u) { return u->getId() == id; });
@@ -122,7 +122,7 @@ User* userService::getUserById(const std::string& id) const
     return nullptr;
 }
 
-User* userService::getUserByUsername(const std::string& username) const
+User* UserService::getUserByUsername(const std::string& username) const
 {
     auto it = std::find_if(users.begin(), users.end(),
     [&](User* u) { return u->getUsername() == username; });
@@ -133,7 +133,7 @@ User* userService::getUserByUsername(const std::string& username) const
     return nullptr;
 }
 
-std::string userService::encryptPassword(const std::string& password, const std::string& key) const
+std::string UserService::encryptPassword(const std::string& password, const std::string& key) const
 {
     // 这里采用了异或加密，key是用户的 id，保证每个用户的密码加密方式不同。
     // 然后为了防止.txt打不开，将结果转换为十六进制字符串存储。
@@ -148,7 +148,7 @@ std::string userService::encryptPassword(const std::string& password, const std:
     return hex;
 }
 
-std::string userService::decryptPassword(const std::string& encryptedPassword, const std::string& key) const
+std::string UserService::decryptPassword(const std::string& encryptedPassword, const std::string& key) const
 {
     // 从十六进制字符串还原 XOR 结果，再异或解密
     std::string decrypted;
@@ -160,7 +160,7 @@ std::string userService::decryptPassword(const std::string& encryptedPassword, c
     return decrypted;
 }
 
-User* userService::authenticate(const std::string& id, const std::string& password) const
+User* UserService::authenticate(const std::string& id, const std::string& password) const
 {
     User* user = getUserById(id);
     if (user && encryptPassword(password, user->getId()) == user->getPassword()) {

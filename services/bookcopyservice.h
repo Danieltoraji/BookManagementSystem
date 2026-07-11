@@ -24,7 +24,7 @@ public:
 
     std::vector<BookCopy> getAllBookCopies() const;
     std::vector<BookCopy> getBookCopiesByISBN(const std::string& isbn) const;
-    std::vector<BookCopy> getBookCopiesByLibCode(const std::string& libCode) const;
+    BookCopy* getBookCopyByLibCode(const std::string& libCode) const;
     std::vector<BookCopy> getBookCopiesByLocation(const std::string& lib = "", const short floor = 0, const short row = 0,
          const short unit = 0, const short level = 0) const;
 

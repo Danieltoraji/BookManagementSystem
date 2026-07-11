@@ -38,6 +38,10 @@ public:
     void setDueDate(const Date &value);
     void setReturnDate(const Date &value);
     void setIsReturned(bool value);
+
+    // 时间相关方法
+    bool isOverdue() const;       // 是否逾期（未归还且当前日期超过应还日期）
+    int getOverdueDays() const;   // 逾期天数（未逾期或已归还返回0）
 };
 
 #endif // LOAN_H

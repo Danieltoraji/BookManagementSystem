@@ -17,6 +17,9 @@ private:
     void searchBooks();
     void displayAllBooks();
     void readFromFile();
+    void searchCopies();
+    void borrowBook();
+    void returnBook();
 
     // 辅助：构造搜索条件
     void buildSearchQuery(searchQuery &query);

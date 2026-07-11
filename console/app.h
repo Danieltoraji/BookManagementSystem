@@ -20,7 +20,7 @@ private:
     // 登录操作
     bool doLogin();
 
-    // 注册操作（调用 userService 添加新用户）
+    // 注册操作（调用 UserService 添加新用户）
     void doRegister();
 };
 

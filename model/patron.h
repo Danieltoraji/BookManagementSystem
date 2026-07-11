@@ -23,10 +23,6 @@ public:
     void setBorrowLimit(int limit);
     void setCurrentBorrowBooks(const std::list<std::string> &books);
 
-    // Business methods
-    std::string displayInfo();
-    std::list<std::string> getBorrowBooks();
-    bool canBorrow();
 };
 
 #endif // PATRON_H

@@ -1,6 +1,7 @@
 #include "date.h"
 #include <string>
 #include <sstream>
+#include <ctime>
 
 
 Date::Date(const short &year, const short &month, const short &day)
@@ -14,6 +15,20 @@ Date Date::fromString(const std::string &dateStr)
     char dash1, dash2;
     iss >> year >> dash1 >> month >> dash2 >> day;
     return Date(year, month, day);
+}
+
+Date Date::today()
+{
+    std::time_t t = std::time(nullptr);
+    std::tm now;
+#ifdef _MSC_VER
+    localtime_s(&now, &t);
+#else
+    now = *std::localtime(&t);
+#endif
+    return Date(static_cast<short>(now.tm_year + 1900),
+                static_cast<short>(now.tm_mon + 1),
+                static_cast<short>(now.tm_mday));
 }
 
 // Getters
@@ -78,6 +93,37 @@ std::ostream& operator<<(std::ostream &os, const Date &date)
     os << date.year << '-' << (date.month < 10 ? "0" : "") << date.month
        << '-' << (date.day < 10 ? "0" : "") << date.day;
     return os;
+}
+
+std::string Date::toString() const
+{
+    std::ostringstream oss;
+    oss << *this;
+    return oss.str();
+}
+
+bool Date::operator<=(const Date &other) const
+{
+    return !(*this > other);
+}
+bool Date::operator>=(const Date &other) const
+{
+    return !(*this < other);
+}
+
+int Date::operator-(const Date &other) const
+{
+    return static_cast<int>(this->toJulianDay() - other.toJulianDay());
+}
+
+long Date::toJulianDay() const
+{
+    // 儼略日转换算法（Gregorian calendar）
+    // 参考: https://en.wikipedia.org/wiki/Julian_day#Converting_Gregorian_calendar_date_to_Julian_Day_Number
+    long a = (14 - month) / 12;
+    long y = year + 4800 - a;
+    long m = month + 12 * a - 3;
+    return day + (153 * m + 2) / 5 + 365 * y + y / 4 - y / 100 + y / 400 - 32045;
 }
 
 //Assistant functions

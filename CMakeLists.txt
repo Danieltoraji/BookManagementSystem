@@ -28,6 +28,7 @@ set(SOURCES
     services/bookservice.cpp
     services/bookcopyservice.cpp
     services/loanservice.cpp
+    services/timeservice.cpp
     services/userservice.cpp
     dao/bookdao.cpp
     dao/bookcopydao.cpp

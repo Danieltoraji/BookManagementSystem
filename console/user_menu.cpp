@@ -9,7 +9,9 @@ void UserMenu::show()
     std::vector<std::string> options = {
         "搜索图书",
         "显示所有图书",
-        "从文件读取图书",
+        "搜索图书副本",
+        "借阅指定图书",
+        "归还指定图书",
         "退出登录"
     };
 
@@ -18,8 +20,11 @@ void UserMenu::show()
         switch (choice) {
             case 1: searchBooks(); break;
             case 2: displayAllBooks(); break;
-            case 3: readFromFile(); break;
-            case 4: return;
+            case 3: searchCopies(); break;
+            case 4: borrowBook(); break;
+            case 5: returnBook(); break;
+            case 6: return; // 退出登录
+            default: std::cout << "无效的选择，请重新输入。" << std::endl;break;
         }
     }
 }
@@ -95,7 +100,7 @@ void UserMenu::printBooks(const std::vector<Book> &books)
 
     printSeparator('=');
     std::cout << std::left
-              << std::setw(15) << "ISBN"
+              << std::setw(18) << "ISBN"
               << std::setw(25) << "标题"
               << std::setw(15) << "作者"
               << std::setw(20) << "出版社"
@@ -115,7 +120,7 @@ void UserMenu::printBooks(const std::vector<Book> &books)
         }
 
         std::cout << std::left
-                  << std::setw(15) << b.getISBN()
+                  << std::setw(18) << b.getISBN()
                   << std::setw(25) << b.getTitle()
                   << std::setw(15) << b.getAuthor()
                   << std::setw(20) << b.getPublisher()

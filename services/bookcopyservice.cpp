@@ -73,15 +73,14 @@ std::vector<BookCopy> bookCopyService::getBookCopiesByISBN(const std::string& is
     }
     return result;
 }
-std::vector<BookCopy> bookCopyService::getBookCopiesByLibCode(const std::string& libCode) const
+BookCopy* bookCopyService::getBookCopyByLibCode(const std::string& libCode) const
 {
-    std::vector<BookCopy> result;
-    for(auto & bc : bookCopies){
+    for(const auto& bc : bookCopies){
         if(bc.getLibCode() == libCode){
-            result.push_back(bc);
+            return const_cast<BookCopy*>(&bc);
         }
     }
-    return result;
+    return nullptr;
 }
 std::vector<BookCopy> bookCopyService::getBookCopiesByLocation(const std::string& lib, const short floor, const short row,
      const short unit, const short level) const

@@ -10,14 +10,14 @@
 加密：add和update函数内部。加密方法：以用户ID为密钥的异或加密。
 密文：构造函数的形参，文件的存储，主存的数据。
 */
-class userService
+class UserService
 {
 public:
-    static userService& getInstance();
-    userService(const userService&) = delete;
-    userService& operator=(const userService&) = delete;
-    userService(userService&&) = delete;
-    userService& operator=(userService&&) = delete;
+    static UserService& getInstance();
+    UserService(const UserService&) = delete;
+    UserService& operator=(const UserService&) = delete;
+    UserService(UserService&&) = delete;
+    UserService& operator=(UserService&&) = delete;
 
     // 强制存写
     bool readUsersFromFile();
@@ -49,7 +49,7 @@ public:
     std::vector<User*> users;
     mutable User* currentUser = nullptr; // 当前登录用户
 private:
-    userService();
+    UserService();
 };
 
 #endif // USERSERVICE_H

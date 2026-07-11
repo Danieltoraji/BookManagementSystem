@@ -26,3 +26,15 @@ void Loan::setLoanDate(const Date &value) { loanDate = value; }
 void Loan::setDueDate(const Date &value) { dueDate = value; }
 void Loan::setReturnDate(const Date &value) { returnDate = value; }
 void Loan::setIsReturned(bool value) { isReturned = value; }
+
+// 时间相关方法
+bool Loan::isOverdue() const
+{
+    return !isReturned && Date::today() > dueDate;
+}
+
+int Loan::getOverdueDays() const
+{
+    if (!isOverdue()) return 0;
+    return Date::today() - dueDate;
+}

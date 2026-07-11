@@ -232,3 +232,9 @@ std::vector<const Book*> BookService::searchBooks(const searchQuery& query) cons
     }
     return result;
 }
+
+bool BookService::isBookValid(const std::string& isbn) const {
+    auto it = std::find_if(books.begin(), books.end(),
+                           [&](const Book& b) { return b.getISBN() == isbn; });
+    return it != books.end();
+}

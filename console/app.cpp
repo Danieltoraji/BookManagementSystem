@@ -15,7 +15,7 @@ void App::run()
             break;
         }
         // 根据角色分发菜单
-        User *user = userService::getInstance().currentUser;
+        User *user = UserService::getInstance().currentUser;
         if (!user) {
             std::cout << "登录状态异常，请重新登录。" << std::endl;
             continue;
@@ -30,7 +30,7 @@ void App::run()
         }
 
         // 退出菜单后清除当前用户
-        userService::getInstance().currentUser = nullptr;
+        UserService::getInstance().currentUser = nullptr;
     }
     std::cout << "感谢使用图书管理系统，再见！" << std::endl;
 }
@@ -86,9 +86,9 @@ bool App::doLogin()
     std::string username = MenuBase::readLine("请输入用户名: ");
     std::string password = MenuBase::readLine("请输入密码: ");
 
-    User *user = userService::getInstance().authenticate(username, password);
+    User *user = UserService::getInstance().authenticate(username, password);
     if (user) {
-        userService::getInstance().currentUser = user;
+        UserService::getInstance().currentUser = user;
         std::cout << "登录成功！欢迎，" << user->getUsername() << "。" << std::endl;
         MenuBase::pause();
         return true;
@@ -114,13 +114,13 @@ void App::doRegister()
         return;
     }
 
-    if (userService::getInstance().getUserById(id)) {
+    if (UserService::getInstance().getUserById(id)) {
         std::cout << "该用户ID已存在，注册失败。" << std::endl;
         MenuBase::pause();
         return;
     }
 
-    if (userService::getInstance().addPatron(id, username, phone, email, password)) {
+    if (UserService::getInstance().addPatron(id, username, phone, email, password)) {
         std::cout << "注册成功！请登录使用系统。" << std::endl;
     } else {
         std::cout << "注册失败，请重试。" << std::endl;
