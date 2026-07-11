@@ -13,7 +13,7 @@ private:
     long toJulianDay() const; // 转为儒略日编号，用于日期差值计算
 
 public:
-    Date(const short &year, const short &month, const short &day);
+    Date(const short &year = 0, const short &month = 0, const short &day = 0);
     static Date fromString(const std::string &dateStr);
     static Date today(); // 获取当前系统日期
 

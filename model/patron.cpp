@@ -10,6 +10,7 @@ Patron::Patron(const std::string &id, const std::string &username, const std::st
 // Getters
 int Patron::getBorrowLimit() const { return borrowLimit; }
 std::list<std::string> Patron::getCurrentBorrowBooks() const { return currentBorrowBooks; }
+std::list<std::string>& Patron::getCurrentBorrowBooks() { return currentBorrowBooks; }
 // Setters
 void Patron::setBorrowLimit(int limit) { borrowLimit = limit; }
 void Patron::setCurrentBorrowBooks(const std::list<std::string> &books) { currentBorrowBooks = books; }

@@ -18,6 +18,7 @@ public:
     // Getters
     int getBorrowLimit() const;
     std::list<std::string> getCurrentBorrowBooks() const;
+    std::list<std::string>& getCurrentBorrowBooks();
 
     // Setters
     void setBorrowLimit(int limit);
