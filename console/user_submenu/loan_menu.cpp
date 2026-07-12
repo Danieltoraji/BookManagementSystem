@@ -73,6 +73,11 @@ void LoanMenu::borrowBook() {
     std::string libCode = readLine("请输入图书副本编号: ");
 
     User* user = UserService::getInstance().getCurrentUser();
+    if (!user) {
+        std::cout << "未登录用户，无法借阅图书。" << std::endl;
+        pause();
+        return;
+    }
     std::string userId = user ? user->getId() : "";
     BookCopy* copy = bookCopyService::getInstance().getBookCopyByLibCode(libCode);
     std::string ISBN = copy ? copy->getISBN() : "";
@@ -103,7 +108,12 @@ void LoanMenu::renewBook() {
     std::string libCode = readLine("请输入图书副本编号: ");
 
     User* user = UserService::getInstance().getCurrentUser();
-    std::string userId = user ? user->getId() : "";
+    if (!user) {
+        std::cout << "未登录用户，无法续借图书。" << std::endl;
+        pause();
+        return;
+    }
+    std::string userId = user->getId();
     BookCopy* copy = bookCopyService::getInstance().getBookCopyByLibCode(libCode);
     std::string ISBN = copy ? copy->getISBN() : "";
     std::string errorMessage;
@@ -124,7 +134,12 @@ void LoanMenu::returnBook() {
     std::string libCode = readLine("请输入图书副本编号: ");
 
     User* user = UserService::getInstance().getCurrentUser();
-    std::string userId = user ? user->getId() : "";
+    if (!user) {
+        std::cout << "未登录用户，无法归还图书。" << std::endl;
+        pause();
+        return;
+    }
+    std::string userId = user->getId();
     BookCopy* copy = bookCopyService::getInstance().getBookCopyByLibCode(libCode);
     std::string ISBN = copy ? copy->getISBN() : "";
     std::string errorMessage;
