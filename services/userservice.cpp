@@ -78,7 +78,7 @@ bool UserService::removeUser(const std::string& id)
 }
 
 bool UserService::updatePatron(const std::string& id, const std::string& username, const std::string& phone,
-                               const std::string& email, const std::string& plainPassword, int borrowLimit)
+                               const std::string& email, int borrowLimit)
 {
     auto it = std::find_if(users.begin(), users.end(), [&](User* u) {
         return u->getId() == id;
@@ -88,8 +88,22 @@ bool UserService::updatePatron(const std::string& id, const std::string& usernam
         return false;
     }
     delete *it;
+    *it = new Patron(id, username, phone, email, (*it)->getPassword(), borrowLimit);
+    writeUsersToFile();
+    return true;
+}
+
+bool UserService::updatePatronPassword(const std::string& id, const std::string& plainPassword)
+{
+    auto it = std::find_if(users.begin(), users.end(), [&](User* u) {
+        return u->getId() == id;
+    });
+
+    if (it == users.end()) {
+        return false;
+    }
     std::string encrypted = encryptPassword(plainPassword, id);
-    *it = new Patron(id, username, phone, email, encrypted, borrowLimit);
+    (*it)->setPassword(encrypted);
     writeUsersToFile();
     return true;
 }

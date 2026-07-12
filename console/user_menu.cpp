@@ -18,10 +18,8 @@ void UserMenu::show()
         switch (choice) {
             case 1: SearchInfoMenu().show(); break;
             case 2: LoanMenu().show(); break;
-            //case 3: searchCopies(); break;
-            //case 4: borrowBook(); break;
-            //case 5: returnBook(); break;
-            case 4: return; // 退出登录
+            case 3: PersonalInfoMenu().show(); break;
+            case 4: return; // 退出登录，返回上级菜单
             default: std::cout << "无效的选择，请重新输入。" << std::endl;break;
         }
         
