@@ -37,7 +37,10 @@ set(SOURCES
 )
 
 # 可执行目标
-add_executable(BookManagementSystem ${SOURCES})
+add_executable(BookManagementSystem ${SOURCES}
+    console/user_submenu/search_info_menu.cpp
+    console/user_submenu/loan_menu.cpp
+    console/user_submenu/personal_info_menu.cpp)
 
 # 包含目录
 target_include_directories(BookManagementSystem PRIVATE
