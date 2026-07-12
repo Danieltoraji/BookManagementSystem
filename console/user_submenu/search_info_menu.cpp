@@ -1,39 +1,114 @@
-#include "user_menu.h"
+#include "search_info_menu.h"
 #include "services/bookservice.h"
+#include "services/bookcopyservice.h"
+#include "model/location.h"
 #include <iostream>
+#include <vector>
+#include <string>
 #include <iomanip>
-#include <sstream>
 
-void UserMenu::show()
+void SearchInfoMenu::show()
 {
     std::vector<std::string> options = {
-        "图书查找和搜索",
-        "图书借还"
-        "个人信息管理",
-
         "显示所有图书",
         "搜索馆藏图书",
         "搜索图书副本",
-        "借阅指定图书",
-        "归还指定图书",
-        "退出登录"
+        "查看本馆书架",
+        "返回上级菜单"
     };
 
     while (true) {
-        int choice = displayMenu("用户系统", options);
+        int choice = displayMenu("搜索图书", options);
         switch (choice) {
-            //case 1: displayAllBooks(); break;
-            //case 2: searchBooks(); break;
-            //case 3: searchCopies(); break;
-            //case 4: borrowBook(); break;
-            //case 5: returnBook(); break;
-            case 6: return; // 退出登录
+            case 1: displayAllBooks(); break;
+            case 2: searchBooks(); break;
+            case 3: searchCopies(); break;
+            case 4: viewShelves(); break;
+            case 5: return; // 返回上级菜单
             default: std::cout << "无效的选择，请重新输入。" << std::endl;break;
         }
     }
 }
 
-void UserMenu::buildSearchQuery(searchQuery &query)
+//功能函数
+void SearchInfoMenu::displayAllBooks(){
+    std::cout << "\n=== 显示所有图书 ===" << std::endl;
+    auto books = BookService::getInstance().getAllBooks();
+    printBooks(books);
+}
+
+void SearchInfoMenu::searchBooks()
+{
+    std::cout << "\n=== 搜索图书 ===" << std::endl;
+    searchQuery query;
+    query.field1 = searchQuery::Field::Empty;
+    query.condition1 = searchQuery::Condition::Equals;
+    query.logic = searchQuery::Logic::And;
+    query.field2 = searchQuery::Field::Empty;
+    query.condition2 = searchQuery::Condition::Equals;
+
+    buildSearchQuery(query);
+
+    auto results = BookService::getInstance().searchBooks(query);
+    std::vector<Book> books;
+    books.reserve(results.size());
+    for (const Book *b : results) {
+        if (b)
+            books.push_back(*b);
+    }
+    printBooks(books);
+    pause();
+}
+
+void SearchInfoMenu::searchCopies()
+{
+    std::cout << "\n=== 搜索图书副本 ===" << std::endl;
+    std::string isbn = readLine("请输入图书ISBN: ");
+    auto copies = bookCopyService::getInstance().getBookCopiesByISBN(isbn);
+    if (copies.empty()) {
+        std::cout << "没有找到该ISBN的图书副本。" << std::endl;
+    } else {
+        std::cout << "找到 " << copies.size() << " 个副本：" << std::endl;
+        for (const auto &copy : copies) {
+            std::cout << "副本编号: " << copy.getLibCode() 
+                      << ", 位置: " << copy.getBookLocation() 
+                      << ", 状态: " << copy.getStatus() 
+                      << std::endl;
+        }
+    }
+    pause();
+}
+
+void SearchInfoMenu::viewShelves()
+{
+    std::cout << "\n=== 查看本馆书架 ===" << std::endl;
+    std::cout << "任一项不输入则代表不指定该项以及后续项" << std::endl;
+    std::string lib = "";
+    short floor = 0;
+    short row = 0;
+    short unit = 0;
+    short level = 0;
+    lib = readLine("请输入图书馆代码: ");
+    if (!lib.empty()) {
+        floor = readInt("请输入楼层号: ");
+        if (floor){
+            row = readInt("请输入书架号: ");
+            if (row){
+                unit = readInt("请输入单元号: ");
+                if (unit){
+                    level = readInt("请输入层号: ");
+                }
+            }
+        }
+    }
+    auto copies = bookCopyService::getInstance().getBookCopiesByLocation(lib, floor, row, unit, level);
+    printSeparator('=');
+    std::cout << "找到 " << copies.size() << " 个副本：" << std::endl;
+    printBookCopies(copies);
+}
+
+//辅助函数
+void SearchInfoMenu::buildSearchQuery(searchQuery &query)
 {
     // 字段1
     std::cout << "\n--- 搜索条件1 ---" << std::endl;
@@ -95,7 +170,7 @@ void UserMenu::buildSearchQuery(searchQuery &query)
     }
 }
 
-void UserMenu::printBooks(const std::vector<Book> &books)
+void SearchInfoMenu::printBooks(const std::vector<Book> &books)
 {
     if (books.empty()) {
         std::cout << "没有找到图书。" << std::endl;
@@ -137,32 +212,28 @@ void UserMenu::printBooks(const std::vector<Book> &books)
     std::cout << "共 " << books.size() << " 本图书。" << std::endl;
 }
 
-void UserMenu::searchBooks()
+void SearchInfoMenu::printBookCopies(const std::vector<BookCopy> &bookCopies)
 {
-    std::cout << "\n=== 搜索图书 ===" << std::endl;
-    searchQuery query;
-    query.field1 = searchQuery::Field::Empty;
-    query.condition1 = searchQuery::Condition::Equals;
-    query.logic = searchQuery::Logic::And;
-    query.field2 = searchQuery::Field::Empty;
-    query.condition2 = searchQuery::Condition::Equals;
-
-    buildSearchQuery(query);
-
-    auto results = BookService::getInstance().searchBooks(query);
-    std::vector<Book> books;
-    books.reserve(results.size());
-    for (const Book *b : results) {
-        if (b)
-            books.push_back(*b);
+    if (bookCopies.empty()) {
+        std::cout << "没有找到图书副本。" << std::endl;
+        return;
     }
-    printBooks(books);
-    pause();
-}
 
-void UserMenu::displayAllBooks()
-{
-    std::cout << "\n=== 所有图书 ===" << std::endl;
-    printBooks(BookService::getInstance().getAllBooks());
-    pause();
+    printSeparator('=');
+    std::cout << std::left
+              << std::setw(18) << "ISBN"
+              << std::setw(12) << "副本编号"
+              << std::setw(20) << "位置"
+              << "状态" << std::endl;
+    printSeparator('-');
+
+    for (const auto &copy : bookCopies) {
+        std::cout << std::left
+                  << std::setw(18) << copy.getISBN()
+                  << std::setw(12) << copy.getLibCode()
+                  << std::setw(20) << copy.getBookLocation()
+                  << copy.getStatus() << std::endl;
+    }
+    printSeparator('=');
+    std::cout << "共 " << bookCopies.size() << " 个副本。" << std::endl;
 }
