@@ -27,6 +27,7 @@ public:
     // 借阅记录查询
     std::vector<Loan> getBorrowingBooksByUser(const std::string& userId);
     std::vector<Loan> getBorrowHistoryByUser(const std::string& userId);
+    std::vector<Loan> getBorrowHistoryByISBN(const std::string& ISBN);
 
     //统计信息
     int getTotalBorrowedBooks() const;//总借阅量

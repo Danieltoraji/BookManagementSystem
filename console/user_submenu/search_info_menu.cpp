@@ -201,11 +201,11 @@ void SearchInfoMenu::printBooks(const std::vector<Book> &books)
 
     for (const auto &b : books) {
         std::string copiesStr;
-        auto copies = b.getCopies();
+        auto copies = bookCopyService::getInstance().getBookCopiesByISBN(b.getISBN());
         for (auto it = copies.begin(); it != copies.end(); ++it) {
             if (it != copies.begin())
                 copiesStr += ", ";
-            copiesStr += *it;
+            copiesStr += it->getLibCode();
         }
 
         std::cout << std::left

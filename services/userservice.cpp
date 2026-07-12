@@ -169,3 +169,8 @@ User* UserService::authenticate(const std::string& id, const std::string& passwo
     }//先查找用户名，再比对加密后的密码对不对。加密密钥是用户id.
     return nullptr;
 }
+
+User* UserService::getCurrentUser() const
+{
+    return currentUser;
+}

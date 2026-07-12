@@ -176,7 +176,17 @@ std::vector<Loan> loanService::getBorrowingBooksByUser(const std::string& userId
 std::vector<Loan> loanService::getBorrowHistoryByUser(const std::string& userId) {
     std::vector<Loan> borrowHistory;
     for (const auto& loan : loans) {
-        if (loan.getUserId() == userId && loan.getIsReturned()) {
+        if (loan.getUserId() == userId) {
+            borrowHistory.push_back(loan);
+        }
+    }
+    return borrowHistory;
+}
+
+std::vector<Loan> loanService::getBorrowHistoryByISBN(const std::string& ISBN) {
+    std::vector<Loan> borrowHistory;
+    for (const auto& loan : loans) {
+        if (loan.getISBN() == ISBN) {
             borrowHistory.push_back(loan);
         }
     }

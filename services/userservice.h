@@ -44,7 +44,8 @@ public:
     User* authenticate(const std::string& id, const std::string& password) const;
     std::string encryptPassword(const std::string& password, const std::string& key) const;
     std::string decryptPassword(const std::string& encryptedPassword, const std::string& key) const;
-
+    User* getCurrentUser() const;
+    
     // 数据主存
     std::vector<User*> users;
     mutable User* currentUser = nullptr; // 当前登录用户
