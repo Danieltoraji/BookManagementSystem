@@ -21,6 +21,7 @@ void SearchInfoMenu::show()
             case 5: return; // 返回上级菜单
             default: std::cout << "无效的选择，请重新输入。" << std::endl;break;
         }
+        pause();
     }
 }
 
