@@ -43,6 +43,7 @@ public:
 
     // 图书搜索
     std::vector<const Book*> searchBooks(const searchQuery& query) const;
+    std::string getBookTitleByISBN(const std::string& isbn) const;
     bool isBookValid(const std::string& isbn) const;
 
     // 数据主存

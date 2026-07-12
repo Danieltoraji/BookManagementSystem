@@ -16,6 +16,7 @@ public:
     void show();
 private:
     void displayAllBooks();
+    void displayAllBookCopies();
     void searchBooks();
     void searchCopies();
     void viewShelves();

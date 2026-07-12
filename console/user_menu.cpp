@@ -21,7 +21,7 @@ void UserMenu::show()
             //case 3: searchCopies(); break;
             //case 4: borrowBook(); break;
             //case 5: returnBook(); break;
-            case 4: return; // 退出登录
+            case 3: return; // 退出登录
             default: std::cout << "无效的选择，请重新输入。" << std::endl;break;
         }
         

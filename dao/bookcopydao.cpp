@@ -49,7 +49,7 @@ BookCopy BookCopyDao::stringToBookCopy(const std::string& bookcopystr) const{
         loc.setUnit(std::stoi(locField));
         std::getline(locStream,locField,'-');
         loc.setLevel(std::stoi(locField));
-        bookcopy.setBookLocation(locField);
+        bookcopy.setBookLocation(loc);
         
         switch (fields[3][0]){
             case 'a':

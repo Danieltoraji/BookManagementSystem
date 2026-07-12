@@ -6,6 +6,7 @@ void SearchInfoMenu::show()
     std::vector<std::string> options = {
         "显示所有图书",
         "搜索馆藏图书",
+        "显示所有图书副本",
         "搜索图书副本",
         "查看本馆书架",
         "返回上级菜单"
@@ -16,12 +17,12 @@ void SearchInfoMenu::show()
         switch (choice) {
             case 1: displayAllBooks(); break;
             case 2: searchBooks(); break;
-            case 3: searchCopies(); break;
-            case 4: viewShelves(); break;
-            case 5: return; // 返回上级菜单
+            case 3: displayAllBookCopies(); break;
+            case 4: searchCopies(); break;
+            case 5: viewShelves(); break;
+            case 6: return; // 返回上级菜单
             default: std::cout << "无效的选择，请重新输入。" << std::endl;break;
         }
-        pause();
     }
 }
 
@@ -30,6 +31,14 @@ void SearchInfoMenu::displayAllBooks(){
     std::cout << "\n=== 显示所有图书 ===" << std::endl;
     auto books = BookService::getInstance().getAllBooks();
     printBooks(books);
+    pause();
+}
+
+void SearchInfoMenu::displayAllBookCopies(){
+    std::cout << "\n=== 显示所有图书副本 ===" << std::endl;
+    auto copies = bookCopyService::getInstance().getAllBookCopies();
+    printBookCopies(copies);
+    pause();
 }
 
 void SearchInfoMenu::searchBooks()
@@ -57,11 +66,19 @@ void SearchInfoMenu::searchCopies()
     if (copies.empty()) {
         std::cout << "没有找到该ISBN的图书副本。" << std::endl;
     } else {
+        std::cout << "书名: " << BookService::getInstance().getBookTitleByISBN(isbn) << std::endl;
         std::cout << "找到 " << copies.size() << " 个副本：" << std::endl;
         for (const auto &copy : copies) {
+            std::string statusStr;
+            switch (copy.getStatus()) {
+                case available:  statusStr = "可用";  break;
+                case borrowed:   statusStr = "借阅中";   break;
+                case cancelled:  statusStr = "已注销";  break;
+                default:         statusStr = "未知";    break;
+            }
             std::cout << "副本编号: " << copy.getLibCode() 
                       << ", 位置: " << copy.getBookLocation() 
-                      << ", 状态: " << copy.getStatus() 
+                      << ", 状态: " << statusStr 
                       << std::endl;
         }
     }
@@ -94,6 +111,7 @@ void SearchInfoMenu::viewShelves()
     printSeparator('=');
     std::cout << "找到 " << copies.size() << " 个副本：" << std::endl;
     printBookCopies(copies);
+    pause();
 }
 
 //辅助函数
@@ -157,6 +175,9 @@ void SearchInfoMenu::buildSearchQuery(searchQuery &query)
         }
         query.value2 = readLine("请输入搜索内容: ");
     }
+    else {
+        query.logic = searchQuery::Logic::And; // 默认逻辑关系为 AND
+    }
 }
 
 void SearchInfoMenu::printBooks(const std::vector<Book> &books)
@@ -212,16 +233,23 @@ void SearchInfoMenu::printBookCopies(const std::vector<BookCopy> &bookCopies)
     std::cout << std::left
               << std::setw(18) << "ISBN"
               << std::setw(12) << "副本编号"
-              << std::setw(20) << "位置"
+              << std::setw(10) << "位置"
               << "状态" << std::endl;
     printSeparator('-');
 
     for (const auto &copy : bookCopies) {
+        std::string statusStr;
+        switch (copy.getStatus()) {
+            case available:  statusStr = "可用";  break;
+            case borrowed:   statusStr = "借阅中";   break;
+            case cancelled:  statusStr = "已注销";  break;
+            default:         statusStr = "未知";    break;
+        }
         std::cout << std::left
                   << std::setw(18) << copy.getISBN()
                   << std::setw(12) << copy.getLibCode()
-                  << std::setw(20) << copy.getBookLocation()
-                  << copy.getStatus() << std::endl;
+                  << std::setw(10) << copy.getBookLocation()
+                  << statusStr << std::endl;
     }
     printSeparator('=');
     std::cout << "共 " << bookCopies.size() << " 个副本。" << std::endl;

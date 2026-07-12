@@ -22,13 +22,13 @@ bookCopyService& bookCopyService::getInstance()
 bool bookCopyService::readBookCopiesFromFile()
 {
     BookCopyDao& dao = BookCopyDao::getInstance();
-    bookCopies = dao.loadBookCopiesFromFile("bookcopies.txt");
+    bookCopies = dao.loadBookCopiesFromFile("data/bookcopies.txt");
     return !bookCopies.empty();
 }
 bool bookCopyService::writeBookCopiesToFile() const
 {
     BookCopyDao& dao = BookCopyDao::getInstance();
-    return dao.saveBookCopiesToFile("bookcopies.txt", bookCopies);
+    return dao.saveBookCopiesToFile("data/bookcopies.txt", bookCopies);
 }
 
 bool bookCopyService::addBookCopy(const BookCopy& bookcopy)
@@ -42,8 +42,8 @@ bool bookCopyService::removeBookCopy(const std::string& isbn, const std::string&
                              [&](const BookCopy& bc) { return bc.getISBN() == isbn && bc.getLibCode() == libCode; });
     if (it != bookCopies.end()) {
         bookCopies.erase(it, bookCopies.end());
-        return true;
         writeBookCopiesToFile(); // 自动更新文件
+        return true;
     }
     return false;
 }
@@ -53,8 +53,8 @@ bool bookCopyService::updateBookCopy(const std::string& isbn, const std::string&
                             [&](const BookCopy& bc) { return bc.getISBN() == isbn && bc.getLibCode() == libCode; });
     if (it != bookCopies.end()) {
         *it = bookcopy;
-        return true;
         writeBookCopiesToFile(); // 自动更新文件
+        return true;
     }
     return false;
 }

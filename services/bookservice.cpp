@@ -233,6 +233,15 @@ std::vector<const Book*> BookService::searchBooks(const searchQuery& query) cons
     return result;
 }
 
+std::string BookService::getBookTitleByISBN(const std::string& isbn) const {
+    auto it = std::find_if(books.begin(), books.end(),
+                           [&](const Book& b) { return b.getISBN() == isbn; });
+    if (it != books.end()) {
+        return it->getTitle();
+    }
+    return ""; // 如果未找到，返回空字符串
+}
+
 bool BookService::isBookValid(const std::string& isbn) const {
     auto it = std::find_if(books.begin(), books.end(),
                            [&](const Book& b) { return b.getISBN() == isbn; });

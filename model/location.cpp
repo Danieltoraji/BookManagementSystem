@@ -50,6 +50,6 @@ void Location::setLocation(const std::string &locFields){
 }
 
 std::ostream& operator<<(std::ostream& os, const Location &l){
-    os << l.lib << "," << l.floor << "," << l.row << "," << l.unit << "," << l.level;
+    os << l.lib << "," << l.floor << "层" << l.row << "排" << l.unit << "架" << l.level << "层";
     return os;
 }
