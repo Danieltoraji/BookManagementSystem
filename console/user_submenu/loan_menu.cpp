@@ -108,6 +108,8 @@ void LoanMenu::renewBook() {
     std::string ISBN = copy ? copy->getISBN() : "";
     std::string errorMessage;
 
+    std::cout << "书名为: " << BookService::getInstance().getBookTitleByISBN(ISBN) << std::endl;
+
     if (loanService::getInstance().renewBook(userId, ISBN, libCode, errorMessage)) {
         std::cout << "续借成功！" << std::endl;
     } else {
@@ -126,6 +128,8 @@ void LoanMenu::returnBook() {
     BookCopy* copy = bookCopyService::getInstance().getBookCopyByLibCode(libCode);
     std::string ISBN = copy ? copy->getISBN() : "";
     std::string errorMessage;
+
+    std::cout << "书名为: " << BookService::getInstance().getBookTitleByISBN(ISBN) << std::endl;
 
     if (loanService::getInstance().returnBook(userId, ISBN, libCode, errorMessage)) {
         std::cout << "归还成功！" << std::endl;
@@ -174,6 +178,7 @@ void LoanMenu::displayUserLoanHistory() {
 void LoanMenu::displayBookLoanHistory() {
     std::cout << "\n=== 图书借阅历史 ===" << std::endl;
     std::string ISBN = readLine("请输入图书ISBN: ");
+    std::cout << "书名: " << BookService::getInstance().getBookTitleByISBN(ISBN) << std::endl;
     auto loans = loanService::getInstance().getBorrowHistoryByISBN(ISBN);
     if (loans.empty()) {
         std::cout << "该图书没有借阅历史记录。" << std::endl;
@@ -189,6 +194,7 @@ void LoanMenu::printLoans(const std::vector<Loan>& loans) {
               << std::setw(10) << "借阅ID"
               << std::setw(15) << "副本编号"
               << std::setw(18) << "ISBN"
+              << std::setw(25) << "书名"
               << std::setw(20) << "借阅日期"
               << std::setw(20) << "到期日期"
               << std::setw(20) << "归还日期"
@@ -198,10 +204,12 @@ void LoanMenu::printLoans(const std::vector<Loan>& loans) {
 
     for (const auto& loan : loans) {
         std::string status = loan.getIsReturned() ? "已归还" : (loan.isOverdue() ? "逾期" : "借阅中");
+        std::string title = BookService::getInstance().getBookTitleByISBN(loan.getISBN());
         std::cout << std::left
                   << std::setw(10) << loan.getId()
                   << std::setw(15) << loan.getLibCode()
                   << std::setw(18) << loan.getISBN()
+                  << std::setw(25) << title
                   << std::setw(20) << loan.getLoanDate().toString()
                   << std::setw(20) << loan.getDueDate().toString()
                   << std::setw(20) << (loan.getIsReturned() ? loan.getReturnDate().toString() : "-")
