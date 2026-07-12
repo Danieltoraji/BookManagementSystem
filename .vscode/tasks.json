@@ -2,6 +2,24 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "CMake Build (Incremental)",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "${workspaceFolder}/build",
+                "--config",
+                "Debug"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ]
+        },
+        {
             "label": "Clean CMake Cache",
             "type": "shell",
             "command": "if (Test-Path \"${workspaceFolder}/build/CMakeCache.txt\") { Remove-Item \"${workspaceFolder}/build/CMakeCache.txt\" -Force }",
@@ -27,7 +45,14 @@
             "problemMatcher": []
         },
         {
-            "label": "CMake Build",
+            "label": "Clean Build Directory",
+            "type": "shell",
+            "command": "if (Test-Path \"${workspaceFolder}/build\") { Remove-Item \"${workspaceFolder}/build\" -Recurse -Force }",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "CMake Rebuild (Clean)",
             "type": "shell",
             "command": "cmake",
             "args": [
@@ -36,11 +61,12 @@
                 "--config",
                 "Debug"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": false
-            },
-            "dependsOn": "CMake Configure",
+            "group": "build",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Clean Build Directory",
+                "CMake Configure"
+            ],
             "problemMatcher": [
                 "$msCompile"
             ]
@@ -62,10 +88,7 @@
             "problemMatcher": [
                 "$gcc"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
+            "group": "build",
             "detail": "调试器生成的任务。"
         }
     ]

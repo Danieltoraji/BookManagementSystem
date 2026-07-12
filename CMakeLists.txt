@@ -47,9 +47,14 @@ target_include_directories(BookManagementSystem PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-# MSVC 编译选项：UTF-8 编码
+# MSVC 编译选项：UTF-8 编码、精确头文件依赖追踪、加速增量构建
 if(MSVC)
-    target_compile_options(BookManagementSystem PRIVATE /utf-8 /W3)
+    target_compile_options(BookManagementSystem PRIVATE
+        /utf-8
+        /W3
+        /sourceDependencies  # 输出 JSON 格式的源文件依赖信息，CMake 4.4 据此做精确增量构建
+        /Zf                  # 并行 PDB 生成，加速增量构建
+    )
 endif()
 
 # Debug/Release 配置

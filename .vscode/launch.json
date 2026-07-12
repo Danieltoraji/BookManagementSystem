@@ -11,7 +11,7 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
             "console": "integratedTerminal",
-            "preLaunchTask": "CMake Build"
+            "preLaunchTask": "CMake Build (Incremental)"
         },
         {
             "name": "(Windows) Launch Release",
