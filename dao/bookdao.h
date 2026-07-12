@@ -29,7 +29,6 @@ private:
 /*
 图书文件设计格式：
 每行一个图书信息，字段之间用|分隔
-ISBN|Title|Author|Publisher|PublishingYear|Category|Copies|Remarks
-其中Copies是list.
-978-7-121-12345-6|C++ Primer|Lippman|电子工业出版社|2020|编程|CP001,CP002,CP003|畅销书
+ISBN|Title|Author|Publisher|PublishingYear|Category|Remarks
+978-7-121-12345-6|C++ Primer|Lippman|电子工业出版社|2020|编程|畅销书
 */

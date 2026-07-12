@@ -5,6 +5,7 @@
 #include <vector>
 #include "model/book.h"
 #include "services/bookservice.h"
+#include "services/bookcopyservice.h"
 
 // 管理员菜单：图书搜索、显示、文件读写、增删
 class AdminMenu : public MenuBase

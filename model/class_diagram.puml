@@ -89,7 +89,6 @@ class Book {
   - Publisher : std::string
   - PublishingYear : int
   - Category : std::string
-  - Copies : std::list<std::string>
   --
   + Book()
   + getISBN() : std::string
@@ -98,16 +97,12 @@ class Book {
   + getPublisher() : std::string
   + getPublishingYear() : int
   + getCategory() : std::string
-  + getCopies() : std::list<std::string>
   + setISBN(string)
   + setTitle(string)
   + setAuthor(string)
   + setPublisher(string)
   + setPublishingYear(int)
   + setCategory(string)
-  + addCopy(libCode)
-  + removeCopy(libCode)
-  + hasCopy(libCode) : bool
 }
 
 class BookCopy {
@@ -193,12 +188,6 @@ User    "1" --{ "0..*" Borrow        : userId
 note top of BookCopy
   <b>libCode</b> is the unique identifier
   for each physical copy.
-end note
-
-note top of Book
-  <b>Copies</b> stores a list of
-  libCode strings referencing
-  individual BookCopy instances.
 end note
 
 note right of Loan

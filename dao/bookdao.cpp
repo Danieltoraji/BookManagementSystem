@@ -54,16 +54,7 @@ std::string BookDao::bookToString(const Book& book) const
 		   << book.getPublishingYear() << '|'
 		   << book.getCategory() << '|';
 
-	bool firstCopy = true;
-	for (const auto& copy : book.getCopies()) {
-		if (!firstCopy) {
-			stream << ',';
-		}
-		stream << copy;
-		firstCopy = false;
-	}
-
-	stream << '|' << book.getRemarks();
+	stream << book.getRemarks();
 	return stream.str();
 }
 
@@ -75,18 +66,11 @@ Book BookDao::stringToBook(const std::string& bookStr) const
     while (std::getline(bookStream,field,'|')){
         fields.push_back(field);
     }
-    if (fields.size() < 8) {
-		return Book("", "", "", "", 0, "", "" , {});
+    if (fields.size() < 7) {
+		return Book("", "", "", "", 0, "", "");
 	}
     
-    Book book(fields[0], fields[1], fields[2], fields[3], std::stoi(fields[4]), fields[5], fields[7], {});
-
-    std::stringstream copiesStream(fields[6]);
-    while (std::getline(copiesStream, field, ',')) {
-        if (!field.empty()) {
-            book.addCopy(field);
-        }
-    }
+    Book book(fields[0], fields[1], fields[2], fields[3], std::stoi(fields[4]), fields[5], fields[6]);
 
     return book;
 }

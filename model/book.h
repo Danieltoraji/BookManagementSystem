@@ -2,7 +2,6 @@
 #define BOOK_H
 
 #include <string>
-#include <list>
 
 class Book
 {
@@ -13,14 +12,13 @@ private:
     std::string Publisher;
     int PublishingYear;
     std::string Category;
-    std::list<std::string> Copies;
     std::string Remarks;
 
 public:
     // Initialization
     Book(const std::string &isbn = "", const std::string &title = "", const std::string &author = "",
          const std::string &publisher = "", int year = 0, const std::string &category = "",
-          const std::string &remarks = "", const std::list<std::string> &copies = {});
+          const std::string &remarks = "");
 
     // Getters
     std::string getISBN() const;
@@ -29,7 +27,6 @@ public:
     std::string getPublisher() const;
     int getPublishingYear() const;
     std::string getCategory() const;
-    std::list<std::string> getCopies() const;
     std::string getRemarks() const;
 
     // Setters
@@ -40,12 +37,6 @@ public:
     void setPublishingYear(int year);
     void setCategory(const std::string &value);
     void setRemarks(const std::string &value);
-
-    // Copy management
-    void setCopies(const std::list<std::string> &copies);
-    void addCopy(const std::string &libCode);
-    void removeCopy(const std::string &libCode);
-    bool hasCopy(const std::string &libCode) const;
 };
 
 #endif // BOOK_H
