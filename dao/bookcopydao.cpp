@@ -36,7 +36,21 @@ BookCopy BookCopyDao::stringToBookCopy(const std::string& bookcopystr) const{
     if(fields.size() == 4){
         bookcopy.setISBN(fields[0]);
         bookcopy.setLibCode(fields[1]);
-        bookcopy.setBookLocation(fields[2]);
+        std::istringstream locStream(fields[2]);
+        std::string locField;
+        Location loc;
+        std::getline(locStream,locField,'-');
+        loc.setLib(locField);
+        std::getline(locStream,locField,'-');
+        loc.setFloor(std::stoi(locField));
+        std::getline(locStream,locField,'-');
+        loc.setRow(std::stoi(locField));
+        std::getline(locStream,locField,'-');
+        loc.setUnit(std::stoi(locField));
+        std::getline(locStream,locField,'-');
+        loc.setLevel(std::stoi(locField));
+        bookcopy.setBookLocation(locField);
+        
         switch (fields[3][0]){
             case 'a':
                 bookcopy.setStatus(available);

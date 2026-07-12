@@ -1,11 +1,5 @@
 #include "search_info_menu.h"
-#include "services/bookservice.h"
-#include "services/bookcopyservice.h"
-#include "model/location.h"
-#include <iostream>
-#include <vector>
-#include <string>
-#include <iomanip>
+
 
 void SearchInfoMenu::show()
 {
@@ -41,12 +35,6 @@ void SearchInfoMenu::searchBooks()
 {
     std::cout << "\n=== 搜索图书 ===" << std::endl;
     searchQuery query;
-    query.field1 = searchQuery::Field::Empty;
-    query.condition1 = searchQuery::Condition::Equals;
-    query.logic = searchQuery::Logic::And;
-    query.field2 = searchQuery::Field::Empty;
-    query.condition2 = searchQuery::Condition::Equals;
-
     buildSearchQuery(query);
 
     auto results = BookService::getInstance().searchBooks(query);

@@ -16,18 +16,7 @@ public:
     void show();
 
 private:
-    // 菜单操作
-    void searchBooks();
-    void displayAllBooks();
-    //void searchCopies();
-    //void borrowBook();
-    //void returnBook();
 
-    // 辅助：构造搜索条件
-    void buildSearchQuery(searchQuery &query);
-
-    // 辅助：打印图书列表
-    void printBooks(const std::vector<Book> &books);
 };
 
 #endif // CONSOLE_USER_MENU_H
