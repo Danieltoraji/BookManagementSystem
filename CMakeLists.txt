@@ -40,7 +40,11 @@ set(SOURCES
 add_executable(BookManagementSystem ${SOURCES}
     console/user_submenu/search_info_menu.cpp
     console/user_submenu/loan_menu.cpp
-    console/user_submenu/personal_info_menu.cpp)
+    console/user_submenu/personal_info_menu.cpp
+    console/admin_submenu/user_monitor_menu.cpp
+    console/admin_submenu/book_monitor_menu.cpp
+    console/admin_submenu/bookcopy_monitor_menu.cpp
+    console/admin_submenu/loan_monitor_menu.cpp)
 
 # 包含目录
 target_include_directories(BookManagementSystem PRIVATE
