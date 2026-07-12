@@ -34,7 +34,8 @@ public:
                       const std::string& email, int borrowLimit = 5);
     bool updatePatronPassword(const std::string& id, const std::string& plainPassword);
     bool updateAdmin(const std::string& id, const std::string& username, const std::string& phone,
-                     const std::string& email, const std::string& plainPassword);
+                     const std::string& email);
+    bool updateAdminPassword(const std::string& id, const std::string& plainPassword);
 
     // 用户查询
 

@@ -87,8 +87,9 @@ bool UserService::updatePatron(const std::string& id, const std::string& usernam
     if (it == users.end()) {
         return false;
     }
+    std::string password = (*it)->getPassword();
     delete *it;
-    *it = new Patron(id, username, phone, email, (*it)->getPassword(), borrowLimit);
+    *it = new Patron(id, username, phone, email, password, borrowLimit);
     writeUsersToFile();
     return true;
 }
@@ -109,7 +110,7 @@ bool UserService::updatePatronPassword(const std::string& id, const std::string&
 }
 
 bool UserService::updateAdmin(const std::string& id, const std::string& username, const std::string& phone,
-                              const std::string& email, const std::string& plainPassword)
+                              const std::string& email)
 {
     auto it = std::find_if(users.begin(), users.end(), [&](User* u) {
         return u->getId() == id;
@@ -118,9 +119,24 @@ bool UserService::updateAdmin(const std::string& id, const std::string& username
     if (it == users.end()) {
         return false;
     }
+    std::string password = (*it)->getPassword();
     delete *it;
+    *it = new Admin(id, username, phone, email, password);
+    writeUsersToFile();
+    return true;
+}
+
+bool UserService::updateAdminPassword(const std::string& id, const std::string& plainPassword)
+{
+    auto it = std::find_if(users.begin(), users.end(), [&](User* u) {
+        return u->getId() == id;
+    });
+
+    if (it == users.end()) {
+        return false;
+    }
     std::string encrypted = encryptPassword(plainPassword, id);
-    *it = new Admin(id, username, phone, email, encrypted);
+    (*it)->setPassword(encrypted);
     writeUsersToFile();
     return true;
 }

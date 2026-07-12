@@ -89,8 +89,7 @@ void PersonalInfoMenu::changePassword() {
     std::string newPassword = readLine("请输入新密码: ");
     user->setPassword(UserService::getInstance().encryptPassword(newPassword, user->getId()));
 
-    if (UserService::getInstance().updatePatron(user->getId(), user->getUsername(), user->getPhone(),
-                                                user->getEmail(), user->getPassword())) {
+    if (UserService::getInstance().updatePatronPassword(user->getId(), newPassword)) {
         std::cout << "密码修改成功！" << std::endl;
     } else {
         std::cout << "密码修改失败！" << std::endl;
