@@ -102,6 +102,13 @@ std::string Date::toString() const
     return oss.str();
 }
 
+std::string Date::toYearMonthString() const
+{
+    std::ostringstream oss;
+    oss << year << '-' << (month < 10 ? "0" : "") << month;
+    return oss.str();
+}
+
 bool Date::operator<=(const Date &other) const
 {
     return !(*this > other);

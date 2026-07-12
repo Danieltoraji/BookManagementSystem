@@ -30,6 +30,7 @@ public:
 
     // Serialization
     std::string toString() const;
+    std::string toYearMonthString() const; // 返回 "年-月" 格式，如 "2026-07"
 
     // Operators
     bool operator==(const Date &other) const;

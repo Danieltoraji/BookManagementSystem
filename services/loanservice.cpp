@@ -115,6 +115,15 @@ bool loanService::renewBook(const std::string& userId, const std::string& ISBN, 
         return false;
     }
 
+    for (const auto& loan : loans) {
+        if (loan.getUserId() == userId && !loan.getIsReturned()) {
+            if (loan.isOverdue()) {
+                errorMessage = "用户有未归还的逾期书籍";
+                return false;
+            }
+        }
+    }
+
     // 续借操作
     Date newDueDate = TimeService::getInstance().calculateRenewedDueDate(it->getDueDate());
     it->setDueDate(newDueDate);
@@ -226,7 +235,7 @@ std::map<std::string, int> loanService::getMostActiveUsers(int topN) const{
 std::map<std::string, int> loanService::getTotalBorrowVSMonth() const{
     std::map<std::string, int> monthCount;
     for (const auto& loan : loans) {
-        monthCount[loan.getLoanDate().toString()]++;
+        monthCount[loan.getLoanDate().toYearMonthString()]++;
     }
     return monthCount;
 }
@@ -235,7 +244,7 @@ std::map<std::string, int> loanService::getUserBorrowVSMonth(const std::string& 
     std::map<std::string, int> monthCount;
     for (const auto& loan : loans) {
         if (loan.getUserId() == userId) {
-            monthCount[loan.getLoanDate().toString()]++;
+            monthCount[loan.getLoanDate().toYearMonthString()]++;
         }
     }
     return monthCount;
