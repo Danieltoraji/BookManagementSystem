@@ -2,6 +2,13 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Clean CMake Cache",
+            "type": "shell",
+            "command": "if (Test-Path \"${workspaceFolder}/build/CMakeCache.txt\") { Remove-Item \"${workspaceFolder}/build/CMakeCache.txt\" -Force }",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
             "label": "CMake Configure",
             "type": "shell",
             "command": "cmake",
@@ -16,6 +23,7 @@
                 "x64"
             ],
             "group": "build",
+            "dependsOn": "Clean CMake Cache",
             "problemMatcher": []
         },
         {
