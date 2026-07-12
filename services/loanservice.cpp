@@ -1,5 +1,7 @@
 #include "loanservice.h"
 #include <algorithm>
+#include <map>
+#include <vector>
 #include "bookservice.h"
 #include "userservice.h"
 #include "bookcopyservice.h"
@@ -159,4 +161,72 @@ bool loanService::returnBook(const std::string& userId, const std::string& ISBN,
 
     writeLoansToFile();
     return true;
+}
+
+std::vector<Loan> loanService::getBorrowingBooksByUser(const std::string& userId) {
+    std::vector<Loan> borrowingLoans;
+    for (const auto& loan : loans) {
+        if (loan.getUserId() == userId && !loan.getIsReturned()) {
+            borrowingLoans.push_back(loan);
+        }
+    }
+    return borrowingLoans;
+}
+
+std::vector<Loan> loanService::getBorrowHistoryByUser(const std::string& userId) {
+    std::vector<Loan> borrowHistory;
+    for (const auto& loan : loans) {
+        if (loan.getUserId() == userId && loan.getIsReturned()) {
+            borrowHistory.push_back(loan);
+        }
+    }
+    return borrowHistory;
+}
+
+int loanService::getTotalBorrowedBooks() const {
+    return loans.size();
+}
+
+int loanService::getTotalBorrowingBooks() const {
+    return std::count_if(loans.begin(), loans.end(), [](const Loan& loan) {
+        return !loan.getIsReturned();
+    });
+}
+
+std::map<std::string, int> loanService::getMostBorrowedBooks(int topN) const {
+    std::map<std::string, int> bookCount;
+    for (const auto& loan : loans) {
+        if (!loan.getIsReturned()) {
+            bookCount[loan.getISBN()]++;
+        }
+    }
+    return bookCount;
+}
+
+std::map<std::string, int> loanService::getMostActiveUsers(int topN) const{
+    std::map<std::string, int> userCount;
+    for (const auto& loan : loans) {
+        if (!loan.getIsReturned()) {
+            userCount[loan.getUserId()]++;
+        }
+    }
+    return userCount;
+}
+
+std::map<std::string, int> loanService::getTotalBorrowVSMonth() const{
+    std::map<std::string, int> monthCount;
+    for (const auto& loan : loans) {
+        monthCount[loan.getLoanDate().toString()]++;
+    }
+    return monthCount;
+}
+
+std::map<std::string, int> loanService::getUserBorrowVSMonth(const std::string& userId) const{
+    std::map<std::string, int> monthCount;
+    for (const auto& loan : loans) {
+        if (loan.getUserId() == userId) {
+            monthCount[loan.getLoanDate().toString()]++;
+        }
+    }
+    return monthCount;
 }
