@@ -172,7 +172,13 @@ void BookMonitorMenu::displayAllBooks()
 void BookMonitorMenu::searchByISBN()
 {
     std::cout << "\n=== 按ISBN查询图书 ===" << std::endl;
-    std::cout << "此功能待实现。" << std::endl;
+    std::string isbn = readLine("请输入ISBN: ");
+    Book book = BookService::getInstance().getBookByISBN(isbn);
+    if (book.getISBN().empty()) {
+        std::cout << "未找到该ISBN的图书。" << std::endl;
+    } else {
+        printBooks({book});
+    }
     pause();
 }
 
@@ -181,11 +187,11 @@ void BookMonitorMenu::addBook()
     std::cout << "\n=== 添加图书 ===" << std::endl;
     std::string isbn = readLine("请输入ISBN: ");
     std::string title = readLine("请输入书名: ");
-    std::string author = readLine("请输入作者: ");
-    std::string publisher = readLine("请输入出版社: ");
-    int year = readInt("请输入出版年份: ");
-    std::string category = readLine("请输入分类: ");
-    std::string remarks = readLine("请输入备注: ");
+    std::string author = readLine("请输入作者(可选): ");
+    std::string publisher = readLine("请输入出版社(可选): ");
+    int year = readInt("请输入出版年份(可选): ");
+    std::string category = readLine("请输入分类(可选): ");
+    std::string remarks = readLine("请输入备注(可选): ");
 
     if (isbn.empty()) {
         std::cout << "ISBN 不能为空！" << std::endl;
@@ -212,7 +218,38 @@ void BookMonitorMenu::addBook()
 void BookMonitorMenu::updateBook()
 {
     std::cout << "\n=== 修改图书 ===" << std::endl;
-    std::cout << "此功能待实现。" << std::endl;
+    std::string isbn = readLine("请输入要修改的图书的ISBN: ");
+    if (isbn.empty()) {
+        std::cout << "ISBN 不能为空！" << std::endl;
+        pause();
+        return;
+    }
+    Book existingBook = BookService::getInstance().getBookByISBN(isbn);
+    if (existingBook.getISBN().empty()) {
+        std::cout << "该 ISBN 不存在，修改失败！" << std::endl;
+        pause();
+        return;
+    }
+    std::string title = readLine("请输入新的书名（留空代表不修改）: ");
+    title = title.empty() ? existingBook.getTitle() : title;
+    std::string author = readLine("请输入新的作者（留空代表不修改）: ");
+    author = author.empty() ? existingBook.getAuthor() : author;
+    std::string publisher = readLine("请输入新的出版社（留空代表不修改）: ");
+    publisher = publisher.empty() ? existingBook.getPublisher() : publisher;
+    int year = readInt("请输入新的出版年份（留空代表不修改）: ");
+    year = (year == 0) ? existingBook.getPublishingYear() : year;
+    std::string category = readLine("请输入新的分类（留空代表不修改）: ");
+    category = category.empty() ? existingBook.getCategory() : category;
+    std::string remarks = readLine("请输入新的备注（留空代表不修改）: ");
+    remarks = remarks.empty() ? existingBook.getRemarks() : remarks;
+
+    Book book(isbn, title, author, publisher, year, category, remarks);
+    if (BookService::getInstance().updateBook(isbn, book)) {
+        BookService::getInstance().writeBooksToFile();
+        std::cout << "图书修改成功！" << std::endl;
+    } else {
+        std::cout << "该 ISBN 不存在，修改失败！" << std::endl;
+    }
     pause();
 }
 
@@ -225,9 +262,23 @@ void BookMonitorMenu::deleteBook()
         pause();
         return;
     }
+    Book existingBook = BookService::getInstance().getBookByISBN(isbn);
+    std::cout << "您确定要删除图书: " << existingBook.getTitle() << " (ISBN: " << isbn << ") 吗？这将会注销所有的副本。" << std::endl;
+    std::string confirmation = readLine("输入 'yes' 确认删除");
+    if (confirmation != "yes") {
+        std::cout << "删除操作已取消。" << std::endl;
+        pause();
+        return;
+    }
     if (BookService::getInstance().removeBook(isbn)) {
         BookService::getInstance().writeBooksToFile();
         std::cout << "图书删除成功！" << std::endl;
+        std::cout << "正在注销该图书的所有副本..." << std::endl;
+        auto copies = bookCopyService::getInstance().getBookCopiesByISBN(isbn);
+        for (auto& copy : copies) {
+            copy.setStatus(bookstatus::cancelled);
+        }
+        std::cout << "所有副本已删除。" << std::endl;
     } else {
         std::cout << "该 ISBN 不存在，删除失败！" << std::endl;
     }

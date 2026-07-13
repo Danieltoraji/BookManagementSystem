@@ -242,6 +242,15 @@ std::string BookService::getBookTitleByISBN(const std::string& isbn) const {
     return ""; // 如果未找到，返回空字符串
 }
 
+Book BookService::getBookByISBN(const std::string& isbn) const {
+    auto it = std::find_if(books.begin(), books.end(),
+                           [&](const Book& b) { return b.getISBN() == isbn; });
+    if (it != books.end()) {
+        return *it;
+    }
+    return Book(); // 如果未找到，返回默认构造的Book对象
+}
+
 bool BookService::isBookValid(const std::string& isbn) const {
     auto it = std::find_if(books.begin(), books.end(),
                            [&](const Book& b) { return b.getISBN() == isbn; });
