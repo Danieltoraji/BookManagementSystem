@@ -29,6 +29,9 @@ public:
     void setPhone(const std::string &value);
     void setEmail(const std::string &value);
     void setPassword(const std::string &value);
+
+    //Display
+    virtual void displayInfo() const = 0;
 }; 
 
 #endif // USER_H

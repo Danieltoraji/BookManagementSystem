@@ -32,8 +32,8 @@ private:
 用户文件设计格式：
 每行一个用户信息，字段之间用|分隔，第一个字段为用户类型
 Admin|id|username|phone|email|password
-Patron|id|username|phone|email|password|borrowLimit|currentBorrowBooks
-其中currentBorrowBooks是逗号分隔的借书列表，password为已加密的密文
+Patron|id|username|phone|email|password|borrowLimit
+其中password为已加密的密文
 Admin|admin|admin|12345678901|admin@library.com|<encrypted>
-Patron|p001|张三|13800138000|zhangsan@example.com|<encrypted>|5|CP001,CP002
+Patron|p001|张三|13800138000|zhangsan@example.com|<encrypted>|5
 */

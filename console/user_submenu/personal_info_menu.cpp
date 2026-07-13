@@ -38,7 +38,7 @@ void PersonalInfoMenu::displayPersonalInfo() {
 
     if (Patron* patron = dynamic_cast<Patron*>(user)) {
         std::cout << "借阅上限: " << patron->getBorrowLimit() << std::endl;
-        std::cout << "当前借阅数: " << patron->getCurrentBorrowBooks().size() << std::endl;
+        std::cout << "当前借阅数: " << loanService::getInstance().getBorrowingBooksByUser(user->getId()).size() << std::endl;
     }
 
     pause();

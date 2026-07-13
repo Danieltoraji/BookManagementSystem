@@ -8,6 +8,8 @@ public:
     Admin();
     Admin(const std::string &id, const std::string &username, const std::string &phone,
           const std::string &email, const std::string &password);
+
+    void displayInfo() const override;
 };
 
 #endif // ADMIN_H

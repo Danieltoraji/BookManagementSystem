@@ -30,13 +30,7 @@ std::string UserDao::userToString(User* user) const
                << patron->getPhone() << '|'
                << patron->getEmail() << '|'
                << patron->getPassword() << '|'
-               << patron->getBorrowLimit() << '|';
-        bool first = true;
-        for (const auto& book : patron->getCurrentBorrowBooks()) {
-            if (!first) stream << ',';
-            stream << book;
-            first = false;
-        }
+               << patron->getBorrowLimit();
     }
     return stream.str();
 }
@@ -54,16 +48,8 @@ User* UserDao::stringToUser(const std::string& userStr) const
     if (fields[0] == "Admin" && fields.size() >= 6) {
         return new Admin(fields[1], fields[2], fields[3], fields[4], fields[5]);
     } else if (fields[0] == "Patron" && fields.size() >= 7) {
-        std::list<std::string> borrowBooks;
-        if (fields.size() >= 8 && !fields[7].empty()) {
-            std::istringstream bookStream(fields[7]);
-            std::string bookCode;
-            while (std::getline(bookStream, bookCode, ',')) {
-                borrowBooks.push_back(bookCode);
-            }
-        }
         return new Patron(fields[1], fields[2], fields[3], fields[4],
-                          fields[5], std::stoi(fields[6]), borrowBooks);
+                          fields[5], std::stoi(fields[6]));
     }
     return nullptr;
 }

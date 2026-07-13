@@ -70,13 +70,10 @@ class Admin {
 
 class Patron {
   - borrowLimit : int
-  - currentBorrowBooks : std::list<std::string>
   --
   + Patron()
   + getBorrowLimit() : int
-  + getCurrentBorrowBooks() : std::list<std::string>
   + setBorrowLimit(int)
-  + setCurrentBorrowBooks(list<string>)
   + displayInfo() : std::string
   + getBorrowBooks() : std::list<std::string>
   + canBorrow() : bool

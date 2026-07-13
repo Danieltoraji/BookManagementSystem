@@ -58,7 +58,7 @@ bool loanService::borrowBook(const std::string& userId, const std::string& ISBN,
         errorMessage = "用户不是借阅者";
         return false;
     }
-    if (targetUser->getCurrentBorrowBooks().size() >= targetUser->getBorrowLimit()) {
+    if (getBorrowingBooksByUser(userId).size() >= targetUser->getBorrowLimit()) {
         errorMessage = "用户已达到借阅上限";
         return false;
     }
@@ -72,8 +72,7 @@ bool loanService::borrowBook(const std::string& userId, const std::string& ISBN,
         }
     }
     //操作
-    //1.更改用户、图书各状态
-    targetUser->getCurrentBorrowBooks().push_back(ISBN);
+    //1.更改图书状态
     targetBookCopy->setStatus(borrowed);
     //2.添加借阅记录
     std::string loanId = "LN" + std::to_string(loans.size() + 1); 
@@ -160,13 +159,6 @@ bool loanService::returnBook(const std::string& userId, const std::string& ISBN,
     it->setIsReturned(true);
     it->setReturnDate(Date::today());
     bookCopy->setStatus(available);
-
-    // 更新用户的当前借阅列表
-    Patron* patron = dynamic_cast<Patron*>(user);
-    if (patron) {
-        auto& currentBorrowBooks = patron->getCurrentBorrowBooks();
-        currentBorrowBooks.erase(std::remove(currentBorrowBooks.begin(), currentBorrowBooks.end(), ISBN), currentBorrowBooks.end());
-    }
 
     writeLoansToFile();
     return true;

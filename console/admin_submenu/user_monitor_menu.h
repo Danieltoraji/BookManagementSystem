@@ -4,6 +4,7 @@
 #include "../menu_base.h"
 #include <vector>
 #include "model/user.h"
+#include "services/userservice.h"
 
 // 用户监控菜单：查看、搜索、增删改用户，文件读写
 class UserMonitorMenu : public MenuBase

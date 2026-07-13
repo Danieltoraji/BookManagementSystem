@@ -44,7 +44,11 @@ void UserMonitorMenu::show()
 void UserMonitorMenu::displayAllUsers()
 {
     std::cout << "\n=== 查看所有用户 ===" << std::endl;
-    std::cout << "此功能待实现。" << std::endl;
+    for (const User* user : UserService::getInstance().getAllUsers()) {
+        if (user) {
+            std::cout << "ID: " << user->getId() << ", 用户名: " << user->getUsername() << std::endl;
+        }
+    }
     pause();
 }
 

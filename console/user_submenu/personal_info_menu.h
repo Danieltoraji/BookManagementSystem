@@ -2,6 +2,7 @@
 #define PERSONAL_INFO_MENU_H
 #include "../menu_base.h"
 #include "services/userservice.h"
+#include "services/loanservice.h"
 #include "model/patron.h"
 #include <string>
 #include <vector>
