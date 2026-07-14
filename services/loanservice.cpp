@@ -80,7 +80,7 @@ bool loanService::borrowBook(const std::string& userId, const std::string& ISBN,
     Loan newLoan(loanId, libCode, ISBN, userId, loanDate, TimeService::getInstance().calculateDueDate(loanDate), Date(), false);
     loans.push_back(newLoan);
     writeLoansToFile();
-    return true; // TODO: 实现借阅逻辑
+    return true; 
 }
 
 bool loanService::renewBook(const std::string& userId, const std::string& ISBN, const std::string& libCode, std::string& errorMessage) {
