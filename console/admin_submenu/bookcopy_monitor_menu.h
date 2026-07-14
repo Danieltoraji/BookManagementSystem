@@ -4,6 +4,8 @@
 #include "../menu_base.h"
 #include <vector>
 #include "model/bookcopy.h"
+#include "services/bookservice.h"
+#include "services/bookcopyservice.h"
 
 // 图书副本监控菜单：查看、搜索、增删改副本，文件读写
 class BookCopyMonitorMenu : public MenuBase
@@ -19,6 +21,7 @@ private:
     void searchByLocation();
     void addBookCopy();
     void updateBookCopy();
+    void cancelBookCopy();
     void removeBookCopy();
     void readFromFile();
     void saveToFile();

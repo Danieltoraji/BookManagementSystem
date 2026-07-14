@@ -36,6 +36,17 @@ bool bookCopyService::addBookCopy(const BookCopy& bookcopy)
     bookCopies.push_back(bookcopy);
     return true;
 }
+bool bookCopyService::cancelBookCopy(const std::string& isbn, const std::string& libCode)
+{
+    auto it = std::find_if(bookCopies.begin(), bookCopies.end(),
+                            [&](const BookCopy& bc) { return bc.getISBN() == isbn && bc.getLibCode() == libCode; });
+    if (it != bookCopies.end()) {
+        it->setStatus(cancelled);
+        writeBookCopiesToFile(); // 自动更新文件
+        return true;
+    }
+    return false;
+}
 bool bookCopyService::removeBookCopy(const std::string& isbn, const std::string& libCode)
 {
     auto it = std::remove_if(bookCopies.begin(), bookCopies.end(),
@@ -97,4 +108,13 @@ std::vector<BookCopy> bookCopyService::getBookCopiesByLocation(const std::string
         }
     }//对应项为0表示不限制该项
     return result;
+}
+bool bookCopyService::isLibCodeAvailable(const std::string& libCode) const
+{
+    for (const auto& bc : bookCopies) {
+        if (bc.getLibCode() == libCode) {
+            return false; // 如果找到了相同的馆藏号，返回false
+        }
+    }
+    return true; // 没有找到相同的馆藏号，返回true
 }

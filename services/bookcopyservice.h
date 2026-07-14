@@ -19,6 +19,7 @@ public:
 
     //现在管理后有自动更新文件了！
     bool addBookCopy(const BookCopy& bookcopy);
+    bool cancelBookCopy(const std::string& isbn, const std::string& libCode);
     bool removeBookCopy(const std::string& isbn, const std::string& libCode);
     bool updateBookCopy(const std::string& isbn, const std::string& libCode, const BookCopy& bookcopy);
 
@@ -27,6 +28,7 @@ public:
     BookCopy* getBookCopyByLibCode(const std::string& libCode) const;
     std::vector<BookCopy> getBookCopiesByLocation(const std::string& lib = "", const short floor = 0, const short row = 0,
          const short unit = 0, const short level = 0) const;
+    bool isLibCodeAvailable(const std::string& libCode) const;
 
     std::vector<BookCopy> bookCopies;
 private:
