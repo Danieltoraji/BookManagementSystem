@@ -271,14 +271,8 @@ void BookMonitorMenu::deleteBook()
         return;
     }
     if (BookService::getInstance().removeBook(isbn)) {
-        BookService::getInstance().writeBooksToFile();
         std::cout << "图书删除成功！" << std::endl;
-        std::cout << "正在注销该图书的所有副本..." << std::endl;
-        auto copies = bookCopyService::getInstance().getBookCopiesByISBN(isbn);
-        for (auto& copy : copies) {
-            copy.setStatus(bookstatus::cancelled);
-        }
-        std::cout << "所有副本已删除。" << std::endl;
+        std::cout << "该图书的所有副本已注销，相关借阅记录已标记为已归还。" << std::endl;
     } else {
         std::cout << "该 ISBN 不存在，删除失败！" << std::endl;
     }

@@ -1,4 +1,6 @@
 #include "bookservice.h"
+#include "bookcopyservice.h"
+#include "loanservice.h"
 #include <algorithm>
 
 BookService& BookService::getInstance()
@@ -47,7 +49,11 @@ bool BookService::removeBook(const std::string& isbn)
     if (it == books.end()) {
         return false;
     }
+    // 级联处理：注销该ISBN的所有图书副本（副本注销时会自动处理借阅记录）
+    std::string errMsg;
+    bookCopyService::getInstance().cancelAllBookCopiesByISBN(isbn, errMsg);
     books.erase(it);
+    writeBooksToFile();
     return true;
 }
 
