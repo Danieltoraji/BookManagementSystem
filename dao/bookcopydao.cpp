@@ -15,7 +15,7 @@ std::string BookCopyDao::bookCopyToString(const BookCopy& bookcopy) const{
     std::ostringstream stream;
     stream << bookcopy.getISBN() << '|'
            << bookcopy.getLibCode() << '|'
-           << bookcopy.getBookLocation() << '|';
+           << bookcopy.getBookLocation().toString() << '|';
     switch (bookcopy.getStatus()) {
         case available:  stream << "available";  break;
         case borrowed:   stream << "borrowed";   break;

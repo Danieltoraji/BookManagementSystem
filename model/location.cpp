@@ -53,3 +53,9 @@ std::ostream& operator<<(std::ostream& os, const Location &l){
     os << l.lib << "," << l.floor << "层" << l.row << "排" << l.unit << "架" << l.level << "层";
     return os;
 }
+
+std::string Location::toString() const {
+    return lib + "-" + std::to_string(floor) + "-"
+           + std::to_string(row) + "-" + std::to_string(unit) + "-"
+           + std::to_string(level);
+}

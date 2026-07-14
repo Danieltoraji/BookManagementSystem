@@ -31,6 +31,9 @@ public:
                      short row, short unit, short level);
     void setLocation(const std::string &locFields);
 
+    // 序列化为文件存储格式: lib-floor-row-unit-level (如 "北馆-3-1-1-1")
+    std::string toString() const;
+
     // operators
     friend std::ostream& operator<<(std::ostream& os, const Location& l);
 };
