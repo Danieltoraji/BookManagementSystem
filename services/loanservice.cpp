@@ -194,6 +194,26 @@ std::vector<Loan> loanService::getBorrowHistoryByISBN(const std::string& ISBN) {
     return borrowHistory;
 }
 
+std::vector<Loan> loanService::getBorrowHistoryByLibCode(const std::string& libCode) {
+    std::vector<Loan> borrowHistory;
+    for (const auto& loan : loans) {
+        if (loan.getLibCode() == libCode) {
+            borrowHistory.push_back(loan);
+        }
+    }
+    return borrowHistory;
+}
+
+std::vector<Loan> loanService::getAllCurrentBorrowing() {
+    std::vector<Loan> currentBorrowing;
+    for (const auto& loan : loans) {
+        if (!loan.getIsReturned()) {
+            currentBorrowing.push_back(loan);
+        }
+    }
+    return currentBorrowing;
+}
+
 int loanService::getTotalBorrowedBooks() const {
     return loans.size();
 }
