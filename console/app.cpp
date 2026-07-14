@@ -83,17 +83,17 @@ int App::showLoginMenu()
 bool App::doLogin()
 {
     std::cout << "\n--- 登录 ---" << std::endl;
-    std::string username = MenuBase::readLine("请输入用户名: ");
+    std::string id = MenuBase::readLine("请输入用户id: ");
     std::string password = MenuBase::readLine("请输入密码: ");
 
-    User *user = UserService::getInstance().authenticate(username, password);
+    User *user = UserService::getInstance().authenticate(id, password);
     if (user) {
         UserService::getInstance().currentUser = user;
         std::cout << "登录成功！欢迎，" << user->getUsername() << "。" << std::endl;
         MenuBase::pause();
         return true;
     } else {
-        std::cout << "用户名或密码错误，登录失败。" << std::endl;
+        std::cout << "用户id或密码错误，登录失败。" << std::endl;
         MenuBase::pause();
         return false;
     }
