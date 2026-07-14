@@ -153,18 +153,29 @@ void UserMonitorMenu::updatePassword()
         pause();
         return;
     }
-    std::string originalPassword = readLine("请输入原密码: ");
-    if (UserService::getInstance().encryptPassword(originalPassword, id) != user->getPassword()) {
-        std::cout << "原密码错误，无法修改。" << std::endl;
-        pause();
-        return;
-    }
     std::string newPassword = readLine("请输入新密码: ");
     if (dynamic_cast<Patron*>(user)) {
+        std::string confirmation = readLine("您正在免认证修改读者密码。请确保您得到了该读者的授权。输入'y'确认: ");
+        if (confirmation != "y" && confirmation != "Y") {
+            std::cout << "操作已取消。" << std::endl;
+            pause();
+            return;
+        }
         UserService::getInstance().updatePatronPassword(id, newPassword);
+        std::cout << "修改成功。" << std::endl;
     } else if (dynamic_cast<Admin*>(user)) {
-        UserService::getInstance().updateAdminPassword(id, newPassword);
-    } else {
+        std::string originalPassword = readLine("修改管理员密码需要验证。请输入原密码: ");
+        if (UserService::getInstance().encryptPassword(originalPassword, id) != user->getPassword()) {
+            std::cout << "原密码错误，无法修改。" << std::endl;
+            pause();
+            return;
+        }
+        else {
+            UserService::getInstance().updateAdminPassword(id, newPassword);
+            std::cout << "修改成功。" << std::endl;
+        }
+    }   
+    else {
         std::cout << "未知用户类型，无法修改密码。" << std::endl;
         pause();
         return;
