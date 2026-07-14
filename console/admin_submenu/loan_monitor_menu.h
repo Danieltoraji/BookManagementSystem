@@ -2,8 +2,15 @@
 #define LOAN_MONITOR_MENU_H
 
 #include "../menu_base.h"
-#include <vector>
 #include "model/loan.h"
+#include "services/loanservice.h"
+#include "services/bookservice.h"
+#include "services/userservice.h"
+#include "services/bookcopyservice.h"
+#include <vector>
+#include <iostream>
+#include <iomanip>
+
 
 // 借阅监控菜单：查看、搜索借阅记录，统计分析，文件读写
 class LoanMonitorMenu : public MenuBase
@@ -16,7 +23,9 @@ private:
     void displayAllLoans();
     void searchByUser();
     void searchByISBN();
-    void displayCurrentBorrowing();
+    void searchByLibCode();
+    void displayAllCurrentBorrowing();
+    void displayUserCurrentBorrowing();
     void displayStatistics();
     void displayMostBorrowed();
     void displayMostActiveUsers();
