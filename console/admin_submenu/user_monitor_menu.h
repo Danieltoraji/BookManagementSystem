@@ -2,9 +2,13 @@
 #define USER_MONITOR_MENU_H
 
 #include "../menu_base.h"
-#include <vector>
-#include "model/user.h"
 #include "services/userservice.h"
+#include "model/user.h"
+#include "model/patron.h"
+#include "model/admin.h"
+#include <vector>
+#include <iostream>
+#include <iomanip>
 
 // 用户监控菜单：查看、搜索、增删改用户，文件读写
 class UserMonitorMenu : public MenuBase
