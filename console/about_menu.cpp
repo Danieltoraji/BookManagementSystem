@@ -13,7 +13,8 @@ void AboutMenu::show()
         int choice = displayMenu(title, options);
         switch (choice) {
             case 1:
-                std::cout << "想听听本系统的介绍？大模型为您回答..." << std::endl;
+                std::cout << "大模型正在准备为您回答..." << std::endl;
+                Sleep(3000);
                 std::cout << R"( # 图书管理系统简介
 
                 这是一个 **C++ 图书管理系统**，是**清华大学电子工程系计算机程序设计基础大作业**（作者：无52 丁一博）。
