@@ -161,10 +161,15 @@ void BookCopyMonitorMenu::updateBookCopy()
     }
     std::cout << "请输入新的副本信息。注意只能修改地点信息。留空表示不变。" << std::endl;
     std::string lib = readLine("请输入新的图书馆代码: ");
+    lib = lib.empty() ? bookCopyService::getInstance().getBookCopyByLibCode(libCode)->getBookLocation().getLib() : lib;
     short floor = readInt("请输入新的楼层号: ");
+    floor = (floor == 0) ? bookCopyService::getInstance().getBookCopyByLibCode(libCode)->getBookLocation().getFloor() : floor;
     short row = readInt("请输入新的书架号: ");
+    row = (row == 0) ? bookCopyService::getInstance().getBookCopyByLibCode(libCode)->getBookLocation().getRow() : row;
     short unit = readInt("请输入新的单元号: ");
+    unit = (unit == 0) ? bookCopyService::getInstance().getBookCopyByLibCode(libCode)->getBookLocation().getUnit() : unit;
     short level = readInt("请输入新的层号: ");
+    level = (level == 0) ? bookCopyService::getInstance().getBookCopyByLibCode(libCode)->getBookLocation().getLevel() : level;
     Location loc(lib, floor, row, unit, level);
     bookCopyService::getInstance().updateBookCopy(isbn, libCode, BookCopy(isbn, libCode, loc));
     std::cout << "副本修改成功。" << std::endl;
@@ -187,6 +192,7 @@ void BookCopyMonitorMenu::cancelBookCopy()
         return;
     }
     bookCopyService::getInstance().cancelBookCopy(isbn, libCode);
+    std::cout << "副本已注销。" << std::endl;
     pause();
 }
 
