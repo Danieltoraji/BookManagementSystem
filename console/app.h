@@ -2,6 +2,7 @@
 #define CONSOLE_APP_H
 
 #include <string>
+#include "about_menu.h"
 
 // 主应用控制器：管理登录流程和角色菜单分发
 class App
@@ -22,6 +23,9 @@ private:
 
     // 注册操作（调用 UserService 添加新用户）
     void doRegister();
+
+    // 显示关于信息
+    void About();
 };
 
 #endif // CONSOLE_APP_H

@@ -44,7 +44,8 @@ add_executable(BookManagementSystem ${SOURCES}
     console/admin_submenu/user_monitor_menu.cpp
     console/admin_submenu/book_monitor_menu.cpp
     console/admin_submenu/bookcopy_monitor_menu.cpp
-    console/admin_submenu/loan_monitor_menu.cpp)
+    console/admin_submenu/loan_monitor_menu.cpp
+    console/about_menu.cpp)
 
 # 包含目录
 target_include_directories(BookManagementSystem PRIVATE

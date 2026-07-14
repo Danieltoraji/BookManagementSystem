@@ -48,6 +48,9 @@ bool App::loginFlow()
             case 2: // 注册
                 doRegister();
                 break;
+            case 3: // 关于
+                About();
+                break;
             case 0: // 退出
                 return false;
         }
@@ -62,6 +65,7 @@ int App::showLoginMenu()
     MenuBase::printSeparator('=');
     std::cout << "  1. 登录" << std::endl;
     std::cout << "  2. 注册新用户" << std::endl;
+    std::cout << "  3. 关于" << std::endl;
     std::cout << "  0. 退出系统" << std::endl;
     MenuBase::printSeparator('-');
 
@@ -73,7 +77,7 @@ int App::showLoginMenu()
         }
         int choice = 0;
         std::istringstream iss(line);
-        if (iss >> choice && choice >= 0 && choice <= 2) {
+        if (iss >> choice && choice >= 0 && choice <= 3) {
             return choice;
         }
         std::cout << "输入无效，请重新输入。" << std::endl;
@@ -126,4 +130,10 @@ void App::doRegister()
         std::cout << "注册失败，请重试。" << std::endl;
     }
     MenuBase::pause();
+}
+
+void App::About()
+{
+    AboutMenu aboutMenu;
+    aboutMenu.show();
 }
