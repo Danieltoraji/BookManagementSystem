@@ -249,13 +249,13 @@ std::vector<Loan> loanService::getAllCurrentBorrowing() {
 }
 
 int loanService::getTotalBorrowedBooks() const {
-    return loans.size();
+    return static_cast<int>(loans.size());
 }
 
 int loanService::getTotalBorrowingBooks() const {
-    return std::count_if(loans.begin(), loans.end(), [](const Loan& loan) {
+    return static_cast<int>(std::count_if(loans.begin(), loans.end(), [](const Loan& loan) {
         return !loan.getIsReturned();
-    });
+    }));
 }
 
 std::map<std::string, int> loanService::getMostBorrowedBooks(int topN) const {
