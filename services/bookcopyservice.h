@@ -22,6 +22,7 @@ public:
     bool cancelBookCopy(const std::string& isbn, const std::string& libCode);
     bool removeBookCopy(const std::string& isbn, const std::string& libCode);
     bool updateBookCopy(const std::string& isbn, const std::string& libCode, const BookCopy& bookcopy);
+    bool cancelAllBookCopiesByISBN(const std::string& isbn, std::string& errorMessage);
 
     std::vector<BookCopy> getAllBookCopies() const;
     std::vector<BookCopy> getBookCopiesByISBN(const std::string& isbn) const;

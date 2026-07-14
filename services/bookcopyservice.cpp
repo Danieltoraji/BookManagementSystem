@@ -1,5 +1,6 @@
 #include "bookcopyservice.h"
 #include "dao/bookcopydao.h"
+#include "loanservice.h"
 #include <algorithm>
 #include <fstream>
 #include <sstream>
@@ -41,6 +42,11 @@ bool bookCopyService::cancelBookCopy(const std::string& isbn, const std::string&
     auto it = std::find_if(bookCopies.begin(), bookCopies.end(),
                             [&](const BookCopy& bc) { return bc.getISBN() == isbn && bc.getLibCode() == libCode; });
     if (it != bookCopies.end()) {
+        // 若副本正在被借出，先将对应借阅记录标记为已返还
+        if (it->getStatus() == borrowed) {
+            std::string errMsg;
+            loanService::getInstance().returnBookByLibCode(libCode, errMsg);
+        }
         it->setStatus(cancelled);
         writeBookCopiesToFile(); // 自动更新文件
         return true;
@@ -49,6 +55,13 @@ bool bookCopyService::cancelBookCopy(const std::string& isbn, const std::string&
 }
 bool bookCopyService::removeBookCopy(const std::string& isbn, const std::string& libCode)
 {
+    // 先处理被借出副本的借阅记录
+    for (const auto& bc : bookCopies) {
+        if (bc.getISBN() == isbn && bc.getLibCode() == libCode && bc.getStatus() == borrowed) {
+            std::string errMsg;
+            loanService::getInstance().returnBookByLibCode(libCode, errMsg);
+        }
+    }
     auto it = std::remove_if(bookCopies.begin(), bookCopies.end(),
                              [&](const BookCopy& bc) { return bc.getISBN() == isbn && bc.getLibCode() == libCode; });
     if (it != bookCopies.end()) {
@@ -57,6 +70,27 @@ bool bookCopyService::removeBookCopy(const std::string& isbn, const std::string&
         return true;
     }
     return false;
+}
+bool bookCopyService::cancelAllBookCopiesByISBN(const std::string& isbn, std::string& errorMessage)
+{
+    bool found = false;
+    for (auto& bc : bookCopies) {
+        if (bc.getISBN() == isbn) {
+            // 若副本正在被借出，先将对应借阅记录标记为已返还
+            if (bc.getStatus() == borrowed) {
+                std::string errMsg;
+                loanService::getInstance().returnBookByLibCode(bc.getLibCode(), errMsg);
+            }
+            bc.setStatus(cancelled);
+            found = true;
+        }
+    }
+    if (found) {
+        writeBookCopiesToFile();
+    } else {
+        errorMessage = "未找到该ISBN对应的图书副本";
+    }
+    return found;
 }
 bool bookCopyService::updateBookCopy(const std::string& isbn, const std::string& libCode, const BookCopy& bookcopy)
 {
