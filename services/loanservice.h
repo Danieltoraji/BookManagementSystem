@@ -24,6 +24,10 @@ public:
     bool returnBook(const std::string& userId, const std::string& ISBN, const std::string& libCode, std::string& errorMessage);
     bool renewBook(const std::string& userId, const std::string& ISBN, const std::string& libCode, std::string& errorMessage);
 
+    // 批量归还（用于副本注销/删除、图书删除时的级联处理）
+    bool returnBookByLibCode(const std::string& libCode, std::string& errorMessage);
+    bool returnBooksByISBN(const std::string& ISBN, std::string& errorMessage);
+
     // 借阅记录查询
     std::vector<Loan> getBorrowingBooksByUser(const std::string& userId);
     std::vector<Loan> getBorrowHistoryByUser(const std::string& userId);

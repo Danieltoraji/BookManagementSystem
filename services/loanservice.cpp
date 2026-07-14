@@ -164,6 +164,40 @@ bool loanService::returnBook(const std::string& userId, const std::string& ISBN,
     return true;
 }
 
+bool loanService::returnBookByLibCode(const std::string& libCode, std::string& errorMessage) {
+    bool found = false;
+    for (auto& loan : loans) {
+        if (loan.getLibCode() == libCode && !loan.getIsReturned()) {
+            loan.setIsReturned(true);
+            loan.setReturnDate(Date::today());
+            found = true;
+        }
+    }
+    if (found) {
+        writeLoansToFile();
+    } else {
+        errorMessage = "未找到该馆藏号对应的未归还借阅记录";
+    }
+    return found;
+}
+
+bool loanService::returnBooksByISBN(const std::string& ISBN, std::string& errorMessage) {
+    bool found = false;
+    for (auto& loan : loans) {
+        if (loan.getISBN() == ISBN && !loan.getIsReturned()) {
+            loan.setIsReturned(true);
+            loan.setReturnDate(Date::today());
+            found = true;
+        }
+    }
+    if (found) {
+        writeLoansToFile();
+    } else {
+        errorMessage = "未找到该ISBN对应的未归还借阅记录";
+    }
+    return found;
+}
+
 std::vector<Loan> loanService::getBorrowingBooksByUser(const std::string& userId) {
     std::vector<Loan> borrowingLoans;
     for (const auto& loan : loans) {
