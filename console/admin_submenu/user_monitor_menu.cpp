@@ -204,8 +204,12 @@ void UserMonitorMenu::removeUser()
         pause();
         return;
     }
-    UserService::getInstance().removeUser(id);
-    std::cout << "用户删除成功。" << std::endl;
+    std::string errorMessage;
+    if (UserService::getInstance().removeUser(id, errorMessage)) {
+        std::cout << "用户删除成功。" << std::endl;
+    } else {
+        std::cout << "用户删除失败：" << errorMessage << std::endl;
+    }
     pause();
 }
 

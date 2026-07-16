@@ -29,7 +29,7 @@ public:
                    const std::string& email, const std::string& plainPassword, int borrowLimit = 5);
     bool addAdmin(const std::string& id, const std::string& username, const std::string& phone,
                   const std::string& email, const std::string& plainPassword);
-    bool removeUser(const std::string& id);
+    bool removeUser(const std::string& id, std::string& errorMessage);
     bool updatePatron(const std::string& id, const std::string& username, const std::string& phone,
                       const std::string& email, int borrowLimit = 5);
     bool updatePatronPassword(const std::string& id, const std::string& plainPassword);

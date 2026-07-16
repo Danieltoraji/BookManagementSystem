@@ -1,6 +1,7 @@
 #include "userservice.h"
 #include "model/admin.h"
 #include "model/patron.h"
+#include "loanservice.h"
 #include <algorithm>
 #include <cstdio>
 
@@ -63,12 +64,18 @@ bool UserService::addAdmin(const std::string& id, const std::string& username, c
     return true;
 }
 
-bool UserService::removeUser(const std::string& id)
+bool UserService::removeUser(const std::string& id, std::string& errorMessage)
 {
     auto it = std::find_if(users.begin(), users.end(),
     [&](User* u) { return u->getId() == id; });
 
     if (it == users.end()) {
+        errorMessage = "未找到ID为 " + id + " 的用户";
+        return false;
+    }
+    // 检查该用户是否有未归还的图书，有则禁止删除
+    if (!loanService::getInstance().getBorrowingBooksByUser(id).empty()) {
+        errorMessage = "该用户有未归还的图书，无法注销/删除";
         return false;
     }
     delete *it;
@@ -87,9 +94,14 @@ bool UserService::updatePatron(const std::string& id, const std::string& usernam
     if (it == users.end()) {
         return false;
     }
+    // 若被更新的是当前登录用户，delete 后 currentUser 会悬空，需同步更新
+    bool isCurrentUser = (currentUser == *it);
     std::string password = (*it)->getPassword();
     delete *it;
     *it = new Patron(id, username, phone, email, password, borrowLimit);
+    if (isCurrentUser) {
+        currentUser = *it;
+    }
     writeUsersToFile();
     return true;
 }
@@ -119,9 +131,14 @@ bool UserService::updateAdmin(const std::string& id, const std::string& username
     if (it == users.end()) {
         return false;
     }
+    // 若被更新的是当前登录用户，delete 后 currentUser 会悬空，需同步更新
+    bool isCurrentUser = (currentUser == *it);
     std::string password = (*it)->getPassword();
     delete *it;
     *it = new Admin(id, username, phone, email, password);
+    if (isCurrentUser) {
+        currentUser = *it;
+    }
     writeUsersToFile();
     return true;
 }

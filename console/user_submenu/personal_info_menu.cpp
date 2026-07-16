@@ -114,12 +114,13 @@ void PersonalInfoMenu::deleteAccount() {
     }
     confirmation = readLine("您确定要注销账户吗？这是最后一次警告。此操作不可逆！(YES/NO): ");
     if (confirmation == "YES") {
-        if (UserService::getInstance().removeUser(user->getId())) {
+        std::string errorMessage;
+        if (UserService::getInstance().removeUser(user->getId(), errorMessage)) {
             std::cout << "账户已成功注销！" << std::endl;
             // 退出登录
             UserService::getInstance().currentUser = nullptr;
         } else {
-            std::cout << "账户注销失败！" << std::endl;
+            std::cout << "账户注销失败：" << errorMessage << std::endl;
         }
     } else {
         std::cout << "账户注销已取消。" << std::endl;
