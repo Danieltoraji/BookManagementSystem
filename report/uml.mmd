@@ -1,0 +1,517 @@
+%%{ init: { 'theme': 'base', 'themeVariables': { 'fontSize': '13px', 'lineColor': '#555' } } }%%
+
+classDiagram
+    direction TB
+
+    %% ===== 值类型 =====
+    class Date {
+        -year: short
+        -month: short
+        -day: short
+        --
+        +Date(year, month, day)
+        +fromString(string) Date$
+        +today() Date$
+        +getYear() short
+        +getMonth() short
+        +getDay() short
+        +setYear(short) void
+        +setMonth(short) void
+        +setDay(short) void
+        +setDate(year, month, day) void
+        +toString() string
+        +toYearMonthString() string
+        +operator+(int) Date
+        +operator-(Date) int
+        +operator==(Date) bool
+        +operator!=(Date) bool
+        +operator<(Date) bool
+        +operator>(Date) bool
+        +operator<=(Date) bool
+        +operator>=(Date) bool
+        +operator<<(ostream, Date) ostream&$
+        -isLeapYear(short) bool
+        -dayInMonth(short, short) short
+        -toJulianDay() long
+    }
+
+    class Location {
+        -lib: string
+        -floor: short
+        -row: short
+        -unit: short
+        -level: short
+        --
+        +Location(lib, floor, row, unit, level)
+        +getLib() string
+        +getFloor() short
+        +getRow() short
+        +getUnit() short
+        +getLevel() short
+        +setLib(string) void
+        +setFloor(short) void
+        +setRow(short) void
+        +setUnit(short) void
+        +setLevel(short) void
+        +setLocation(lib, floor, row, unit, level) void
+        +setLocation(locFields: string) void
+        +toString() string
+        +operator<<(ostream, Location) ostream&$
+    }
+
+    %% ===== 用户继承体系 =====
+    class User {
+        <<abstract>>
+        #id: string
+        #username: string
+        #phone: string
+        #email: string
+        #password: string
+        --
+        +User(id, username, phone, email, password)
+        +~User()
+        +getId() string
+        +getUsername() string
+        +getPhone() string
+        +getEmail() string
+        +getPassword() string
+        +setId(string) void
+        +setUsername(string) void
+        +setPhone(string) void
+        +setEmail(string) void
+        +setPassword(string) void
+        +displayInfo()* void
+    }
+
+    class Admin {
+        +Admin()
+        +Admin(id, username, phone, email, password)
+        +displayInfo() void
+    }
+
+    class Patron {
+        -borrowLimit: int
+        --
+        +Patron(id, username, phone, email, password, borrowLimit)
+        +getBorrowLimit() int
+        +setBorrowLimit(int) void
+        +displayInfo() void
+    }
+
+    class IComparable {
+        <<interface>>
+        +~IComparable()
+        +compareTo(IComparable)* int
+    }
+
+    class VIPPatron {
+        -vipLevel: int
+        --
+        +VIPPatron(id, username, phone, email, password, borrowLimit, vipLevel)
+        +getVipLevel() int
+        +setVipLevel(int) void
+        +displayInfo() void
+        +compareTo(IComparable) int
+    }
+
+    %% ===== 图书/副本/借阅 =====
+    class Book {
+        -ISBN: string
+        -Title: string
+        -Author: string
+        -Publisher: string
+        -PublishingYear: int
+        -Category: string
+        -Remarks: string
+        --
+        +Book(isbn, title, author, publisher, year, category, remarks)
+        +getISBN() string
+        +getTitle() string
+        +getAuthor() string
+        +getPublisher() string
+        +getPublishingYear() int
+        +getCategory() string
+        +getRemarks() string
+        +setISBN(string) void
+        +setTitle(string) void
+        +setAuthor(string) void
+        +setPublisher(string) void
+        +setPublishingYear(int) void
+        +setCategory(string) void
+        +setRemarks(string) void
+    }
+
+    class BookCopy {
+        -ISBN: string
+        -libCode: string
+        -bookLocation: Location
+        -status: bookstatus
+        --
+        +BookCopy(isbn, libCode, location, status)
+        +getISBN() string
+        +getLibCode() string
+        +getBookLocation() Location
+        +getStatus() bookstatus
+        +setISBN(string) void
+        +setLibCode(string) void
+        +setBookLocation(Location) void
+        +setStatus(bookstatus) void
+    }
+
+    class Loan {
+        -id: string
+        -libCode: string
+        -ISBN: string
+        -userId: string
+        -loanDate: Date
+        -dueDate: Date
+        -returnDate: Date
+        -isReturned: bool
+        --
+        +Loan(id, libCode, ISBN, userId, loanDate, dueDate, returnDate, isReturned)
+        +getId() string
+        +getLibCode() string
+        +getUserId() string
+        +getISBN() string
+        +getLoanDate() Date
+        +getDueDate() Date
+        +getReturnDate() Date
+        +getIsReturned() bool
+        +setId(string) void
+        +setLibCode(string) void
+        +setUserId(string) void
+        +setISBN(string) void
+        +setLoanDate(Date) void
+        +setDueDate(Date) void
+        +setReturnDate(Date) void
+        +setIsReturned(bool) void
+        +isOverdue() bool
+        +getOverdueDays() int
+    }
+
+    %% ===== DAO 层 =====
+    class BookDao {
+        <<singleton>>
+        +loadBooksFromFile(string) vector~Book~
+        +saveBooksToFile(string, vector~Book~) bool
+        -bookToString(Book) string
+        -stringToBook(string) Book
+    }
+
+    class BookCopyDao {
+        <<singleton>>
+        +loadBookCopiesFromFile(string) vector~BookCopy~
+        +saveBookCopiesToFile(string, vector~BookCopy~) bool
+        -bookCopyToString(BookCopy) string
+        -stringToBookCopy(string) BookCopy
+    }
+
+    class LoanDao {
+        <<singleton>>
+        +loadLoansFromFile(string) vector~Loan~
+        +saveLoansToFile(string, vector~Loan~) bool
+        -loanToString(Loan) string
+        -stringToLoan(string) Loan
+    }
+
+    class UserDao {
+        <<singleton>>
+        +loadUsersFromFile(string) vector~User*~
+        +saveUsersToFile(string, vector~User*~) bool
+        -userToString(User*) string
+        -stringToUser(string) User*
+    }
+
+    %% ===== Service 层 =====
+    class searchQuery {
+        +field1: Field
+        +condition1: Condition
+        +value1: string
+        +logic: Logic
+        +field2: Field
+        +condition2: Condition
+        +value2: string
+    }
+
+    class BookService {
+        <<singleton>>
+        +books: vector~Book~
+        +getInstance() BookService$
+        +readBooksFromFile() bool
+        +writeBooksToFile() bool
+        +getAllBooks() vector~Book~
+        +addBook(Book) bool
+        +removeBook(string) bool
+        +updateBook(string, Book) bool
+        +searchBooks(searchQuery) vector~Book*~
+        +getBookByISBN(string) Book
+        +getBookTitleByISBN(string) string
+        +isBookValid(string) bool
+    }
+
+    class bookCopyService {
+        <<singleton>>
+        +bookCopies: vector~BookCopy~
+        +getInstance() bookCopyService$
+        +readBookCopiesFromFile() bool
+        +writeBookCopiesToFile() bool
+        +addBookCopy(BookCopy) bool
+        +cancelBookCopy(string, string) bool
+        +removeBookCopy(string, string) bool
+        +updateBookCopy(string, string, BookCopy) bool
+        +cancelAllBookCopiesByISBN(string, string) bool
+        +getAllBookCopies() vector~BookCopy~
+        +getBookCopiesByISBN(string) vector~BookCopy~
+        +getBookCopyByLibCode(string) BookCopy*
+        +getBookCopiesByLocation(...) vector~BookCopy~
+        +isLibCodeAvailable(string) bool
+    }
+
+    class loanService {
+        <<singleton>>
+        +loans: vector~Loan~
+        +getInstance() loanService$
+        +readLoansFromFile() bool
+        +writeLoansToFile() bool
+        +borrowBook(userId, ISBN, libCode, errMsg) bool
+        +returnBook(userId, ISBN, libCode, errMsg) bool
+        +renewBook(userId, ISBN, libCode, errMsg) bool
+        +returnBookByLibCode(libCode, errMsg) bool
+        +returnBooksByISBN(ISBN, errMsg) bool
+        +getBorrowingBooksByUser(userId) vector~Loan~
+        +getBorrowHistoryByUser(userId) vector~Loan~
+        +getBorrowHistoryByISBN(ISBN) vector~Loan~
+        +getBorrowHistoryByLibCode(libCode) vector~Loan~
+        +getAllCurrentBorrowing() vector~Loan~
+        +getTotalBorrowedBooks() int
+        +getTotalBorrowingBooks() int
+        +getMostBorrowedBooks(topN) map~string,int~
+        +getMostActiveUsers(topN) map~string,int~
+        +getTotalBorrowVSMonth() map~string,int~
+        +getUserBorrowVSMonth(userId) map~string,int~
+    }
+
+    class UserService {
+        <<singleton>>
+        +users: vector~User*~
+        +currentUser: User*
+        +getInstance() UserService$
+        +readUsersFromFile() bool
+        +writeUsersToFile() bool
+        +getAllUsers() vector~User*~
+        +addPatron(...) bool
+        +addAdmin(...) bool
+        +removeUser(string, errMsg) bool
+        +updatePatron(...) bool
+        +updatePatronPassword(string, string) bool
+        +updateAdmin(...) bool
+        +updateAdminPassword(string, string) bool
+        +getUserById(string) User*
+        +getUserByUsername(string) User*
+        +authenticate(string, string) User*
+        +encryptPassword(string, string) string
+        +decryptPassword(string, string) string
+        +getCurrentUser() User*
+    }
+
+    class TimeService {
+        <<singleton>>
+        +DEFAULT_BORROW_DAYS: int = 30
+        +RENEW_DAYS: int = 15
+        +getInstance() TimeService$
+        +calculateDueDate(Date) Date
+        +calculateRenewedDueDate(Date) Date
+    }
+
+    %% ===== Console 层 =====
+    class MenuBase {
+        <<abstract>>
+        +displayMenu(string, vector~string~) int$
+        +readLine(string) string$
+        +readInt(string) int$
+        +pause() void$
+        +clearScreen() void$
+        +printSeparator(char, int) void$
+    }
+
+    class App {
+        +run() void
+        -loginFlow() bool
+        -showLoginMenu() int
+        -doLogin() bool
+        -doRegister() void
+        -About() void
+    }
+
+    class AdminMenu {
+        +show() void
+    }
+    class UserMenu {
+        +show() void
+    }
+    class AboutMenu {
+        +show() void
+    }
+    class UserMonitorMenu {
+        +show() void
+        -displayAllUsers() void
+        -searchById() void
+        -searchByUsername() void
+        -addPatron() void
+        -addAdmin() void
+        -updateUserInfo() void
+        -updatePassword() void
+        -removeUser() void
+        -readFromFile() void
+        -saveToFile() void
+        -printUsers(vector~User*~) void
+    }
+    class BookMonitorMenu {
+        +show() void
+        -searchBooks() void
+        -displayAllBooks() void
+        -searchByISBN() void
+        -addBook() void
+        -updateBook() void
+        -deleteBook() void
+        -readFromFile() void
+        -saveToFile() void
+        -buildSearchQuery(searchQuery) void
+        -printBooks(vector~Book~) void
+    }
+    class BookCopyMonitorMenu {
+        +show() void
+        -displayAllBookCopies() void
+        -searchByISBN() void
+        -searchByLibCode() void
+        -searchByLocation() void
+        -addBookCopy() void
+        -updateBookCopy() void
+        -cancelBookCopy() void
+        -removeBookCopy() void
+        -readFromFile() void
+        -saveToFile() void
+        -printBookCopies(vector~BookCopy~) void
+    }
+    class LoanMonitorMenu {
+        +show() void
+        -displayAllLoans() void
+        -searchByUser() void
+        -searchByISBN() void
+        -searchByLibCode() void
+        -displayAllCurrentBorrowing() void
+        -displayUserCurrentBorrowing() void
+        -displayStatistics() void
+        -displayMostBorrowed() void
+        -displayMostActiveUsers() void
+        -displayMonthlyStats() void
+        -readFromFile() void
+        -saveToFile() void
+        -printLoans(vector~Loan~) void
+    }
+    class SearchInfoMenu {
+        +show() void
+        -displayAllBooks() void
+        -displayAllBookCopies() void
+        -searchBooks() void
+        -searchCopies() void
+        -viewShelves() void
+        -buildSearchQuery(searchQuery) void
+        -printBooks(vector~Book~) void
+        -printBookCopies(vector~BookCopy~) void
+    }
+    class LoanMenu {
+        +show() void
+        -displayRecommendations() void
+        -borrowBook() void
+        -renewBook() void
+        -returnBook() void
+        -displayCurrentLoans() void
+        -displayUserLoanHistory() void
+        -displayBookLoanHistory() void
+        -printLoans(vector~Loan~) void
+    }
+    class PersonalInfoMenu {
+        +show() void
+        -displayPersonalInfo() void
+        -updatePersonalInfo() void
+        -changePassword() void
+        -deleteAccount() void
+    }
+
+    %% ===== 继承关系 =====
+    User <|-- Admin
+    User <|-- Patron
+    Patron <|-- VIPPatron
+    IComparable <|.. VIPPatron
+
+    MenuBase <|-- AdminMenu
+    MenuBase <|-- UserMenu
+    MenuBase <|-- AboutMenu
+    MenuBase <|-- UserMonitorMenu
+    MenuBase <|-- BookMonitorMenu
+    MenuBase <|-- BookCopyMonitorMenu
+    MenuBase <|-- LoanMonitorMenu
+    MenuBase <|-- SearchInfoMenu
+    MenuBase <|-- LoanMenu
+    MenuBase <|-- PersonalInfoMenu
+
+    %% ===== 组合关系 =====
+    BookCopy *-- Location : contains
+    Loan *-- Date : loanDate
+    Loan *-- Date : dueDate
+    Loan *-- Date : returnDate
+
+    %% ===== 关联关系（字符串外键） =====
+    Book "1" --o "0..*" BookCopy : ISBN
+    BookCopy "1" --o "0..*" Loan : libCode
+    User "1" --o "0..*" Loan : userId
+
+    %% ===== DAO → Model 序列化 =====
+    BookDao ..> Book : serializes
+    BookCopyDao ..> BookCopy : serializes
+    LoanDao ..> Loan : serializes
+    UserDao ..> User : serializes
+
+    %% ===== Service → DAO =====
+    BookService ..> BookDao : uses
+    bookCopyService ..> BookCopyDao : uses
+    loanService ..> LoanDao : uses
+    UserService ..> UserDao : uses
+
+    %% ===== Service → Service =====
+    loanService ..> UserService : uses
+    loanService ..> BookService : uses
+    loanService ..> bookCopyService : uses
+    loanService ..> TimeService : uses
+
+    %% ===== Service → Model =====
+    BookService ..> Book : manages
+    bookCopyService ..> BookCopy : manages
+    loanService ..> Loan : manages
+    UserService ..> User : manages
+    TimeService ..> Date : uses
+    BookService ..> searchQuery : uses
+
+    %% ===== App → 菜单 =====
+    App ..> AdminMenu : creates
+    App ..> UserMenu : creates
+    App ..> AboutMenu : creates
+    App ..> UserService : uses
+
+    %% ===== 菜单 → Service =====
+    UserMonitorMenu ..> UserService
+    BookMonitorMenu ..> BookService
+    BookMonitorMenu ..> bookCopyService
+    BookCopyMonitorMenu ..> bookCopyService
+    BookCopyMonitorMenu ..> BookService
+    LoanMonitorMenu ..> loanService
+    LoanMonitorMenu ..> UserService
+    SearchInfoMenu ..> BookService
+    SearchInfoMenu ..> bookCopyService
+    LoanMenu ..> loanService
+    LoanMenu ..> UserService
+    LoanMenu ..> BookService
+    LoanMenu ..> bookCopyService
+    PersonalInfoMenu ..> UserService
+    PersonalInfoMenu ..> loanService

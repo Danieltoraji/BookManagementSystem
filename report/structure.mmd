@@ -1,0 +1,110 @@
+%%{ init: { 'theme': 'base', 'themeVariables': { 'fontSize': '14px', 'lineColor': '#555' } } }%%
+
+flowchart TD
+    %% ===== 第1层：入口与配置 =====
+    subgraph L1["入口与配置"]
+        direction LR
+        Entry["main.cpp<br/>程序入口<br/>设置UTF-8 + 创建App"]
+        CMake["CMakeLists.txt<br/>CMake构建配置<br/>C++17 / MSVC / UTF-8"]
+    end
+
+    %% ===== 第2层：表现层 console =====
+    subgraph L2["console — 表现层"]
+        direction LR
+        C_App["App<br/>主控制器<br/>登录/注册/角色分发"]
+        C_Base["MenuBase (抽象基类)<br/>displayMenu / readLine<br/>readInt / pause / clearScreen"]
+        C_About["AboutMenu<br/>关于信息"]
+        C_Admin["AdminMenu<br/>调度管理员子菜单"]
+        C_User["UserMenu<br/>调度用户子菜单"]
+        AM_User["UserMonitorMenu<br/>用户增删改查"]
+        AM_Book["BookMonitorMenu<br/>图书增删改查"]
+        AM_Copy["BookCopyMonitorMenu<br/>副本增删改查"]
+        AM_Loan["LoanMonitorMenu<br/>借阅记录+统计"]
+        UM_Search["SearchInfoMenu<br/>图书/副本搜索"]
+        UM_Loan["LoanMenu<br/>借还书+推荐"]
+        UM_Personal["PersonalInfoMenu<br/>个人信息管理"]
+    end
+
+    %% ===== 第3层：业务逻辑层 services =====
+    subgraph L3["services — 业务逻辑层 (单例)"]
+        direction LR
+        S_Book["BookService<br/>图书CRUD + 多条件搜索<br/>searchQuery: 字段/条件/逻辑"]
+        S_Copy["bookCopyService<br/>副本CRUD + 级联注销<br/>按ISBN/馆码/位置查询"]
+        S_Loan["loanService<br/>借/还/续 + 批量归还<br/>借阅历史查询<br/>统计分析(4项)"]
+        S_User["UserService<br/>用户CRUD + 认证<br/>密码异或加密<br/>currentUser管理"]
+        S_Time["TimeService<br/>借阅期30天 / 续期15天<br/>日期计算"]
+    end
+
+    %% ===== 第4层：数据访问层 dao =====
+    subgraph L4["dao — 数据访问层 (单例)"]
+        direction LR
+        DAO_Book["BookDao<br/>loadBooksFromFile()<br/>saveBooksToFile()<br/>bookToString() / stringToBook()"]
+        DAO_Copy["BookCopyDao<br/>loadBookCopiesFromFile()<br/>saveBookCopiesToFile()<br/>序列化/反序列化"]
+        DAO_Loan["LoanDao<br/>loadLoansFromFile()<br/>saveLoansToFile()<br/>loanToString() / stringToLoan()"]
+        DAO_User["UserDao<br/>loadUsersFromFile()<br/>saveUsersToFile()<br/>userToString() / stringToUser()"]
+    end
+
+    %% ===== 第5层：数据模型层 model =====
+    subgraph L5["model — 数据模型层"]
+        direction LR
+        M_User["User (抽象类)<br/>id / username / phone<br/>email / password<br/>displayInfo() = 0"]
+        M_Admin["Admin<br/>继承 User"]
+        M_Patron["Patron<br/>继承 User<br/>borrowLimit"]
+        M_VIP["VIPPatron<br/>继承 Patron + IComparable<br/>多重继承 / vipLevel"]
+        M_ICmp["IComparable (接口)<br/>compareTo() = 0"]
+        M_Book["Book<br/>ISBN / Title / Author<br/>Publisher / Year<br/>Category / Remarks"]
+        M_Copy["BookCopy<br/>ISBN / libCode<br/>bookLocation / status"]
+        M_Loan["Loan<br/>id / libCode / ISBN<br/>userId / loanDate<br/>dueDate / returnDate<br/>isReturned"]
+        M_Date["Date<br/>year / month / day<br/>运算符重载: + - == !=<br/>&lt; &gt; &lt;= &gt;= &lt;&lt;"]
+        M_Loc["Location<br/>lib / floor / row<br/>unit / level<br/>operator&lt;&lt;"]
+    end
+
+    %% ===== 第6层：持久化存储 data =====
+    subgraph L6["data — 持久化存储"]
+        direction LR
+        D1["books.txt<br/>图书数据"]
+        D2["bookcopies.txt<br/>图书副本数据"]
+        D3["users.txt<br/>用户数据"]
+        D4["loans.txt<br/>借阅记录数据"]
+    end
+
+    %% ===== 层间调用关系 =====
+    L1 --> L2
+    L2 --> L3
+    L3 --> L4
+    L4 --> L6
+    L3 --> L5
+
+    %% ===== 表现层内部关系 =====
+    C_App --> C_Base
+    C_App --> C_About
+    C_App --> C_Admin
+    C_App --> C_User
+    C_Admin --> AM_User
+    C_Admin --> AM_Book
+    C_Admin --> AM_Copy
+    C_Admin --> AM_Loan
+    C_User --> UM_Search
+    C_User --> UM_Loan
+    C_User --> UM_Personal
+
+    %% ===== 服务层内部关系 =====
+    S_Loan --> S_User
+    S_Loan --> S_Book
+    S_Loan --> S_Copy
+    S_Loan --> S_Time
+
+    %% ===== 样式 =====
+    style L1 fill:#fefcbf,stroke:#d69e2e
+    style L2 fill:#faf5ff,stroke:#805ad5
+    style L3 fill:#ebf5ff,stroke:#3182ce
+    style L4 fill:#fef5e7,stroke:#dd6b20
+    style L5 fill:#f0fff4,stroke:#38a169
+    style L6 fill:#fff5e7,stroke:#dd6b20
+    style Entry fill:#ebf5ff,stroke:#3182ce
+    style CMake fill:#fefcbf,stroke:#d69e2e
+    style C_App fill:#e9d8fd,stroke:#805ad5
+    style C_Base fill:#e9d8fd,stroke:#805ad5
+    style M_User fill:#c6f6d5,stroke:#38a169
+    style M_ICmp fill:#c6f6d5,stroke:#38a169
+    style M_VIP fill:#9ae6b4,stroke:#38a169

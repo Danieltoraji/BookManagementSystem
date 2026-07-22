@@ -1,0 +1,153 @@
+%%{ init: { 'theme': 'base', 'themeVariables': { 'fontSize': '14px', 'lineColor': '#555' } } }%%
+
+flowchart LR
+    %% ============ 入口 ============
+    Entry["main.cpp<br/>──────────<br/>设置UTF-8编码<br/>创建App并启动"]
+
+    %% ============ 表现层 ============
+    subgraph Console["console — 表现层"]
+        direction TB
+
+        App["App 主控制器<br/>──────────<br/>• run() 主循环<br/>• loginFlow() 登录流程<br/>• doLogin() 登录验证<br/>• doRegister() 用户注册<br/>• About() 关于信息<br/>• 角色分发(Admin/Patron)"]
+
+        MenuBase["MenuBase 菜单基类<br/>──────────<br/>• displayMenu() 显示菜单<br/>• readLine() 读取文本<br/>• readInt() 读取整数<br/>• pause() 暂停等待<br/>• clearScreen() 清屏<br/>• printSeparator() 分隔线"]
+
+        subgraph AdminMenus["管理员子菜单"]
+            direction TB
+            UserMonitor["UserMonitorMenu<br/>──────────<br/>• displayAllUsers() 查看所有用户<br/>• searchById() 按ID搜索<br/>• searchByUsername() 按用户名搜索<br/>• addPatron() 添加读者<br/>• addAdmin() 添加管理员<br/>• updateUserInfo() 修改用户信息<br/>• updatePassword() 修改密码<br/>• removeUser() 删除用户<br/>• readFromFile() 读取文件<br/>• saveToFile() 保存文件"]
+
+            BookMonitor["BookMonitorMenu<br/>──────────<br/>• searchBooks() 多条件搜索<br/>• displayAllBooks() 显示所有图书<br/>• searchByISBN() 按ISBN查询<br/>• addBook() 添加图书<br/>• updateBook() 修改图书<br/>• deleteBook() 删除图书(级联)<br/>• buildSearchQuery() 构造搜索条件<br/>• readFromFile() 读取文件<br/>• saveToFile() 保存文件"]
+
+            CopyMonitor["BookCopyMonitorMenu<br/>──────────<br/>• displayAllBookCopies() 查看所有副本<br/>• searchByISBN() 按ISBN搜索<br/>• searchByLibCode() 按馆藏号搜索<br/>• searchByLocation() 按位置搜索<br/>• addBookCopy() 添加副本<br/>• updateBookCopy() 修改副本<br/>• cancelBookCopy() 注销副本<br/>• removeBookCopy() 删除副本<br/>• readFromFile() 读取文件<br/>• saveToFile() 保存文件"]
+
+            LoanMonitor["LoanMonitorMenu<br/>──────────<br/>• displayAllLoans() 查看所有记录<br/>• searchByUser() 按用户查询<br/>• searchByISBN() 按ISBN查询<br/>• searchByLibCode() 按馆藏号查询<br/>• displayAllCurrentBorrowing() 在借一览<br/>• displayUserCurrentBorrowing() 用户在借<br/>• displayStatistics() 统计概览<br/>• displayMostBorrowed() 热门图书<br/>• displayMostActiveUsers() 活跃用户<br/>• displayMonthlyStats() 月度趋势<br/>• readFromFile() 读取文件<br/>• saveToFile() 保存文件"]
+        end
+
+        subgraph UserMenus["用户子菜单"]
+            direction TB
+            SearchMenu["SearchInfoMenu<br/>──────────<br/>• displayAllBooks() 浏览所有图书<br/>• displayAllBookCopies() 浏览所有副本<br/>• searchBooks() 多条件搜索图书<br/>• searchCopies() 搜索副本<br/>• viewShelves() 查看书架位置<br/>• buildSearchQuery() 构造搜索条件"]
+
+            LoanMenu["LoanMenu<br/>──────────<br/>• displayRecommendations() 推荐信息<br/>• borrowBook() 借阅图书<br/>• renewBook() 续借图书<br/>• returnBook() 归还图书<br/>• displayCurrentLoans() 当前借阅<br/>• displayUserLoanHistory() 借阅历史<br/>• displayBookLoanHistory() 图书借阅历史"]
+
+            PersonalMenu["PersonalInfoMenu<br/>──────────<br/>• displayPersonalInfo() 查看个人信息<br/>• updatePersonalInfo() 修改个人信息<br/>• changePassword() 修改密码<br/>• deleteAccount() 注销账号"]
+        end
+
+        AboutMenu["AboutMenu<br/>──────────<br/>• show() 显示系统信息"]
+    end
+
+    %% ============ 服务层 ============
+    subgraph Services["services — 业务逻辑层 (单例)"]
+        direction TB
+
+        BookSvc["BookService<br/>──────────<br/>• getAllBooks() 获取所有图书<br/>• addBook() 添加图书<br/>• removeBook() 删除图书(级联注销副本)<br/>• updateBook() 修改图书<br/>• searchBooks() 多条件模糊搜索<br/>• getBookByISBN() 按ISBN查询<br/>• getBookTitleByISBN() 获取书名<br/>• isBookValid() 图书有效性检查<br/>• readBooksFromFile() 读取文件<br/>• writeBooksToFile() 保存文件"]
+
+        CopySvc["bookCopyService<br/>──────────<br/>• getAllBookCopies() 获取所有副本<br/>• getBookCopiesByISBN() 按ISBN查询<br/>• getBookCopyByLibCode() 按馆藏号查询<br/>• getBookCopiesByLocation() 按位置查询<br/>• addBookCopy() 添加副本<br/>• updateBookCopy() 修改副本<br/>• cancelBookCopy() 注销副本(级联归还)<br/>• removeBookCopy() 删除副本(级联归还)<br/>• cancelAllBookCopiesByISBN() 批量注销<br/>• isLibCodeAvailable() 馆码可用性检查<br/>• readBookCopiesFromFile() 读取文件<br/>• writeBookCopiesToFile() 保存文件"]
+
+        LoanSvc["loanService<br/>──────────<br/>• borrowBook() 借书(7项检查)<br/>• returnBook() 还书<br/>• renewBook() 续借(逾期检查)<br/>• returnBookByLibCode() 按馆码批量归还<br/>• returnBooksByISBN() 按ISBN批量归还<br/>• getBorrowingBooksByUser() 用户在借<br/>• getBorrowHistoryByUser() 用户历史<br/>• getBorrowHistoryByISBN() 图书历史<br/>• getBorrowHistoryByLibCode() 副本历史<br/>• getAllCurrentBorrowing() 全部在借<br/>• getTotalBorrowedBooks() 总借阅量<br/>• getTotalBorrowingBooks() 当前出借数<br/>• getMostBorrowedBooks() 热门图书TopN<br/>• getMostActiveUsers() 活跃用户TopN<br/>• getTotalBorrowVSMonth() 月度趋势<br/>• getUserBorrowVSMonth() 个人月度趋势<br/>• readLoansFromFile() 读取文件<br/>• writeLoansToFile() 保存文件"]
+
+        UserSvc["UserService<br/>──────────<br/>• getAllUsers() 获取所有用户<br/>• addPatron() 添加读者<br/>• addAdmin() 添加管理员<br/>• removeUser() 删除用户(检查在借)<br/>• updatePatron() 修改读者信息<br/>• updatePatronPassword() 修改读者密码<br/>• updateAdmin() 修改管理员信息<br/>• updateAdminPassword() 修改管理员密码<br/>• getUserById() 按ID查询<br/>• getUserByUsername() 按用户名查询<br/>• authenticate() 身份验证<br/>• encryptPassword() 密码加密(异或)<br/>• decryptPassword() 密码解密<br/>• getCurrentUser() 获取当前用户<br/>• readUsersFromFile() 读取文件<br/>• writeUsersToFile() 保存文件"]
+
+        TimeSvc["TimeService<br/>──────────<br/>• calculateDueDate() 计算应还日期(+30天)<br/>• calculateRenewedDueDate() 续期后应还日期(+15天)<br/>• DEFAULT_BORROW_DAYS = 30<br/>• RENEW_DAYS = 15"]
+    end
+
+    %% ============ DAO层 ============
+    subgraph DAO["dao — 数据访问层 (单例)"]
+        direction TB
+        BookDao["BookDao<br/>──────────<br/>• loadBooksFromFile() 加载图书<br/>• saveBooksToFile() 保存图书<br/>• bookToString() 序列化<br/>• stringToBook() 反序列化"]
+
+        CopyDao["BookCopyDao<br/>──────────<br/>• loadBookCopiesFromFile() 加载副本<br/>• saveBookCopiesToFile() 保存副本<br/>• bookCopyToString() 序列化<br/>• stringToBookCopy() 反序列化"]
+
+        LoanDao["LoanDao<br/>──────────<br/>• loadLoansFromFile() 加载借阅<br/>• saveLoansToFile() 保存借阅<br/>• loanToString() 序列化<br/>• stringToLoan() 反序列化"]
+
+        UserDao["UserDao<br/>──────────<br/>• loadUsersFromFile() 加载用户<br/>• saveUsersToFile() 保存用户<br/>• userToString() 序列化(dynamic_cast)<br/>• stringToUser() 反序列化(多态创建)"]
+    end
+
+    %% ============ 模型层 ============
+    subgraph Model["model — 数据模型层"]
+        direction TB
+        ModelUser["User (抽象类)<br/>──────────<br/># id: string<br/># username: string<br/># phone: string<br/># email: string<br/># password: string<br/>──────────<br/>+ getId() / getUsername()<br/>+ getPhone() / getEmail()<br/>+ getPassword()<br/>+ setId() / setUsername()<br/>+ setPhone() / setEmail()<br/>+ setPassword()<br/>+ displayInfo() = 0 (纯虚)"]
+
+        ModelAdmin["Admin<br/>──────────<br/>继承 User<br/>──────────<br/>+ displayInfo() override"]
+
+        ModelPatron["Patron<br/>──────────<br/>继承 User<br/>- borrowLimit: int<br/>──────────<br/>+ getBorrowLimit()<br/>+ setBorrowLimit(int)<br/>+ displayInfo() override"]
+
+        ModelVIP["VIPPatron (多重继承)<br/>──────────<br/>继承 Patron + IComparable<br/>- vipLevel: int<br/>──────────<br/>+ getVipLevel()<br/>+ setVipLevel(int)<br/>+ displayInfo() override<br/>+ compareTo() override"]
+
+        ModelICmp["IComparable (接口)<br/>──────────<br/>+ compareTo() = 0 (纯虚)"]
+
+        ModelBook["Book<br/>──────────<br/>- ISBN: string<br/>- Title: string<br/>- Author: string<br/>- Publisher: string<br/>- PublishingYear: int<br/>- Category: string<br/>- Remarks: string<br/>──────────<br/>+ 7个getter + 7个setter"]
+
+        ModelCopy["BookCopy<br/>──────────<br/>- ISBN: string<br/>- libCode: string<br/>- bookLocation: Location<br/>- status: bookstatus<br/>──────────<br/>+ 4个getter + 4个setter"]
+
+        ModelLoan["Loan<br/>──────────<br/>- id: string<br/>- libCode: string<br/>- ISBN: string<br/>- userId: string<br/>- loanDate: Date<br/>- dueDate: Date<br/>- returnDate: Date<br/>- isReturned: bool<br/>──────────<br/>+ 8个getter + 8个setter<br/>+ isOverdue() 是否逾期<br/>+ getOverdueDays() 逾期天数"]
+
+        ModelDate["Date<br/>──────────<br/>- year: short<br/>- month: short<br/>- day: short<br/>──────────<br/>+ fromString() / today()<br/>+ toString() / toYearMonthString()<br/>+ operator+ (日期+天数)<br/>+ operator- (日期差)<br/>+ operator== != &lt; &gt; &lt;= &gt;=<br/>+ operator&lt;&lt; (流输出)"]
+
+        ModelLoc["Location<br/>──────────<br/>- lib: string<br/>- floor: short<br/>- row: short<br/>- unit: short<br/>- level: short<br/>──────────<br/>+ 5个getter + 5个setter<br/>+ setLocation() x2 (重载)<br/>+ toString()<br/>+ operator&lt;&lt; (流输出)"]
+    end
+
+    %% ============ 数据文件 ============
+    subgraph Data["data — 持久化存储"]
+        direction TB
+        F1["books.txt"]
+        F2["bookcopies.txt"]
+        F3["users.txt"]
+        F4["loans.txt"]
+    end
+
+    %% ============ 调用关系 ============
+    Entry --> App
+    App --> MenuBase
+    App --> AboutMenu
+    App --> UserSvc
+
+    App -->|Admin| UserMonitor
+    App -->|Admin| BookMonitor
+    App -->|Admin| CopyMonitor
+    App -->|Admin| LoanMonitor
+    App -->|Patron| SearchMenu
+    App -->|Patron| LoanMenu
+    App -->|Patron| PersonalMenu
+
+    UserMonitor --> UserSvc
+    BookMonitor --> BookSvc
+    BookMonitor --> CopySvc
+    CopyMonitor --> CopySvc
+    CopyMonitor --> BookSvc
+    LoanMonitor --> LoanSvc
+    LoanMonitor --> UserSvc
+    SearchMenu --> BookSvc
+    SearchMenu --> CopySvc
+    LoanMenu --> LoanSvc
+    LoanMenu --> UserSvc
+    LoanMenu --> BookSvc
+    LoanMenu --> CopySvc
+    PersonalMenu --> UserSvc
+    PersonalMenu --> LoanSvc
+
+    BookSvc --> BookDao
+    CopySvc --> CopyDao
+    LoanSvc --> LoanDao
+    UserSvc --> UserDao
+
+    LoanSvc --> UserSvc
+    LoanSvc --> BookSvc
+    LoanSvc --> CopySvc
+    LoanSvc --> TimeSvc
+
+    BookDao --> F1
+    CopyDao --> F2
+    UserDao --> F3
+    LoanDao --> F4
+
+    %% ============ 样式 ============
+    style Entry fill:#2d3748,stroke:#1a202c,color:#fff
+    style Console fill:#faf5ff,stroke:#805ad5
+    style Services fill:#ebf5ff,stroke:#3182ce
+    style DAO fill:#fef5e7,stroke:#dd6b20
+    style Model fill:#f0fff4,stroke:#38a169
+    style Data fill:#fff5e7,stroke:#dd6b20
+    style MenuBase fill:#e9d8fd,stroke:#805ad5
+    style ModelUser fill:#c6f6d5,stroke:#38a169
+    style ModelICmp fill:#c6f6d5,stroke:#38a169
+    style ModelVIP fill:#9ae6b4,stroke:#38a169

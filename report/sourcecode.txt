@@ -1,75 +1,235 @@
-======================================================================
-  图书管理系统 — 源程序清单
-  共 60 个文件，按分层自底向上排列（model → dao → services → console → main）
-======================================================================
+═══════════════════════════════════════════════════════════
+  图书管理系统 — 源代码清单
+  文件总数: 63  |  总行数: 4291
+  生成日期: 2026-07-23
+═══════════════════════════════════════════════════════════
 
-## 目录索引
+【索  引】
 
-1.  model/date.h
-2.  model/date.cpp
-3.  model/location.h
-4.  model/location.cpp
-5.  model/user.h
-6.  model/user.cpp
-7.  model/admin.h
-8.  model/admin.cpp
-9.  model/patron.h
-10. model/patron.cpp
-11. model/book.h
-12. model/book.cpp
-13. model/bookcopy.h
-14. model/bookcopy.cpp
-15. model/loan.h
-16. model/loan.cpp
-17. dao/bookdao.h
-18. dao/bookdao.cpp
-19. dao/bookcopydao.h
-20. dao/bookcopydao.cpp
-21. dao/loandao.h
-22. dao/loandao.cpp
-23. dao/userdao.h
-24. dao/userdao.cpp
-25. services/timeservice.h
-26. services/timeservice.cpp
-27. services/bookservice.h
-28. services/bookservice.cpp
-29. services/bookcopyservice.h
-30. services/bookcopyservice.cpp
-31. services/loanservice.h
-32. services/loanservice.cpp
-33. services/userservice.h
-34. services/userservice.cpp
-35. console/menu_base.h
-36. console/menu_base.cpp
-37. console/app.h
-38. console/app.cpp
-39. console/admin_menu.h
-40. console/admin_menu.cpp
-41. console/user_menu.h
-42. console/user_menu.cpp
-43. console/about_menu.h
-44. console/about_menu.cpp
-45. console/admin_submenu/user_monitor_menu.h
-46. console/admin_submenu/user_monitor_menu.cpp
-47. console/admin_submenu/book_monitor_menu.h
-48. console/admin_submenu/book_monitor_menu.cpp
-49. console/admin_submenu/bookcopy_monitor_menu.h
-50. console/admin_submenu/bookcopy_monitor_menu.cpp
-51. console/admin_submenu/loan_monitor_menu.h
-52. console/admin_submenu/loan_monitor_menu.cpp
-53. console/user_submenu/search_info_menu.h
-54. console/user_submenu/search_info_menu.cpp
-55. console/user_submenu/loan_menu.h
-56. console/user_submenu/loan_menu.cpp
-57. console/user_submenu/personal_info_menu.h
-58. console/user_submenu/personal_info_menu.cpp
-59. main.cpp
-60. CMakeLists.txt
+### CMake 构建配置
+  CMakeLists.txt  (59 行)
 
-======================================================================
+### 程序入口
+  main.cpp  (15 行)
+
+### Model 层 — 数据模型
+  model\icomparable.h  (13 行)
+  model\date.h  (40 行)
+  model\date.cpp  (139 行)
+  model\location.h  (34 行)
+  model\location.cpp  (53 行)
+  model\book.h  (36 行)
+  model\book.cpp  (24 行)
+  model\bookcopy.h  (26 行)
+  model\bookcopy.cpp  (15 行)
+  model\user.h  (30 行)
+  model\user.cpp  (17 行)
+  model\admin.h  (12 行)
+  model\admin.cpp  (11 行)
+  model\patron.h  (22 行)
+  model\patron.cpp  (15 行)
+  model\vippatron.h  (27 行)
+  model\vippatron.cpp  (31 行)
+  model\loan.h  (41 行)
+  model\loan.cpp  (35 行)
+
+### DAO 层 — 数据访问层
+  dao\bookdao.h  (31 行)
+  dao\bookdao.cpp  (63 行)
+  dao\bookcopydao.h  (28 行)
+  dao\bookcopydao.cpp  (91 行)
+  dao\userdao.h  (33 行)
+  dao\userdao.cpp  (81 行)
+  dao\loandao.h  (30 行)
+  dao\loandao.cpp  (67 行)
+
+### Services 层 — 业务逻辑层
+  services\timeservice.h  (22 行)
+  services\timeservice.cpp  (17 行)
+  services\bookservice.h  (49 行)
+  services\bookservice.cpp  (247 行)
+  services\bookcopyservice.h  (33 行)
+  services\bookcopyservice.cpp  (148 行)
+  services\userservice.h  (51 行)
+  services\userservice.cpp  (197 行)
+  services\loanservice.h  (52 行)
+  services\loanservice.cpp  (256 行)
+
+### Console 层 — 主菜单
+  console\menu_base.h  (23 行)
+  console\menu_base.cpp  (81 行)
+  console\app.h  (23 行)
+  console\app.cpp  (126 行)
+  console\admin_menu.h  (14 行)
+  console\admin_menu.cpp  (23 行)
+  console\user_menu.h  (17 行)
+  console\user_menu.cpp  (25 行)
+  console\about_menu.h  (11 行)
+  console\about_menu.cpp  (63 行)
+
+### Console 层 — 管理员子菜单
+  console\admin_submenu\user_monitor_menu.h  (31 行)
+  console\admin_submenu\user_monitor_menu.cpp  (241 行)
+  console\admin_submenu\book_monitor_menu.h  (28 行)
+  console\admin_submenu\book_monitor_menu.cpp  (277 行)
+  console\admin_submenu\bookcopy_monitor_menu.h  (28 行)
+  console\admin_submenu\bookcopy_monitor_menu.cpp  (251 行)
+  console\admin_submenu\loan_monitor_menu.h  (34 行)
+  console\admin_submenu\loan_monitor_menu.cpp  (173 行)
+
+### Console 层 — 用户子菜单
+  console\user_submenu\search_info_menu.h  (27 行)
+  console\user_submenu\search_info_menu.cpp  (235 行)
+  console\user_submenu\loan_menu.h  (27 行)
+  console\user_submenu\loan_menu.cpp  (209 行)
+  console\user_submenu\personal_info_menu.h  (20 行)
+  console\user_submenu\personal_info_menu.cpp  (113 行)
 
 
-==================== 文件: model/date.h ======================
+【Word 粘贴格式建议】
+  1. 全选粘贴到 Word 后，用查找替换(Ctrl+H)批量设置标题样式：
+     查找内容: ===== *=* =====  (勾选"使用通配符")
+     替换为: 格式→样式→标题 2
+  2. 将正文代码块设为等宽字体：全选 → Consolas 或 Courier New, 10pt
+  3. 建议页边距: 左2.5cm 右2cm 上下2cm, 行距1.25倍
+  4. 索引页可单独设为两栏布局节省空间
+
+
+
+
+
+###############################################################################
+#  CMake 构建配置
+###############################################################################
+
+
+===== CMakeLists.txt =====
+
+cmake_minimum_required(VERSION 3.15)
+
+project(BookManagementSystem VERSION 1.0.0 LANGUAGES CXX)
+
+# C++17 标准
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# 输出目录统一到 build/bin
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+# 源文件列表
+set(SOURCES
+    main.cpp
+    console/app.cpp
+    console/menu_base.cpp
+    console/admin_menu.cpp
+    console/user_menu.cpp
+    model/book.cpp
+    model/bookcopy.cpp
+    model/user.cpp
+    model/admin.cpp
+    model/patron.cpp
+    model/vippatron.cpp
+    model/loan.cpp
+    model/date.cpp
+    model/location.cpp
+    services/bookservice.cpp
+    services/bookcopyservice.cpp
+    services/loanservice.cpp
+    services/timeservice.cpp
+    services/userservice.cpp
+    dao/bookdao.cpp
+    dao/bookcopydao.cpp
+    dao/loandao.cpp
+    dao/userdao.cpp
+)
+
+# 可执行目标
+add_executable(BookManagementSystem ${SOURCES}
+    console/user_submenu/search_info_menu.cpp
+    console/user_submenu/loan_menu.cpp
+    console/user_submenu/personal_info_menu.cpp
+    console/admin_submenu/user_monitor_menu.cpp
+    console/admin_submenu/book_monitor_menu.cpp
+    console/admin_submenu/bookcopy_monitor_menu.cpp
+    console/admin_submenu/loan_monitor_menu.cpp
+    console/about_menu.cpp)
+
+# 包含目录
+target_include_directories(BookManagementSystem PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+# MSVC 编译选项：UTF-8 编码、精确头文件依赖追踪、加速增量构建
+if(MSVC)
+    target_compile_options(BookManagementSystem PRIVATE
+        /utf-8
+        /W3
+        /sourceDependencies  # 输出 JSON 格式的源文件依赖信息，CMake 4.4 据此做精确增量构建
+        /Zf                  # 并行 PDB 生成，加速增量构建
+    )
+endif()
+
+# Debug/Release 配置
+set(CMAKE_DEBUG_POSTFIX d)
+
+
+
+###############################################################################
+#  程序入口
+###############################################################################
+
+
+===== main.cpp =====
+
+#include "console/app.h"
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+int main()
+{
+#ifdef _WIN32
+    // 设置控制台为 UTF-8 编码，解决中文乱码
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+#endif
+
+    App app;
+    app.run();
+    return 0;
+}
+
+
+
+###############################################################################
+#  Model 层 — 数据模型
+###############################################################################
+
+
+===== model\icomparable.h =====
+
+#ifndef ICOMPARABLE_H
+#define ICOMPARABLE_H
+
+// 纯抽象接口类：定义可比较对象的通用接口
+// 任何继承此接口的类需实现 compareTo 方法，用于对象间的比较
+class IComparable
+{
+public:
+    virtual ~IComparable() = default;
+
+    // 比较当前对象与另一个对象
+    // 返回值：1 表示大于, 0 表示等于, -1 表示小于, -2 表示类型不匹配
+    virtual int compareTo(const IComparable &other) const = 0;
+};
+
+#endif // ICOMPARABLE_H
+
+
+===== model\date.h =====
+
 #ifndef DATE_H
 #define DATE_H
 #include <string>
@@ -119,7 +279,8 @@ public:
 #endif // DATE_H
 
 
-==================== 文件: model/date.cpp ====================
+===== model\date.cpp =====
+
 #include "date.h"
 #include <string>
 #include <sstream>
@@ -273,7 +434,8 @@ short Date::dayInMonth(const short &year, const short &month) const{
 }
 
 
-==================== 文件: model/location.h ====================
+===== model\location.h =====
+
 #ifndef LOCATION_H
 #define LOCATION_H
 #include <string>
@@ -316,7 +478,8 @@ public:
 #endif // LOCATION_H
 
 
-==================== 文件: model/location.cpp ====================
+===== model\location.cpp =====
+
 #include "location.h"
 #include <ostream>
 #include <sstream>
@@ -380,156 +543,8 @@ std::string Location::toString() const {
 }
 
 
-==================== 文件: model/user.h ======================
-#ifndef USER_H
-#define USER_H
+===== model\book.h =====
 
-#include <string>
-
-class User
-{
-protected:
-    std::string id;
-    std::string username;
-    std::string phone;
-    std::string email;
-    std::string password; // 当然是加密后的！
-
-public:
-    User(std::string id = "", std::string username = "", std::string phone = "", std::string email = "", std::string password = "");
-    virtual ~User() = default;
-
-    // Getters
-    std::string getId() const;
-    std::string getUsername() const;
-    std::string getPhone() const;
-    std::string getEmail() const;
-    std::string getPassword() const;
-
-    // Setters
-    void setId(const std::string &value);
-    void setUsername(const std::string &value);
-    void setPhone(const std::string &value);
-    void setEmail(const std::string &value);
-    void setPassword(const std::string &value);
-
-    //Display
-    virtual void displayInfo() const = 0;
-}; 
-
-#endif // USER_H
-
-
-==================== 文件: model/user.cpp ====================
-#include "user.h"
-
-User::User(std::string id, std::string username, std::string phone, std::string email, std::string password)
-    : id(id), username(username), phone(phone), email(email), password(password)
-{
-}
-
-// Getters
-std::string User::getId() const { return id; }
-std::string User::getUsername() const { return username; }
-std::string User::getPhone() const { return phone; }
-std::string User::getEmail() const { return email; }
-std::string User::getPassword() const { return password; }
-
-// Setters
-void User::setId(const std::string &value) { id = value; }
-void User::setUsername(const std::string &value) { username = value; }
-void User::setPhone(const std::string &value) { phone = value; }
-void User::setEmail(const std::string &value) { email = value; }
-void User::setPassword(const std::string &value) { password = value; }
-
-
-==================== 文件: model/admin.h =====================
-#ifndef ADMIN_H
-#define ADMIN_H
-#include "user.h"
-
-class Admin : public User
-{
-public:
-    Admin();
-    Admin(const std::string &id, const std::string &username, const std::string &phone,
-          const std::string &email, const std::string &password);
-
-    void displayInfo() const override;
-};
-
-#endif // ADMIN_H
-
-
-==================== 文件: model/admin.cpp ====================
-#include "admin.h"
-#include <iostream>
-
-Admin::Admin() {}
-
-Admin::Admin(const std::string &id, const std::string &username, const std::string &phone,
-             const std::string &email, const std::string &password)
-    : User(id, username, phone, email, password)
-{
-}
-
-void Admin::displayInfo() const {
-    std::cout << "ID: " << id << ", Username: " << username << ", Phone: " << phone << ", Email: " << email << " (Admin)" << std::endl;
-}
-
-
-==================== 文件: model/patron.h ====================
-#ifndef PATRON_H
-#define PATRON_H
-#include "user.h"
-#include <list>
-#include <string>
-#include <iostream>
-
-class Patron : public User
-{
-private:
-    int borrowLimit;
-
-public:
-    Patron(const std::string &id, const std::string &username, const std::string &phone, const std::string &email,
-        const std::string &password,
-        int borrowLimit = 5);
-
-    // Getters
-    int getBorrowLimit() const;
-
-    // Setters
-    void setBorrowLimit(int limit);
-
-    // Display
-    void displayInfo() const override;
-};
-
-#endif // PATRON_H
-
-
-==================== 文件: model/patron.cpp ====================
-#include "patron.h"
-
-Patron::Patron(const std::string &id, const std::string &username, const std::string &phone, const std::string &email,
-               const std::string &password,
-               int borrowLimit)
-    : User(id, username, phone, email, password), borrowLimit(borrowLimit)
-{
-}
-
-// Getters
-int Patron::getBorrowLimit() const { return borrowLimit; }
-// Setters
-void Patron::setBorrowLimit(int limit) { borrowLimit = limit; }
-// Display
-void Patron::displayInfo() const {
-    std::cout << "ID: " << id << ", Username: " << username << ", Phone: " << phone << ", Email: " << email << ", Borrow Limit: " << borrowLimit << std::endl;
-}
-
-
-==================== 文件: model/book.h ======================
 #ifndef BOOK_H
 #define BOOK_H
 
@@ -574,7 +589,8 @@ public:
 #endif // BOOK_H
 
 
-==================== 文件: model/book.cpp ====================
+===== model\book.cpp =====
+
 #include "book.h"
 
 Book::Book(const std::string &isbn, const std::string &title, const std::string &author,
@@ -604,7 +620,8 @@ void Book::setCategory(const std::string &value) { Category = value; }
 void Book::setRemarks(const std::string &value) { Remarks = value; }
 
 
-==================== 文件: model/bookcopy.h ====================
+===== model\bookcopy.h =====
+
 #ifndef BOOKCOPY_H
 #define BOOKCOPY_H
 #include <string>
@@ -638,7 +655,8 @@ public:
 #endif // BOOKCOPY_H
 
 
-==================== 文件: model/bookcopy.cpp ====================
+===== model\bookcopy.cpp =====
+
 #include "bookcopy.h"
 
 BookCopy::BookCopy(const std::string &isbn, const std::string &libCode, const Location &location, const bookstatus &status)
@@ -659,7 +677,243 @@ void BookCopy::setBookLocation(const Location &loc) { bookLocation = loc; }
 void BookCopy::setStatus(const bookstatus &sta) { status = sta; }
 
 
-==================== 文件: model/loan.h ======================
+===== model\user.h =====
+
+#ifndef USER_H
+#define USER_H
+
+#include <string>
+
+class User
+{
+protected:
+    std::string id;
+    std::string username;
+    std::string phone;
+    std::string email;
+    std::string password; // 当然是加密后的！
+
+public:
+    User(std::string id = "", std::string username = "", std::string phone = "", std::string email = "", std::string password = "");
+    virtual ~User() = default;
+
+    // Getters
+    std::string getId() const;
+    std::string getUsername() const;
+    std::string getPhone() const;
+    std::string getEmail() const;
+    std::string getPassword() const;
+
+    // Setters
+    void setId(const std::string &value);
+    void setUsername(const std::string &value);
+    void setPhone(const std::string &value);
+    void setEmail(const std::string &value);
+    void setPassword(const std::string &value);
+
+    //Display
+    virtual void displayInfo() const = 0;
+}; 
+
+#endif // USER_H
+
+
+===== model\user.cpp =====
+
+#include "user.h"
+
+User::User(std::string id, std::string username, std::string phone, std::string email, std::string password)
+    : id(id), username(username), phone(phone), email(email), password(password)
+{
+}
+
+// Getters
+std::string User::getId() const { return id; }
+std::string User::getUsername() const { return username; }
+std::string User::getPhone() const { return phone; }
+std::string User::getEmail() const { return email; }
+std::string User::getPassword() const { return password; }
+
+// Setters
+void User::setId(const std::string &value) { id = value; }
+void User::setUsername(const std::string &value) { username = value; }
+void User::setPhone(const std::string &value) { phone = value; }
+void User::setEmail(const std::string &value) { email = value; }
+void User::setPassword(const std::string &value) { password = value; }
+
+
+===== model\admin.h =====
+
+#ifndef ADMIN_H
+#define ADMIN_H
+#include "user.h"
+
+class Admin : public User
+{
+public:
+    Admin();
+    Admin(const std::string &id, const std::string &username, const std::string &phone,
+          const std::string &email, const std::string &password);
+
+    void displayInfo() const override;
+};
+
+#endif // ADMIN_H
+
+
+===== model\admin.cpp =====
+
+#include "admin.h"
+#include <iostream>
+
+Admin::Admin() {}
+
+Admin::Admin(const std::string &id, const std::string &username, const std::string &phone,
+             const std::string &email, const std::string &password)
+    : User(id, username, phone, email, password)
+{
+}
+
+void Admin::displayInfo() const {
+    std::cout << "ID: " << id << ", Username: " << username << ", Phone: " << phone << ", Email: " << email << " (Admin)" << std::endl;
+}
+
+
+===== model\patron.h =====
+
+#ifndef PATRON_H
+#define PATRON_H
+#include "user.h"
+#include <list>
+#include <string>
+#include <iostream>
+
+class Patron : public User
+{
+private:
+    int borrowLimit;
+
+public:
+    Patron(const std::string &id, const std::string &username, const std::string &phone, const std::string &email,
+        const std::string &password,
+        int borrowLimit = 5);
+
+    // Getters
+    int getBorrowLimit() const;
+
+    // Setters
+    void setBorrowLimit(int limit);
+
+    // Display
+    void displayInfo() const override;
+};
+
+#endif // PATRON_H
+
+
+===== model\patron.cpp =====
+
+#include "patron.h"
+
+Patron::Patron(const std::string &id, const std::string &username, const std::string &phone, const std::string &email,
+               const std::string &password,
+               int borrowLimit)
+    : User(id, username, phone, email, password), borrowLimit(borrowLimit)
+{
+}
+
+// Getters
+int Patron::getBorrowLimit() const { return borrowLimit; }
+// Setters
+void Patron::setBorrowLimit(int limit) { borrowLimit = limit; }
+// Display
+void Patron::displayInfo() const {
+    std::cout << "ID: " << id << ", Username: " << username << ", Phone: " << phone << ", Email: " << email << ", Borrow Limit: " << borrowLimit << std::endl;
+}
+
+
+===== model\vippatron.h =====
+
+#ifndef VIPPATRON_H
+#define VIPPATRON_H
+
+#include "patron.h"
+#include "icomparable.h"
+#include <iostream>
+
+// VIP读者类：多重继承自 Patron 和 IComparable
+// - 继承 Patron：拥有普通读者的全部属性和行为（借阅上限等）
+// - 继承 IComparable：实现 compareTo 方法，支持基于借阅上限的对象比较
+class VIPPatron : public Patron, public IComparable
+{
+private:
+    int vipLevel; // VIP等级（1-5）
+
+public:
+    VIPPatron(const std::string &id, const std::string &username, const std::string &phone,
+              const std::string &email, const std::string &password,
+              int borrowLimit = 10, int vipLevel = 1);
+
+    // Getters
+    int getVipLevel() const;
+
+    // Setters
+    void setVipLevel(int level);
+
+    // 重写 User 的纯虚函数
+    void displayInfo() const override;
+
+    // 重写 IComparable 的纯虚函数
+    // 基于 borrowLimit 比较：1=大于, 0=等于, -1=小于, -2=类型不匹配
+    int compareTo(const IComparable &other) const override;
+};
+
+#endif // VIPPATRON_H
+
+
+===== model\vippatron.cpp =====
+
+#include "vippatron.h"
+
+VIPPatron::VIPPatron(const std::string &id, const std::string &username, const std::string &phone,
+                     const std::string &email, const std::string &password,
+                     int borrowLimit, int vipLevel)
+    : Patron(id, username, phone, email, password, borrowLimit), vipLevel(vipLevel)
+{
+}
+
+// Getters
+int VIPPatron::getVipLevel() const { return vipLevel; }
+
+// Setters
+void VIPPatron::setVipLevel(int level) { vipLevel = level; }
+
+// 重写 displayInfo：先调用父类 Patron 的 displayInfo，再追加 VIP 信息
+void VIPPatron::displayInfo() const {
+    Patron::displayInfo();
+    std::cout << "  [VIP] VIP等级: " << vipLevel << std::endl;
+}
+
+// 重写 compareTo：基于借阅上限比较两个 VIPPatron 对象
+int VIPPatron::compareTo(const IComparable &other) const {
+    // 尝试将 other 转换为 VIPPatron，类型不匹配则返回 -2
+    const VIPPatron *otherVIP = dynamic_cast<const VIPPatron *>(&other);
+    if (!otherVIP) {
+        return -2;
+    }
+
+    if (getBorrowLimit() > otherVIP->getBorrowLimit()) {
+        return 1;
+    } else if (getBorrowLimit() == otherVIP->getBorrowLimit()) {
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
+
+===== model\loan.h =====
+
 #ifndef LOAN_H
 #define LOAN_H
 #include <string>
@@ -709,7 +963,8 @@ public:
 #endif // LOAN_H
 
 
-==================== 文件: model/loan.cpp ====================
+===== model\loan.cpp =====
+
 #include "loan.h"
 
 Loan::Loan(std::string id, std::string libCode, std::string ISBN, std::string userId,
@@ -752,7 +1007,14 @@ int Loan::getOverdueDays() const
 }
 
 
-==================== 文件: dao/bookdao.h =====================
+
+###############################################################################
+#  DAO 层 — 数据访问层
+###############################################################################
+
+
+===== dao\bookdao.h =====
+
 #ifndef BOOKDAO_H
 #define BOOKDAO_H
 #include <string>
@@ -786,10 +1048,12 @@ private:
 每行一个图书信息，字段之间用|分隔
 ISBN|Title|Author|Publisher|PublishingYear|Category|Remarks
 978-7-121-12345-6|C++ Primer|Lippman|电子工业出版社|2020|编程|畅销书
+978-7-302-52690-2|C/C++程序设计教程|黄永峰、孙甲松|清华大学出版社|2019|编程|教材，清华大学电子工程系核心课
 */
 
 
-==================== 文件: dao/bookdao.cpp ====================
+===== dao\bookdao.cpp =====
+
 #include "bookdao.h"
 
 #include <algorithm>
@@ -868,7 +1132,8 @@ Book BookDao::stringToBook(const std::string& bookStr) const
 }
 
 
-==================== 文件: dao/bookcopydao.h ====================
+===== dao\bookcopydao.h =====
+
 #ifndef BOOKCOPYDAO_H
 #define BOOKCOPYDAO_H
 #include <string>
@@ -905,7 +1170,8 @@ ISBN|libCode|bookLocation|status
 */
 
 
-==================== 文件: dao/bookcopydao.cpp ====================
+===== dao\bookcopydao.cpp =====
+
 #include "bookcopydao.h"
 #include <algorithm>
 #include <fstream>
@@ -1009,122 +1275,8 @@ bool BookCopyDao::saveBookCopiesToFile(const std::string& filename, const std::v
 }
 
 
-==================== 文件: dao/loandao.h =====================
-#ifndef LOANDAO_H
-#define LOANDAO_H
-#include <string>
-#include <vector>
-#include "model/loan.h"
-class LoanDao
-{
-public:
-    // 单例实现
-    static LoanDao& getInstance();
-    LoanDao(const LoanDao&) = delete;
-    LoanDao& operator=(const LoanDao&) = delete;
-    LoanDao(LoanDao&&) = delete;
-    LoanDao& operator=(LoanDao&&) = delete;
+===== dao\userdao.h =====
 
-    // 文件更新
-    std::vector<Loan> loadLoansFromFile(const std::string& filename);
-    bool saveLoansToFile(const std::string& filename, const std::vector<Loan>& loans) const;
-
-private:
-    LoanDao();
-
-    // 序列化辅助函数
-    std::string loanToString(const Loan& loan) const;
-    Loan stringToLoan(const std::string& loanStr) const;
-};
-
-#endif // LOANDAO_H
-
-/*
-借阅记录文件设计格式：
-每行一个借阅信息，字段之间用|分隔
-id|libCode|ISBN|userId|loanDate|dueDate|returnDate|isReturned
-20260600001|LIB001|978-7-121-12345-6|p001|2023-06-01|2023-06-15|2023-06-10|1
-*/
-
-
-==================== 文件: dao/loandao.cpp ====================
-#include "loandao.h"
-#include <algorithm>
-#include <fstream>
-#include <string>
-#include <sstream>
-#include <vector>
-
-LoanDao::LoanDao() {}
-
-LoanDao& LoanDao::getInstance()
-{
-    static LoanDao instance;
-    return instance;
-}
-
-std::string LoanDao::loanToString(const Loan& loan) const
-{
-    std::ostringstream stream;
-    stream << loan.getId() << '|'
-           << loan.getLibCode() << '|'
-           << loan.getISBN() << '|'
-           << loan.getUserId() << '|'
-           << loan.getLoanDate() << '|'
-           << loan.getDueDate() << '|'
-           << loan.getReturnDate() << '|'
-           << (loan.getIsReturned() ? '1' : '0');
-    return stream.str();
-}
-
-Loan LoanDao::stringToLoan(const std::string& loanStr) const
-{
-    std::istringstream stream(loanStr);
-    std::string field;
-    std::vector<std::string> fields;
-    while (std::getline(stream, field, '|')) {
-        fields.push_back(field);
-    }
-    if (fields.size() < 8) {
-        return Loan("", "", "", "", Date(0, 0, 0), Date(0, 0, 0), Date(0, 0, 0), false);
-    }
-    return Loan(fields[0], fields[1], fields[2], fields[3],
-                Date::fromString(fields[4]), Date::fromString(fields[5]),
-                Date::fromString(fields[6]), fields[7] == "1");
-}
-
-std::vector<Loan> LoanDao::loadLoansFromFile(const std::string& filename)
-{
-    std::vector<Loan> loans;
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        return loans;
-    }
-
-    std::string line;
-    while (std::getline(file, line)) {
-        if (line.empty()) {
-            continue;
-        }
-        loans.push_back(stringToLoan(line));
-    }
-    return loans;
-}
-
-bool LoanDao::saveLoansToFile(const std::string& filename, const std::vector<Loan>& loans) const
-{
-    std::ofstream file(filename, std::ios::trunc);
-    if (!file.is_open()) {
-        return false;
-    }
-    for (const auto& loan : loans) {
-        file << loanToString(loan) << '\n';
-    }
-    return true;
-}
-
-
-==================== 文件: dao/userdao.h =====================
 #ifndef USERDAO_H
 #define USERDAO_H
 #include <string>
@@ -1166,7 +1318,8 @@ Patron|p001|张三|13800138000|zhangsan@example.com|<encrypted>|5
 */
 
 
-==================== 文件: dao/userdao.cpp ====================
+===== dao\userdao.cpp =====
+
 #include "userdao.h"
 #include "model/admin.h"
 #include "model/patron.h"
@@ -1258,7 +1411,131 @@ bool UserDao::saveUsersToFile(const std::string& filename, const std::vector<Use
 }
 
 
-==================== 文件: services/timeservice.h ====================
+===== dao\loandao.h =====
+
+#ifndef LOANDAO_H
+#define LOANDAO_H
+#include <string>
+#include <vector>
+#include "model/loan.h"
+class LoanDao
+{
+public:
+    // 单例实现
+    static LoanDao& getInstance();
+    LoanDao(const LoanDao&) = delete;
+    LoanDao& operator=(const LoanDao&) = delete;
+    LoanDao(LoanDao&&) = delete;
+    LoanDao& operator=(LoanDao&&) = delete;
+
+    // 文件更新
+    std::vector<Loan> loadLoansFromFile(const std::string& filename);
+    bool saveLoansToFile(const std::string& filename, const std::vector<Loan>& loans) const;
+
+private:
+    LoanDao();
+
+    // 序列化辅助函数
+    std::string loanToString(const Loan& loan) const;
+    Loan stringToLoan(const std::string& loanStr) const;
+};
+
+#endif // LOANDAO_H
+
+/*
+借阅记录文件设计格式：
+每行一个借阅信息，字段之间用|分隔
+id|libCode|ISBN|userId|loanDate|dueDate|returnDate|isReturned
+20260600001|LIB001|978-7-121-12345-6|p001|2023-06-01|2023-06-15|2023-06-10|1
+*/
+
+
+===== dao\loandao.cpp =====
+
+#include "loandao.h"
+#include <algorithm>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <vector>
+
+LoanDao::LoanDao() {}
+
+LoanDao& LoanDao::getInstance()
+{
+    static LoanDao instance;
+    return instance;
+}
+
+std::string LoanDao::loanToString(const Loan& loan) const
+{
+    std::ostringstream stream;
+    stream << loan.getId() << '|'
+           << loan.getLibCode() << '|'
+           << loan.getISBN() << '|'
+           << loan.getUserId() << '|'
+           << loan.getLoanDate() << '|'
+           << loan.getDueDate() << '|'
+           << loan.getReturnDate() << '|'
+           << (loan.getIsReturned() ? '1' : '0');
+    return stream.str();
+}
+
+Loan LoanDao::stringToLoan(const std::string& loanStr) const
+{
+    std::istringstream stream(loanStr);
+    std::string field;
+    std::vector<std::string> fields;
+    while (std::getline(stream, field, '|')) {
+        fields.push_back(field);
+    }
+    if (fields.size() < 8) {
+        return Loan("", "", "", "", Date(0, 0, 0), Date(0, 0, 0), Date(0, 0, 0), false);
+    }
+    return Loan(fields[0], fields[1], fields[2], fields[3],
+                Date::fromString(fields[4]), Date::fromString(fields[5]),
+                Date::fromString(fields[6]), fields[7] == "1");
+}
+
+std::vector<Loan> LoanDao::loadLoansFromFile(const std::string& filename)
+{
+    std::vector<Loan> loans;
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        return loans;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        if (line.empty()) {
+            continue;
+        }
+        loans.push_back(stringToLoan(line));
+    }
+    return loans;
+}
+
+bool LoanDao::saveLoansToFile(const std::string& filename, const std::vector<Loan>& loans) const
+{
+    std::ofstream file(filename, std::ios::trunc);
+    if (!file.is_open()) {
+        return false;
+    }
+    for (const auto& loan : loans) {
+        file << loanToString(loan) << '\n';
+    }
+    return true;
+}
+
+
+
+###############################################################################
+#  Services 层 — 业务逻辑层
+###############################################################################
+
+
+===== services\timeservice.h =====
+
 #ifndef TIMESERVICE_H
 #define TIMESERVICE_H
 #include "model/date.h"
@@ -1288,7 +1565,8 @@ private:
 #endif // TIMESERVICE_H
 
 
-==================== 文件: services/timeservice.cpp ====================
+===== services\timeservice.cpp =====
+
 #include "timeservice.h"
 
 TimeService::TimeService()
@@ -1312,7 +1590,8 @@ Date TimeService::calculateRenewedDueDate(const Date& currentDueDate) const
 }
 
 
-==================== 文件: services/bookservice.h ====================
+===== services\bookservice.h =====
+
 #ifndef BOOKSERVICE_H
 #define BOOKSERVICE_H
 #include <string>
@@ -1371,7 +1650,8 @@ private:
 #endif // BOOKSERVICE_H
 
 
-==================== 文件: services/bookservice.cpp ====================
+===== services\bookservice.cpp =====
+
 #include "bookservice.h"
 #include "bookcopyservice.h"
 #include "loanservice.h"
@@ -1638,7 +1918,8 @@ bool BookService::isBookValid(const std::string& isbn) const {
 }
 
 
-==================== 文件: services/bookcopyservice.h ====================
+===== services\bookcopyservice.h =====
+
 #ifndef BOOKCOPYSERVICE_H
 #define BOOKCOPYSERVICE_H
 #include <string>
@@ -1680,7 +1961,8 @@ private:
 #endif // BOOKCOPYSERVICE_H
 
 
-==================== 文件: services/bookcopyservice.cpp ====================
+===== services\bookcopyservice.cpp =====
+
 #include "bookcopyservice.h"
 #include "dao/bookcopydao.h"
 #include "loanservice.h"
@@ -1837,7 +2119,297 @@ bool bookCopyService::isLibCodeAvailable(const std::string& libCode) const
 }
 
 
-==================== 文件: services/loanservice.h ====================
+===== services\userservice.h =====
+
+#ifndef USERSERVICE_H
+#define USERSERVICE_H
+#include <string>
+#include <vector>
+#include "model/user.h"
+#include "dao/userdao.h"
+
+/*密码加密约定：
+明文：add和update函数的形参。
+加密：add和update函数内部。加密方法：以用户ID为密钥的异或加密。
+密文：构造函数的形参，文件的存储，主存的数据。
+*/
+class UserService
+{
+public:
+    static UserService& getInstance();
+    UserService(const UserService&) = delete;
+    UserService& operator=(const UserService&) = delete;
+    UserService(UserService&&) = delete;
+    UserService& operator=(UserService&&) = delete;
+
+    // 强制存写
+    bool readUsersFromFile();
+    bool writeUsersToFile() const;
+
+    // 用户管理
+    std::vector<User*> getAllUsers() const;
+    bool addPatron(const std::string& id, const std::string& username, const std::string& phone,
+                   const std::string& email, const std::string& plainPassword, int borrowLimit = 5);
+    bool addAdmin(const std::string& id, const std::string& username, const std::string& phone,
+                  const std::string& email, const std::string& plainPassword);
+    bool removeUser(const std::string& id, std::string& errorMessage);
+    bool updatePatron(const std::string& id, const std::string& username, const std::string& phone,
+                      const std::string& email, int borrowLimit = 5);
+    bool updatePatronPassword(const std::string& id, const std::string& plainPassword);
+    bool updateAdmin(const std::string& id, const std::string& username, const std::string& phone,
+                     const std::string& email);
+    bool updateAdminPassword(const std::string& id, const std::string& plainPassword);
+
+    // 用户查询
+
+    User* getUserById(const std::string& id) const;
+    User* getUserByUsername(const std::string& username) const;
+
+    // 用户验证
+    User* authenticate(const std::string& id, const std::string& password) const;
+    std::string encryptPassword(const std::string& password, const std::string& key) const;
+    std::string decryptPassword(const std::string& encryptedPassword, const std::string& key) const;
+    User* getCurrentUser() const;
+    
+    // 数据主存
+    std::vector<User*> users;
+    mutable User* currentUser = nullptr; // 当前登录用户
+private:
+    UserService();
+};
+
+#endif // USERSERVICE_H
+
+
+===== services\userservice.cpp =====
+
+#include "userservice.h"
+#include "model/admin.h"
+#include "model/patron.h"
+#include "loanservice.h"
+#include <algorithm>
+#include <cstdio>
+
+UserService& UserService::getInstance()
+{
+    static UserService instance;
+    return instance;
+}
+
+UserService::UserService()
+{
+    readUsersFromFile();
+}
+
+bool UserService::readUsersFromFile()
+{
+    // 释放旧数据
+    for (User* user : users) {
+        delete user;//因为users是基类
+    }
+    users.clear();
+
+    users = UserDao::getInstance().loadUsersFromFile("data/users.txt");
+    return !users.empty();
+}
+
+bool UserService::writeUsersToFile() const
+{
+    return UserDao::getInstance().saveUsersToFile("data/users.txt", users);
+}
+
+std::vector<User*> UserService::getAllUsers() const
+{
+    return users;
+}
+
+bool UserService::addPatron(const std::string& id, const std::string& username, const std::string& phone,
+                            const std::string& email, const std::string& plainPassword, int borrowLimit)
+{
+    if (getUserById(id)) {
+        return false; // ID 已存在
+    }
+    std::string encrypted = encryptPassword(plainPassword, id);
+    User* user = new Patron(id, username, phone, email, encrypted, borrowLimit);
+    users.push_back(user);
+    writeUsersToFile();
+    return true;
+}
+
+bool UserService::addAdmin(const std::string& id, const std::string& username, const std::string& phone,
+                           const std::string& email, const std::string& plainPassword)
+{
+    if (getUserById(id)) {
+        return false; // ID 已存在
+    }
+    std::string encrypted = encryptPassword(plainPassword, id);
+    User* user = new Admin(id, username, phone, email, encrypted);
+    users.push_back(user);
+    writeUsersToFile();
+    return true;
+}
+
+bool UserService::removeUser(const std::string& id, std::string& errorMessage)
+{
+    auto it = std::find_if(users.begin(), users.end(),
+    [&](User* u) { return u->getId() == id; });
+
+    if (it == users.end()) {
+        errorMessage = "未找到ID为 " + id + " 的用户";
+        return false;
+    }
+    // 检查该用户是否有未归还的图书，有则禁止删除
+    if (!loanService::getInstance().getBorrowingBooksByUser(id).empty()) {
+        errorMessage = "该用户有未归还的图书，无法注销/删除";
+        return false;
+    }
+    delete *it;
+    users.erase(it);
+    writeUsersToFile(); // 自动更新文件
+    return true;
+}
+
+bool UserService::updatePatron(const std::string& id, const std::string& username, const std::string& phone,
+                               const std::string& email, int borrowLimit)
+{
+    auto it = std::find_if(users.begin(), users.end(), [&](User* u) {
+        return u->getId() == id;
+    });
+
+    if (it == users.end()) {
+        return false;
+    }
+    // 若被更新的是当前登录用户，delete 后 currentUser 会悬空，需同步更新
+    bool isCurrentUser = (currentUser == *it);
+    std::string password = (*it)->getPassword();
+    delete *it;
+    *it = new Patron(id, username, phone, email, password, borrowLimit);
+    if (isCurrentUser) {
+        currentUser = *it;
+    }
+    writeUsersToFile();
+    return true;
+}
+
+bool UserService::updatePatronPassword(const std::string& id, const std::string& plainPassword)
+{
+    auto it = std::find_if(users.begin(), users.end(), [&](User* u) {
+        return u->getId() == id;
+    });
+
+    if (it == users.end()) {
+        return false;
+    }
+    std::string encrypted = encryptPassword(plainPassword, id);
+    (*it)->setPassword(encrypted);
+    writeUsersToFile();
+    return true;
+}
+
+bool UserService::updateAdmin(const std::string& id, const std::string& username, const std::string& phone,
+                              const std::string& email)
+{
+    auto it = std::find_if(users.begin(), users.end(), [&](User* u) {
+        return u->getId() == id;
+    });
+
+    if (it == users.end()) {
+        return false;
+    }
+    // 若被更新的是当前登录用户，delete 后 currentUser 会悬空，需同步更新
+    bool isCurrentUser = (currentUser == *it);
+    std::string password = (*it)->getPassword();
+    delete *it;
+    *it = new Admin(id, username, phone, email, password);
+    if (isCurrentUser) {
+        currentUser = *it;
+    }
+    writeUsersToFile();
+    return true;
+}
+
+bool UserService::updateAdminPassword(const std::string& id, const std::string& plainPassword)
+{
+    auto it = std::find_if(users.begin(), users.end(), [&](User* u) {
+        return u->getId() == id;
+    });
+
+    if (it == users.end()) {
+        return false;
+    }
+    std::string encrypted = encryptPassword(plainPassword, id);
+    (*it)->setPassword(encrypted);
+    writeUsersToFile();
+    return true;
+}
+
+User* UserService::getUserById(const std::string& id) const
+{
+    auto it = std::find_if(users.begin(), users.end(),
+    [&](User* u) { return u->getId() == id; });
+
+    if (it != users.end()) {
+        return *it;
+    }
+    return nullptr;
+}
+
+User* UserService::getUserByUsername(const std::string& username) const
+{
+    auto it = std::find_if(users.begin(), users.end(),
+    [&](User* u) { return u->getUsername() == username; });
+
+    if (it != users.end()) {
+        return *it;
+    }
+    return nullptr;
+}
+
+std::string UserService::encryptPassword(const std::string& password, const std::string& key) const
+{
+    // 这里采用了异或加密，key是用户的 id，保证每个用户的密码加密方式不同。
+    // 然后为了防止.txt打不开，将结果转换为十六进制字符串存储。
+    std::string hex;
+    hex.reserve(password.length() * 2);
+    for (size_t i = 0; i < password.length(); ++i) {
+        unsigned char xored = static_cast<unsigned char>(password[i]) ^ static_cast<unsigned char>(key[i % key.length()]);
+        char buf[3];
+        std::snprintf(buf, sizeof(buf), "%02x", xored);
+        hex += buf;
+    }
+    return hex;
+}
+
+std::string UserService::decryptPassword(const std::string& encryptedPassword, const std::string& key) const
+{
+    // 从十六进制字符串还原 XOR 结果，再异或解密
+    std::string decrypted;
+    decrypted.reserve(encryptedPassword.length() / 2);
+    for (size_t i = 0; i + 1 < encryptedPassword.length(); i += 2) {
+        unsigned char xored = static_cast<unsigned char>(std::stoi(encryptedPassword.substr(i, 2), nullptr, 16));
+        decrypted += static_cast<char>(xored ^ static_cast<unsigned char>(key[(i / 2) % key.length()]));
+    }
+    return decrypted;
+}
+
+User* UserService::authenticate(const std::string& id, const std::string& password) const
+{
+    User* user = getUserById(id);
+    if (user && encryptPassword(password, user->getId()) == user->getPassword()) {
+        currentUser = user;
+        return user;
+    }//先查找用户名，再比对加密后的密码对不对。加密密钥是用户id.
+    return nullptr;
+}
+
+User* UserService::getCurrentUser() const
+{
+    return currentUser;
+}
+
+
+===== services\loanservice.h =====
+
 #ifndef LOANSERVICE_H
 #define LOANSERVICE_H
 #include <string>
@@ -1901,7 +2473,8 @@ private:
 #endif // LOANSERVICE_H
 
 
-==================== 文件: services/loanservice.cpp ====================
+===== services\loanservice.cpp =====
+
 #include "loanservice.h"
 
 
@@ -2193,294 +2766,14 @@ std::map<std::string, int> loanService::getUserBorrowVSMonth(const std::string& 
 }
 
 
-==================== 文件: services/userservice.h ====================
-#ifndef USERSERVICE_H
-#define USERSERVICE_H
-#include <string>
-#include <vector>
-#include "model/user.h"
-#include "dao/userdao.h"
 
-/*密码加密约定：
-明文：add和update函数的形参。
-加密：add和update函数内部。加密方法：以用户ID为密钥的异或加密。
-密文：构造函数的形参，文件的存储，主存的数据。
-*/
-class UserService
-{
-public:
-    static UserService& getInstance();
-    UserService(const UserService&) = delete;
-    UserService& operator=(const UserService&) = delete;
-    UserService(UserService&&) = delete;
-    UserService& operator=(UserService&&) = delete;
-
-    // 强制存写
-    bool readUsersFromFile();
-    bool writeUsersToFile() const;
-
-    // 用户管理
-    std::vector<User*> getAllUsers() const;
-    bool addPatron(const std::string& id, const std::string& username, const std::string& phone,
-                   const std::string& email, const std::string& plainPassword, int borrowLimit = 5);
-    bool addAdmin(const std::string& id, const std::string& username, const std::string& phone,
-                  const std::string& email, const std::string& plainPassword);
-    bool removeUser(const std::string& id, std::string& errorMessage);
-    bool updatePatron(const std::string& id, const std::string& username, const std::string& phone,
-                      const std::string& email, int borrowLimit = 5);
-    bool updatePatronPassword(const std::string& id, const std::string& plainPassword);
-    bool updateAdmin(const std::string& id, const std::string& username, const std::string& phone,
-                     const std::string& email);
-    bool updateAdminPassword(const std::string& id, const std::string& plainPassword);
-
-    // 用户查询
-
-    User* getUserById(const std::string& id) const;
-    User* getUserByUsername(const std::string& username) const;
-
-    // 用户验证
-    User* authenticate(const std::string& id, const std::string& password) const;
-    std::string encryptPassword(const std::string& password, const std::string& key) const;
-    std::string decryptPassword(const std::string& encryptedPassword, const std::string& key) const;
-    User* getCurrentUser() const;
-    
-    // 数据主存
-    std::vector<User*> users;
-    mutable User* currentUser = nullptr; // 当前登录用户
-private:
-    UserService();
-};
-
-#endif // USERSERVICE_H
+###############################################################################
+#  Console 层 — 主菜单
+###############################################################################
 
 
-==================== 文件: services/userservice.cpp ====================
-#include "userservice.h"
-#include "model/admin.h"
-#include "model/patron.h"
-#include "loanservice.h"
-#include <algorithm>
-#include <cstdio>
+===== console\menu_base.h =====
 
-UserService& UserService::getInstance()
-{
-    static UserService instance;
-    return instance;
-}
-
-UserService::UserService()
-{
-    readUsersFromFile();
-}
-
-bool UserService::readUsersFromFile()
-{
-    // 释放旧数据
-    for (User* user : users) {
-        delete user;//因为users是基类
-    }
-    users.clear();
-
-    users = UserDao::getInstance().loadUsersFromFile("data/users.txt");
-    return !users.empty();
-}
-
-bool UserService::writeUsersToFile() const
-{
-    return UserDao::getInstance().saveUsersToFile("data/users.txt", users);
-}
-
-std::vector<User*> UserService::getAllUsers() const
-{
-    return users;
-}
-
-bool UserService::addPatron(const std::string& id, const std::string& username, const std::string& phone,
-                            const std::string& email, const std::string& plainPassword, int borrowLimit)
-{
-    if (getUserById(id)) {
-        return false; // ID 已存在
-    }
-    std::string encrypted = encryptPassword(plainPassword, id);
-    User* user = new Patron(id, username, phone, email, encrypted, borrowLimit);
-    users.push_back(user);
-    writeUsersToFile();
-    return true;
-}
-
-bool UserService::addAdmin(const std::string& id, const std::string& username, const std::string& phone,
-                           const std::string& email, const std::string& plainPassword)
-{
-    if (getUserById(id)) {
-        return false; // ID 已存在
-    }
-    std::string encrypted = encryptPassword(plainPassword, id);
-    User* user = new Admin(id, username, phone, email, encrypted);
-    users.push_back(user);
-    writeUsersToFile();
-    return true;
-}
-
-bool UserService::removeUser(const std::string& id, std::string& errorMessage)
-{
-    auto it = std::find_if(users.begin(), users.end(),
-    [&](User* u) { return u->getId() == id; });
-
-    if (it == users.end()) {
-        errorMessage = "未找到ID为 " + id + " 的用户";
-        return false;
-    }
-    // 检查该用户是否有未归还的图书，有则禁止删除
-    if (!loanService::getInstance().getBorrowingBooksByUser(id).empty()) {
-        errorMessage = "该用户有未归还的图书，无法注销/删除";
-        return false;
-    }
-    delete *it;
-    users.erase(it);
-    writeUsersToFile(); // 自动更新文件
-    return true;
-}
-
-bool UserService::updatePatron(const std::string& id, const std::string& username, const std::string& phone,
-                               const std::string& email, int borrowLimit)
-{
-    auto it = std::find_if(users.begin(), users.end(), [&](User* u) {
-        return u->getId() == id;
-    });
-
-    if (it == users.end()) {
-        return false;
-    }
-    // 若被更新的是当前登录用户，delete 后 currentUser 会悬空，需同步更新
-    bool isCurrentUser = (currentUser == *it);
-    std::string password = (*it)->getPassword();
-    delete *it;
-    *it = new Patron(id, username, phone, email, password, borrowLimit);
-    if (isCurrentUser) {
-        currentUser = *it;
-    }
-    writeUsersToFile();
-    return true;
-}
-
-bool UserService::updatePatronPassword(const std::string& id, const std::string& plainPassword)
-{
-    auto it = std::find_if(users.begin(), users.end(), [&](User* u) {
-        return u->getId() == id;
-    });
-
-    if (it == users.end()) {
-        return false;
-    }
-    std::string encrypted = encryptPassword(plainPassword, id);
-    (*it)->setPassword(encrypted);
-    writeUsersToFile();
-    return true;
-}
-
-bool UserService::updateAdmin(const std::string& id, const std::string& username, const std::string& phone,
-                              const std::string& email)
-{
-    auto it = std::find_if(users.begin(), users.end(), [&](User* u) {
-        return u->getId() == id;
-    });
-
-    if (it == users.end()) {
-        return false;
-    }
-    // 若被更新的是当前登录用户，delete 后 currentUser 会悬空，需同步更新
-    bool isCurrentUser = (currentUser == *it);
-    std::string password = (*it)->getPassword();
-    delete *it;
-    *it = new Admin(id, username, phone, email, password);
-    if (isCurrentUser) {
-        currentUser = *it;
-    }
-    writeUsersToFile();
-    return true;
-}
-
-bool UserService::updateAdminPassword(const std::string& id, const std::string& plainPassword)
-{
-    auto it = std::find_if(users.begin(), users.end(), [&](User* u) {
-        return u->getId() == id;
-    });
-
-    if (it == users.end()) {
-        return false;
-    }
-    std::string encrypted = encryptPassword(plainPassword, id);
-    (*it)->setPassword(encrypted);
-    writeUsersToFile();
-    return true;
-}
-
-User* UserService::getUserById(const std::string& id) const
-{
-    auto it = std::find_if(users.begin(), users.end(),
-    [&](User* u) { return u->getId() == id; });
-
-    if (it != users.end()) {
-        return *it;
-    }
-    return nullptr;
-}
-
-User* UserService::getUserByUsername(const std::string& username) const
-{
-    auto it = std::find_if(users.begin(), users.end(),
-    [&](User* u) { return u->getUsername() == username; });
-
-    if (it != users.end()) {
-        return *it;
-    }
-    return nullptr;
-}
-
-std::string UserService::encryptPassword(const std::string& password, const std::string& key) const
-{
-    // 这里采用了异或加密，key是用户的 id，保证每个用户的密码加密方式不同。
-    // 然后为了防止.txt打不开，将结果转换为十六进制字符串存储。
-    std::string hex;
-    hex.reserve(password.length() * 2);
-    for (size_t i = 0; i < password.length(); ++i) {
-        unsigned char xored = static_cast<unsigned char>(password[i]) ^ static_cast<unsigned char>(key[i % key.length()]);
-        char buf[3];
-        std::snprintf(buf, sizeof(buf), "%02x", xored);
-        hex += buf;
-    }
-    return hex;
-}
-
-std::string UserService::decryptPassword(const std::string& encryptedPassword, const std::string& key) const
-{
-    // 从十六进制字符串还原 XOR 结果，再异或解密
-    std::string decrypted;
-    decrypted.reserve(encryptedPassword.length() / 2);
-    for (size_t i = 0; i + 1 < encryptedPassword.length(); i += 2) {
-        unsigned char xored = static_cast<unsigned char>(std::stoi(encryptedPassword.substr(i, 2), nullptr, 16));
-        decrypted += static_cast<char>(xored ^ static_cast<unsigned char>(key[(i / 2) % key.length()]));
-    }
-    return decrypted;
-}
-
-User* UserService::authenticate(const std::string& id, const std::string& password) const
-{
-    User* user = getUserById(id);
-    if (user && encryptPassword(password, user->getId()) == user->getPassword()) {
-        currentUser = user;
-        return user;
-    }//先查找用户名，再比对加密后的密码对不对。加密密钥是用户id.
-    return nullptr;
-}
-
-User* UserService::getCurrentUser() const
-{
-    return currentUser;
-}
-
-
-==================== 文件: console/menu_base.h ====================
 #ifndef CONSOLE_MENU_BASE_H
 #define CONSOLE_MENU_BASE_H
 
@@ -2515,7 +2808,8 @@ public:
 #endif // CONSOLE_MENU_BASE_H
 
 
-==================== 文件: console/menu_base.cpp ====================
+===== console\menu_base.cpp =====
+
 #include "menu_base.h"
 #include <iostream>
 #include <limits>
@@ -2607,7 +2901,8 @@ void MenuBase::printSeparator(char ch, int count)
 }
 
 
-==================== 文件: console/app.h =====================
+===== console\app.h =====
+
 #ifndef CONSOLE_APP_H
 #define CONSOLE_APP_H
 
@@ -2641,7 +2936,8 @@ private:
 #endif // CONSOLE_APP_H
 
 
-==================== 文件: console/app.cpp ====================
+===== console\app.cpp =====
+
 #include "app.h"
 #include "menu_base.h"
 #include "admin_menu.h"
@@ -2783,7 +3079,8 @@ void App::About()
 }
 
 
-==================== 文件: console/admin_menu.h ====================
+===== console\admin_menu.h =====
+
 #ifndef CONSOLE_ADMIN_MENU_H
 #define CONSOLE_ADMIN_MENU_H
 
@@ -2803,7 +3100,8 @@ public:
 #endif // CONSOLE_ADMIN_MENU_H
 
 
-==================== 文件: console/admin_menu.cpp ====================
+===== console\admin_menu.cpp =====
+
 #include "admin_menu.h"
 #include <iostream>
 
@@ -2831,7 +3129,8 @@ void AdminMenu::show()
 }
 
 
-==================== 文件: console/user_menu.h ====================
+===== console\user_menu.h =====
+
 #ifndef CONSOLE_USER_MENU_H
 #define CONSOLE_USER_MENU_H
 
@@ -2856,7 +3155,8 @@ private:
 #endif // CONSOLE_USER_MENU_H
 
 
-==================== 文件: console/user_menu.cpp ====================
+===== console\user_menu.cpp =====
+
 #include "user_menu.h"
 #include "services/bookservice.h"
 #include <iostream>
@@ -2886,7 +3186,8 @@ void UserMenu::show()
 }
 
 
-==================== 文件: console/about_menu.h ====================
+===== console\about_menu.h =====
+
 #ifndef CONSOLE_ABOUT_MENU_H
 #define CONSOLE_ABOUT_MENU_H
 
@@ -2903,7 +3204,8 @@ public:
 #endif // CONSOLE_ABOUT_MENU_H
 
 
-==================== 文件: console/about_menu.cpp ====================
+===== console\about_menu.cpp =====
+
 #include "about_menu.h"
 
 void AboutMenu::show()
@@ -2979,7 +3281,14 @@ void AboutMenu::show()
 }
 
 
-==================== 文件: console/admin_submenu/user_monitor_menu.h ====================
+
+###############################################################################
+#  Console 层 — 管理员子菜单
+###############################################################################
+
+
+===== console\admin_submenu\user_monitor_menu.h =====
+
 #ifndef USER_MONITOR_MENU_H
 #define USER_MONITOR_MENU_H
 
@@ -3018,7 +3327,8 @@ private:
 #endif // USER_MONITOR_MENU_H
 
 
-==================== 文件: console/admin_submenu/user_monitor_menu.cpp ====================
+===== console\admin_submenu\user_monitor_menu.cpp =====
+
 #include "user_monitor_menu.h"
 
 void UserMonitorMenu::show()
@@ -3275,7 +3585,8 @@ void UserMonitorMenu::printUsers(const std::vector<User*> &users)
 }
 
 
-==================== 文件: console/admin_submenu/book_monitor_menu.h ====================
+===== console\admin_submenu\book_monitor_menu.h =====
+
 #ifndef BOOK_MONITOR_MENU_H
 #define BOOK_MONITOR_MENU_H
 
@@ -3312,7 +3623,8 @@ private:
 #endif // BOOK_MONITOR_MENU_H
 
 
-==================== 文件: console/admin_submenu/book_monitor_menu.cpp ====================
+===== console\admin_submenu\book_monitor_menu.cpp =====
+
 #include "book_monitor_menu.h"
 #include "services/bookservice.h"
 #include <iostream>
@@ -3617,7 +3929,8 @@ void BookMonitorMenu::saveToFile()
 }
 
 
-==================== 文件: console/admin_submenu/bookcopy_monitor_menu.h ====================
+===== console\admin_submenu\bookcopy_monitor_menu.h =====
+
 #ifndef BOOKCOPY_MONITOR_MENU_H
 #define BOOKCOPY_MONITOR_MENU_H
 
@@ -3653,7 +3966,8 @@ private:
 #endif // BOOKCOPY_MONITOR_MENU_H
 
 
-==================== 文件: console/admin_submenu/bookcopy_monitor_menu.cpp ====================
+===== console\admin_submenu\bookcopy_monitor_menu.cpp =====
+
 #include "bookcopy_monitor_menu.h"
 #include "services/bookcopyservice.h"
 #include <iostream>
@@ -3921,7 +4235,8 @@ void BookCopyMonitorMenu::printBookCopies(const std::vector<BookCopy> &copies)
 }
 
 
-==================== 文件: console/admin_submenu/loan_monitor_menu.h ====================
+===== console\admin_submenu\loan_monitor_menu.h =====
+
 #ifndef LOAN_MONITOR_MENU_H
 #define LOAN_MONITOR_MENU_H
 
@@ -3964,7 +4279,8 @@ private:
 #endif // LOAN_MONITOR_MENU_H
 
 
-==================== 文件: console/admin_submenu/loan_monitor_menu.cpp ====================
+===== console\admin_submenu\loan_monitor_menu.cpp =====
+
 #include "loan_monitor_menu.h"
 
 
@@ -4156,7 +4472,14 @@ void LoanMonitorMenu::printLoans(const std::vector<Loan> &loans)
 }
 
 
-==================== 文件: console/user_submenu/search_info_menu.h ====================
+
+###############################################################################
+#  Console 层 — 用户子菜单
+###############################################################################
+
+
+===== console\user_submenu\search_info_menu.h =====
+
 #ifndef SEARCH_INFO_MENU_H
 #define SEARCH_INFO_MENU_H
 #include "../menu_base.h"
@@ -4188,7 +4511,8 @@ private:
 #endif // SEARCH_INFO_MENU_H
 
 
-==================== 文件: console/user_submenu/search_info_menu.cpp ====================
+===== console\user_submenu\search_info_menu.cpp =====
+
 #include "search_info_menu.h"
 
 
@@ -4447,7 +4771,8 @@ void SearchInfoMenu::printBookCopies(const std::vector<BookCopy> &bookCopies)
 }
 
 
-==================== 文件: console/user_submenu/loan_menu.h ====================
+===== console\user_submenu\loan_menu.h =====
+
 #ifndef LOAN_MENU_H
 #define LOAN_MENU_H
 #include "../menu_base.h"
@@ -4480,7 +4805,8 @@ private:
 #endif // LOAN_MENU_H
 
 
-==================== 文件: console/user_submenu/loan_menu.cpp ====================
+===== console\user_submenu\loan_menu.cpp =====
+
 #include "loan_menu.h"
 
 void LoanMenu::show() {
@@ -4718,7 +5044,14 @@ void LoanMenu::printLoans(const std::vector<Loan>& loans) {
 }
 
 
-==================== 文件: console/user_submenu/personal_info_menu.h ====================
+
+
+
+
+
+
+===== console\user_submenu\personal_info_menu.h =====
+
 #ifndef PERSONAL_INFO_MENU_H
 #define PERSONAL_INFO_MENU_H
 #include "../menu_base.h"
@@ -4744,7 +5077,8 @@ private:
 #endif // PERSONAL_INFO_MENU_H
 
 
-==================== 文件: console/user_submenu/personal_info_menu.cpp ====================
+===== console\user_submenu\personal_info_menu.cpp =====
+
 #include "personal_info_menu.h"
 
 void PersonalInfoMenu::show() {
@@ -4874,95 +5208,4 @@ void PersonalInfoMenu::deleteAccount() {
     }
     pause();
 }
-
-
-==================== 文件: main.cpp ==========================
-#include "console/app.h"
-
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
-int main()
-{
-#ifdef _WIN32
-    // 设置控制台为 UTF-8 编码，解决中文乱码
-    SetConsoleOutputCP(CP_UTF8);
-    SetConsoleCP(CP_UTF8);
-#endif
-
-    App app;
-    app.run();
-    return 0;
-}
-
-
-==================== 文件: CMakeLists.txt ====================
-cmake_minimum_required(VERSION 3.15)
-
-project(BookManagementSystem VERSION 1.0.0 LANGUAGES CXX)
-
-# C++17 标准
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-# 输出目录统一到 build/bin
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-# 源文件列表
-set(SOURCES
-    main.cpp
-    console/app.cpp
-    console/menu_base.cpp
-    console/admin_menu.cpp
-    console/user_menu.cpp
-    model/book.cpp
-    model/bookcopy.cpp
-    model/user.cpp
-    model/admin.cpp
-    model/patron.cpp
-    model/loan.cpp
-    model/date.cpp
-    model/location.cpp
-    services/bookservice.cpp
-    services/bookcopyservice.cpp
-    services/loanservice.cpp
-    services/timeservice.cpp
-    services/userservice.cpp
-    dao/bookdao.cpp
-    dao/bookcopydao.cpp
-    dao/loandao.cpp
-    dao/userdao.cpp
-)
-
-# 可执行目标
-add_executable(BookManagementSystem ${SOURCES}
-    console/user_submenu/search_info_menu.cpp
-    console/user_submenu/loan_menu.cpp
-    console/user_submenu/personal_info_menu.cpp
-    console/admin_submenu/user_monitor_menu.cpp
-    console/admin_submenu/book_monitor_menu.cpp
-    console/admin_submenu/bookcopy_monitor_menu.cpp
-    console/admin_submenu/loan_monitor_menu.cpp
-    console/about_menu.cpp)
-
-# 包含目录
-target_include_directories(BookManagementSystem PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
-
-# MSVC 编译选项：UTF-8 编码、精确头文件依赖追踪、加速增量构建
-if(MSVC)
-    target_compile_options(BookManagementSystem PRIVATE
-        /utf-8
-        /W3
-        /sourceDependencies  # 输出 JSON 格式的源文件依赖信息，CMake 4.4 据此做精确增量构建
-        /Zf                  # 并行 PDB 生成，加速增量构建
-    )
-endif()
-
-# Debug/Release 配置
-set(CMAKE_DEBUG_POSTFIX d)
-
 
