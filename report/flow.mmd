@@ -1,0 +1,151 @@
+%%{ init: { 'theme': 'base', 'themeVariables': { 'fontSize': '14px', 'lineColor': '#555' } } }%%
+
+flowchart TD
+    Start(["🚀 程序启动"]) --> Init["设置 UTF-8 编码<br/>创建 App"]
+    Init --> Run["App::run() 主循环"]
+
+    %% ============ 登录流程 ============
+    Run --> LoginMenu{"📋 登录菜单<br/>1. 登录<br/>2. 注册<br/>3. 关于<br/>0. 退出"}
+
+    LoginMenu -->|0. 退出| Exit["清除当前用户<br/>显示再见信息"]
+    Exit --> End(["🔚 程序结束"])
+
+    LoginMenu -->|3. 关于| About["AboutMenu::show()<br/>显示系统信息"]
+    About --> LoginMenu
+
+    LoginMenu -->|2. 注册| Register["输入: ID / 用户名 /<br/>电话 / 邮箱 / 密码"]
+    Register --> CheckId{"用户ID<br/>已存在?"}
+    CheckId -->|是| RegFail["注册失败"]
+    CheckId -->|否| AddPatron["UserService::addPatron()<br/>异或加密密码<br/>写入 users.txt"]
+    AddPatron --> RegSuccess["注册成功"]
+    RegFail --> LoginMenu
+    RegSuccess --> LoginMenu
+
+    LoginMenu -->|1. 登录| InputCred["输入: 用户ID + 密码"]
+    InputCred --> Auth["UserService::authenticate()<br/>查找用户 → 解密密码 → 比对"]
+    Auth --> AuthResult{"验证成功?"}
+    AuthResult -->|失败| AuthFail["提示: ID或密码错误"]
+    AuthFail --> LoginMenu
+    AuthResult -->|成功| SetCurrentUser["设置 currentUser"]
+    SetCurrentUser --> CheckRole{"用户类型?"}
+
+    %% ============ 管理员流程 ============
+    CheckRole -->|Admin| AdminMenu["🖥️ 管理员系统菜单<br/>1. 用户监控<br/>2. 图书监控<br/>3. 副本监控<br/>4. 借阅监控<br/>5. 退出登录"]
+
+    AdminMenu -->|1| UserMonitor["UserMonitorMenu<br/>──────────<br/>• 查看所有用户<br/>• 按ID/用户名搜索<br/>• 添加 Patron/Admin<br/>• 修改信息/密码<br/>• 删除用户<br/>• 读写 users.txt"]
+    AdminMenu -->|2| BookMonitor["BookMonitorMenu<br/>──────────<br/>• 搜索图书(多条件)<br/>• 显示所有图书<br/>• 添加/修改/删除<br/>• 读写 books.txt"]
+    AdminMenu -->|3| CopyMonitor["BookCopyMonitorMenu<br/>──────────<br/>• 查看所有副本<br/>• 按ISBN/馆码/位置搜索<br/>• 添加/修改/注销/删除<br/>• 读写 bookcopies.txt"]
+    AdminMenu -->|4| LoanMonitor["LoanMonitorMenu<br/>──────────<br/>• 查看所有借阅记录<br/>• 按用户/ISBN/馆码搜索<br/>• 当前借阅一览<br/>• 统计: 热门图书<br/>• 统计: 活跃用户<br/>• 统计: 月度趋势<br/>• 读写 loans.txt"]
+    AdminMenu -->|5| Logout["清除 currentUser"]
+    UserMonitor --> AdminMenu
+    BookMonitor --> AdminMenu
+    CopyMonitor --> AdminMenu
+    LoanMonitor --> AdminMenu
+    Logout --> Run
+
+    %% ============ 用户流程 ============
+    CheckRole -->|Patron| UserMenu["👤 用户系统菜单<br/>1. 图书查找<br/>2. 图书借还<br/>3. 个人信息<br/>4. 退出登录"]
+
+    UserMenu -->|1| SearchMenu["SearchInfoMenu<br/>──────────<br/>• 浏览所有图书<br/>• 浏览所有副本<br/>• 多条件搜索图书<br/>• 搜索副本<br/>• 查看书架位置"]
+    UserMenu -->|3| PersonalMenu["PersonalInfoMenu<br/>──────────<br/>• 查看个人信息<br/>• 修改个人信息<br/>• 修改密码<br/>• 注销账号"]
+    UserMenu -->|4| Logout2["清除 currentUser"]
+    SearchMenu --> UserMenu
+    PersonalMenu --> UserMenu
+    Logout2 --> Run
+
+    %% ============ 借阅流程 (核心) ============
+    UserMenu -->|2| LoanMenu["📚 借阅管理菜单<br/>1. 推荐信息<br/>2. 借阅图书<br/>3. 续借图书<br/>4. 归还图书<br/>5. 当前借阅<br/>6. 借阅历史<br/>7. 图书借阅历史<br/>8. 返回"]
+
+    LoanMenu -->|1| Recommend["显示推荐信息<br/>──────────<br/>• 总借阅量 / 当前出借数<br/>• 最受欢迎图书 TopN<br/>• 最活跃用户 TopN<br/>• 每月借阅量趋势<br/>• 个人每月借阅量"]
+    Recommend --> LoanMenu
+
+    LoanMenu -->|5| CurrentLoans["查询当前未归还借阅"]
+    LoanMenu -->|6| UserHistory["查询用户借阅历史"]
+    LoanMenu -->|7| BookHistory["按ISBN查询图书借阅历史"]
+    CurrentLoans --> LoanMenu
+    UserHistory --> LoanMenu
+    BookHistory --> LoanMenu
+    LoanMenu -->|8| UserMenu
+
+    %% --- 借书流程 ---
+    LoanMenu -->|2| BorrowStart["输入馆藏码 libCode"]
+    BorrowStart --> BorrowGet["获取当前用户<br/>查询副本 → 获取ISBN<br/>查询书名"]
+    BorrowGet --> BorrowConfirm{"用户确认?<br/>(y/n)"}
+    BorrowConfirm -->|n| BorrowCancel["取消借阅"]
+    BorrowCancel --> LoanMenu
+    BorrowConfirm -->|y| BorrowSvc["loanService::borrowBook()"]
+
+    BorrowSvc --> B_Check1{"用户存在?"}
+    B_Check1 -->|否| B_Err1["错误: 用户不存在"]
+    B_Check1 -->|是| B_Check2{"图书信息有效?"}
+    B_Check2 -->|否| B_Err2["错误: 图书信息不存在"]
+    B_Check2 -->|是| B_Check3{"副本存在?"}
+    B_Check3 -->|否| B_Err3["错误: 副本不存在"]
+    B_Check3 -->|是| B_Check4{"副本状态 = available?"}
+    B_Check4 -->|否| B_Err4["错误: 副本已被借阅或不可用"]
+    B_Check4 -->|是| B_Check5{"用户是 Patron?"}
+    B_Check5 -->|否| B_Err5["错误: 用户不是借阅者"]
+    B_Check5 -->|是| B_Check6{"在借数 < 借阅上限?"}
+    B_Check6 -->|否| B_Err6["错误: 已达借阅上限"]
+    B_Check6 -->|是| B_Check7{"有逾期未还书?"}
+    B_Check7 -->|是| B_Err7["错误: 有逾期书籍未还"]
+    B_Check7 -->|否| B_Do["✅ 执行借阅<br/>──────────<br/>1. 副本状态 → borrowed<br/>2. 生成借阅ID<br/>3. 借阅日期 = today()<br/>4. 应还日期 = today + 30天<br/>5. 添加 Loan 记录<br/>6. 写入 loans.txt"]
+
+    B_Do --> BorrowSuccess["借阅成功"]
+    B_Err1 --> BorrowFail["借阅失败"]
+    B_Err2 --> BorrowFail
+    B_Err3 --> BorrowFail
+    B_Err4 --> BorrowFail
+    B_Err5 --> BorrowFail
+    B_Err6 --> BorrowFail
+    B_Err7 --> BorrowFail
+    BorrowSuccess --> LoanMenu
+    BorrowFail --> LoanMenu
+
+    %% --- 续借流程 ---
+    LoanMenu -->|3| RenewStart["显示当前借阅<br/>输入馆藏码 libCode"]
+    RenewStart --> RenewSvc["loanService::renewBook()"]
+    RenewSvc --> R_Check1{"找到未归还<br/>借阅记录?"}
+    R_Check1 -->|否| R_Err1["错误: 未找到借阅记录"]
+    R_Check1 -->|是| R_Check2{"该记录已逾期?"}
+    R_Check2 -->|是| R_Err2["错误: 已逾期无法续借"]
+    R_Check2 -->|否| R_Check3{"有其他逾期书?"}
+    R_Check3 -->|是| R_Err3["错误: 有逾期书籍未还"]
+    R_Check3 -->|否| R_Do["✅ 执行续借<br/>──────────<br/>应还日期 += 15天<br/>写入 loans.txt"]
+    R_Do --> RenewSuccess["续借成功"]
+    R_Err1 --> RenewFail["续借失败"]
+    R_Err2 --> RenewFail
+    R_Err3 --> RenewFail
+    RenewSuccess --> LoanMenu
+    RenewFail --> LoanMenu
+
+    %% --- 还书流程 ---
+    LoanMenu -->|4| ReturnStart["显示当前借阅<br/>输入馆藏码 libCode"]
+    ReturnStart --> ReturnSvc["loanService::returnBook()"]
+    ReturnSvc --> RT_Check1{"找到未归还<br/>借阅记录?"}
+    RT_Check1 -->|否| RT_Err1["错误: 未找到借阅记录"]
+    RT_Check1 -->|是| RT_Do["✅ 执行归还<br/>──────────<br/>1. isReturned → true<br/>2. 归还日期 = today()<br/>3. 副本状态 → available<br/>4. 写入 loans.txt"]
+    RT_Do --> ReturnSuccess["归还成功"]
+    RT_Err1 --> ReturnFail["归还失败"]
+    ReturnSuccess --> LoanMenu
+    ReturnFail --> LoanMenu
+
+    %% ============ 样式 ============
+    style Start fill:#2d3748,stroke:#1a202c,color:#fff
+    style End fill:#2d3748,stroke:#1a202c,color:#fff
+    style LoginMenu fill:#ebf5ff,stroke:#3182ce
+    style AdminMenu fill:#fefcbf,stroke:#d69e2e
+    style UserMenu fill:#f0fff4,stroke:#38a169
+    style LoanMenu fill:#fef5e7,stroke:#dd6b20
+    style BorrowSvc fill:#e6fffa,stroke:#319795
+    style RenewSvc fill:#e6fffa,stroke:#319795
+    style ReturnSvc fill:#e6fffa,stroke:#319795
+    style B_Do fill:#c6f6d5,stroke:#38a169
+    style R_Do fill:#c6f6d5,stroke:#38a169
+    style RT_Do fill:#c6f6d5,stroke:#38a169
+    style BorrowSuccess fill:#9ae6b4,stroke:#38a169
+    style RenewSuccess fill:#9ae6b4,stroke:#38a169
+    style ReturnSuccess fill:#9ae6b4,stroke:#38a169
+    style BorrowFail fill:#fed7d7,stroke:#e53e3e
+    style RenewFail fill:#fed7d7,stroke:#e53e3e
+    style ReturnFail fill:#fed7d7,stroke:#e53e3e

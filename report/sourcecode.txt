@@ -1,0 +1,4968 @@
+======================================================================
+  图书管理系统 — 源程序清单
+  共 60 个文件，按分层自底向上排列（model → dao → services → console → main）
+======================================================================
+
+## 目录索引
+
+1.  model/date.h
+2.  model/date.cpp
+3.  model/location.h
+4.  model/location.cpp
+5.  model/user.h
+6.  model/user.cpp
+7.  model/admin.h
+8.  model/admin.cpp
+9.  model/patron.h
+10. model/patron.cpp
+11. model/book.h
+12. model/book.cpp
+13. model/bookcopy.h
+14. model/bookcopy.cpp
+15. model/loan.h
+16. model/loan.cpp
+17. dao/bookdao.h
+18. dao/bookdao.cpp
+19. dao/bookcopydao.h
+20. dao/bookcopydao.cpp
+21. dao/loandao.h
+22. dao/loandao.cpp
+23. dao/userdao.h
+24. dao/userdao.cpp
+25. services/timeservice.h
+26. services/timeservice.cpp
+27. services/bookservice.h
+28. services/bookservice.cpp
+29. services/bookcopyservice.h
+30. services/bookcopyservice.cpp
+31. services/loanservice.h
+32. services/loanservice.cpp
+33. services/userservice.h
+34. services/userservice.cpp
+35. console/menu_base.h
+36. console/menu_base.cpp
+37. console/app.h
+38. console/app.cpp
+39. console/admin_menu.h
+40. console/admin_menu.cpp
+41. console/user_menu.h
+42. console/user_menu.cpp
+43. console/about_menu.h
+44. console/about_menu.cpp
+45. console/admin_submenu/user_monitor_menu.h
+46. console/admin_submenu/user_monitor_menu.cpp
+47. console/admin_submenu/book_monitor_menu.h
+48. console/admin_submenu/book_monitor_menu.cpp
+49. console/admin_submenu/bookcopy_monitor_menu.h
+50. console/admin_submenu/bookcopy_monitor_menu.cpp
+51. console/admin_submenu/loan_monitor_menu.h
+52. console/admin_submenu/loan_monitor_menu.cpp
+53. console/user_submenu/search_info_menu.h
+54. console/user_submenu/search_info_menu.cpp
+55. console/user_submenu/loan_menu.h
+56. console/user_submenu/loan_menu.cpp
+57. console/user_submenu/personal_info_menu.h
+58. console/user_submenu/personal_info_menu.cpp
+59. main.cpp
+60. CMakeLists.txt
+
+======================================================================
+
+
+==================== 文件: model/date.h ======================
+#ifndef DATE_H
+#define DATE_H
+#include <string>
+
+class Date
+{
+private:
+    short year;
+    short month;
+    short day;
+    bool isLeapYear(const short &year) const;
+    short dayInMonth(const short &year, const short &month) const;
+    long toJulianDay() const; // 转为儒略日编号，用于日期差值计算
+
+public:
+    Date(const short &year = 0, const short &month = 0, const short &day = 0);
+    static Date fromString(const std::string &dateStr);
+    static Date today(); // 获取当前系统日期
+
+    // Getters
+    short getYear() const;
+    short getMonth() const;
+    short getDay() const;
+
+    // Setters
+    void setYear(short value);
+    void setMonth(short value);
+    void setDay(short value);
+    void setDate(short year, short month, short day);
+
+    // Serialization
+    std::string toString() const;
+    std::string toYearMonthString() const; // 返回 "年-月" 格式，如 "2026-07"
+
+    // Operators
+    bool operator==(const Date &other) const;
+    bool operator!=(const Date &other) const;
+    bool operator<(const Date &other) const;
+    bool operator>(const Date &other) const;
+    bool operator<=(const Date &other) const;
+    bool operator>=(const Date &other) const;
+    friend std::ostream& operator<<(std::ostream &os, const Date &date);
+    Date operator+(const int days) const;
+    int operator-(const Date &other) const; // 返回天数差 (*this - other)
+};
+
+#endif // DATE_H
+
+
+==================== 文件: model/date.cpp ====================
+#include "date.h"
+#include <string>
+#include <sstream>
+#include <ctime>
+
+
+Date::Date(const short &year, const short &month, const short &day)
+    : year(year), month(month), day(day)
+{
+}
+Date Date::fromString(const std::string &dateStr)
+{
+    std::istringstream iss(dateStr);
+    short year, month, day;
+    char dash1, dash2;
+    iss >> year >> dash1 >> month >> dash2 >> day;
+    return Date(year, month, day);
+}
+
+Date Date::today()
+{
+    std::time_t t = std::time(nullptr);
+    std::tm now;
+#ifdef _MSC_VER
+    localtime_s(&now, &t);
+#else
+    now = *std::localtime(&t);
+#endif
+    return Date(static_cast<short>(now.tm_year + 1900),
+                static_cast<short>(now.tm_mon + 1),
+                static_cast<short>(now.tm_mday));
+}
+
+// Getters
+short Date::getYear() const { return year; }
+short Date::getMonth() const { return month; }
+short Date::getDay() const { return day; }
+
+// Setters
+void Date::setYear(short value) { year = value; }
+void Date::setMonth(short value) { month = value; }
+void Date::setDay(short value) { day = value; }
+void Date::setDate(short year, short month, short day)
+{
+    this->year = year;
+    this->month = month;
+    this->day = day;
+}
+
+// Operators
+bool Date::operator==(const Date &other) const
+{
+    return year == other.year && month == other.month && day == other.day;
+}
+bool Date::operator!=(const Date &other) const
+{
+    return !(*this == other);
+}
+bool Date::operator<(const Date &other) const
+{
+    if (year != other.year)
+        return year < other.year;
+    if (month != other.month)
+        return month < other.month;
+    return day < other.day;
+}
+bool Date::operator>(const Date &other) const
+{
+    return other < *this;
+}
+Date Date::operator+(const int days) const
+{
+    Date newDate = *this;
+    newDate.day += days;
+    bool flag = false;
+    while(!flag){
+        flag = true;
+        if(newDate.day > dayInMonth(newDate.year, newDate.month)){
+            newDate.day -= dayInMonth(newDate.year, newDate.month);
+            newDate.month++;
+            flag = false;
+        }
+        if(newDate.month > 12){
+            newDate.month -= 12;
+            newDate.year++;
+            flag = false;
+        }
+    }
+    return newDate;
+}
+std::ostream& operator<<(std::ostream &os, const Date &date)
+{
+    os << date.year << '-' << (date.month < 10 ? "0" : "") << date.month
+       << '-' << (date.day < 10 ? "0" : "") << date.day;
+    return os;
+}
+
+std::string Date::toString() const
+{
+    std::ostringstream oss;
+    oss << *this;
+    return oss.str();
+}
+
+std::string Date::toYearMonthString() const
+{
+    std::ostringstream oss;
+    oss << year << '-' << (month < 10 ? "0" : "") << month;
+    return oss.str();
+}
+
+bool Date::operator<=(const Date &other) const
+{
+    return !(*this > other);
+}
+bool Date::operator>=(const Date &other) const
+{
+    return !(*this < other);
+}
+
+int Date::operator-(const Date &other) const
+{
+    return static_cast<int>(this->toJulianDay() - other.toJulianDay());
+}
+
+long Date::toJulianDay() const
+{
+    // 儼略日转换算法（Gregorian calendar）
+    // 参考: https://en.wikipedia.org/wiki/Julian_day#Converting_Gregorian_calendar_date_to_Julian_Day_Number
+    long a = (14 - month) / 12;
+    long y = year + 4800 - a;
+    long m = month + 12 * a - 3;
+    return day + (153 * m + 2) / 5 + 365 * y + y / 4 - y / 100 + y / 400 - 32045;
+}
+
+//Assistant functions
+bool Date::isLeapYear(const short &year) const{
+    return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+short Date::dayInMonth(const short &year, const short &month) const{
+    switch(month){
+        case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+            return 31;
+        case 4: case 6: case 9: case 11:
+            return 30;
+        case 2:
+            return isLeapYear(year) ? 29 : 28;
+        default:
+            return 0; // Invalid month
+    }
+}
+
+
+==================== 文件: model/location.h ====================
+#ifndef LOCATION_H
+#define LOCATION_H
+#include <string>
+
+class Location
+{
+private:
+    std::string lib;
+    short floor;
+    short row;
+    short unit;
+    short level;
+
+public:
+    Location(std::string lib = "", short floor = 0, short row = 0, short unit = 0, short level = 0);
+
+    // Getters
+    std::string getLib() const;
+    short getFloor() const;
+    short getRow() const;
+    short getUnit() const;
+    short getLevel() const;
+
+    // Setters
+    void setLib(const std::string &value);
+    void setFloor(short value);
+    void setRow(short value);
+    void setUnit(short value);
+    void setLevel(short value);
+    void setLocation(const std::string &lib, short floor,
+                     short row, short unit, short level);
+    void setLocation(const std::string &locFields);
+
+    // 序列化为文件存储格式: lib-floor-row-unit-level (如 "北馆-3-1-1-1")
+    std::string toString() const;
+
+    // operators
+    friend std::ostream& operator<<(std::ostream& os, const Location& l);
+};
+#endif // LOCATION_H
+
+
+==================== 文件: model/location.cpp ====================
+#include "location.h"
+#include <ostream>
+#include <sstream>
+#include <vector>
+
+
+Location::Location(std::string lib, short floor, short row, short unit, short level)
+    : lib(lib), floor(floor), row(row), unit(unit), level(level)
+{
+}
+
+// Getters
+std::string Location::getLib() const { return lib; }
+short Location::getFloor() const { return floor; }
+short Location::getRow() const { return row; }
+short Location::getUnit() const { return unit; }
+short Location::getLevel() const { return level; }
+
+// Setters
+void Location::setLib(const std::string &value) { lib = value; }
+void Location::setFloor(short value) { floor = value; }
+void Location::setRow(short value) { row = value; }
+void Location::setUnit(short value) { unit = value; }
+void Location::setLevel(short value) { level = value; }
+
+void Location::setLocation(const std::string &lib, short floor,
+                           short row, short unit, short level)
+{
+    this->lib = lib;
+    this->floor = floor;
+    this->row = row;
+    this->unit = unit;
+    this->level = level;
+}
+
+void Location::setLocation(const std::string &locFields){
+    std::vector<std::string> fields;
+    std::stringstream ss(locFields);
+    std::string field;
+    while (std::getline(ss, field, '-')) {
+        fields.push_back(field);
+    }
+    if (fields.size() >= 5) {
+        lib = fields[0];
+        floor = std::stoi(fields[1]);
+        row = std::stoi(fields[2]);
+        unit = std::stoi(fields[3]);
+        level = std::stoi(fields[4]);
+    }
+}
+
+std::ostream& operator<<(std::ostream& os, const Location &l){
+    os << l.lib << "," << l.floor << "层" << l.row << "排" << l.unit << "架" << l.level << "层";
+    return os;
+}
+
+std::string Location::toString() const {
+    return lib + "-" + std::to_string(floor) + "-"
+           + std::to_string(row) + "-" + std::to_string(unit) + "-"
+           + std::to_string(level);
+}
+
+
+==================== 文件: model/user.h ======================
+#ifndef USER_H
+#define USER_H
+
+#include <string>
+
+class User
+{
+protected:
+    std::string id;
+    std::string username;
+    std::string phone;
+    std::string email;
+    std::string password; // 当然是加密后的！
+
+public:
+    User(std::string id = "", std::string username = "", std::string phone = "", std::string email = "", std::string password = "");
+    virtual ~User() = default;
+
+    // Getters
+    std::string getId() const;
+    std::string getUsername() const;
+    std::string getPhone() const;
+    std::string getEmail() const;
+    std::string getPassword() const;
+
+    // Setters
+    void setId(const std::string &value);
+    void setUsername(const std::string &value);
+    void setPhone(const std::string &value);
+    void setEmail(const std::string &value);
+    void setPassword(const std::string &value);
+
+    //Display
+    virtual void displayInfo() const = 0;
+}; 
+
+#endif // USER_H
+
+
+==================== 文件: model/user.cpp ====================
+#include "user.h"
+
+User::User(std::string id, std::string username, std::string phone, std::string email, std::string password)
+    : id(id), username(username), phone(phone), email(email), password(password)
+{
+}
+
+// Getters
+std::string User::getId() const { return id; }
+std::string User::getUsername() const { return username; }
+std::string User::getPhone() const { return phone; }
+std::string User::getEmail() const { return email; }
+std::string User::getPassword() const { return password; }
+
+// Setters
+void User::setId(const std::string &value) { id = value; }
+void User::setUsername(const std::string &value) { username = value; }
+void User::setPhone(const std::string &value) { phone = value; }
+void User::setEmail(const std::string &value) { email = value; }
+void User::setPassword(const std::string &value) { password = value; }
+
+
+==================== 文件: model/admin.h =====================
+#ifndef ADMIN_H
+#define ADMIN_H
+#include "user.h"
+
+class Admin : public User
+{
+public:
+    Admin();
+    Admin(const std::string &id, const std::string &username, const std::string &phone,
+          const std::string &email, const std::string &password);
+
+    void displayInfo() const override;
+};
+
+#endif // ADMIN_H
+
+
+==================== 文件: model/admin.cpp ====================
+#include "admin.h"
+#include <iostream>
+
+Admin::Admin() {}
+
+Admin::Admin(const std::string &id, const std::string &username, const std::string &phone,
+             const std::string &email, const std::string &password)
+    : User(id, username, phone, email, password)
+{
+}
+
+void Admin::displayInfo() const {
+    std::cout << "ID: " << id << ", Username: " << username << ", Phone: " << phone << ", Email: " << email << " (Admin)" << std::endl;
+}
+
+
+==================== 文件: model/patron.h ====================
+#ifndef PATRON_H
+#define PATRON_H
+#include "user.h"
+#include <list>
+#include <string>
+#include <iostream>
+
+class Patron : public User
+{
+private:
+    int borrowLimit;
+
+public:
+    Patron(const std::string &id, const std::string &username, const std::string &phone, const std::string &email,
+        const std::string &password,
+        int borrowLimit = 5);
+
+    // Getters
+    int getBorrowLimit() const;
+
+    // Setters
+    void setBorrowLimit(int limit);
+
+    // Display
+    void displayInfo() const override;
+};
+
+#endif // PATRON_H
+
+
+==================== 文件: model/patron.cpp ====================
+#include "patron.h"
+
+Patron::Patron(const std::string &id, const std::string &username, const std::string &phone, const std::string &email,
+               const std::string &password,
+               int borrowLimit)
+    : User(id, username, phone, email, password), borrowLimit(borrowLimit)
+{
+}
+
+// Getters
+int Patron::getBorrowLimit() const { return borrowLimit; }
+// Setters
+void Patron::setBorrowLimit(int limit) { borrowLimit = limit; }
+// Display
+void Patron::displayInfo() const {
+    std::cout << "ID: " << id << ", Username: " << username << ", Phone: " << phone << ", Email: " << email << ", Borrow Limit: " << borrowLimit << std::endl;
+}
+
+
+==================== 文件: model/book.h ======================
+#ifndef BOOK_H
+#define BOOK_H
+
+#include <string>
+
+class Book
+{
+private:
+    std::string ISBN;
+    std::string Title;
+    std::string Author;
+    std::string Publisher;
+    int PublishingYear;
+    std::string Category;
+    std::string Remarks;
+
+public:
+    // Initialization
+    Book(const std::string &isbn = "", const std::string &title = "", const std::string &author = "",
+         const std::string &publisher = "", int year = 0, const std::string &category = "",
+          const std::string &remarks = "");
+
+    // Getters
+    std::string getISBN() const;
+    std::string getTitle() const;
+    std::string getAuthor() const;
+    std::string getPublisher() const;
+    int getPublishingYear() const;
+    std::string getCategory() const;
+    std::string getRemarks() const;
+
+    // Setters
+    void setISBN(const std::string &value);
+    void setTitle(const std::string &value);
+    void setAuthor(const std::string &value);
+    void setPublisher(const std::string &value);
+    void setPublishingYear(int year);
+    void setCategory(const std::string &value);
+    void setRemarks(const std::string &value);
+};
+
+#endif // BOOK_H
+
+
+==================== 文件: model/book.cpp ====================
+#include "book.h"
+
+Book::Book(const std::string &isbn, const std::string &title, const std::string &author,
+    const std::string &publisher, int year, const std::string &category,
+    const std::string &remarks)
+    : ISBN(isbn), Title(title), Author(author), Publisher(publisher),
+     PublishingYear(year), Category(category), Remarks(remarks)
+{
+}
+
+// Getters
+std::string Book::getISBN() const { return ISBN; }
+std::string Book::getTitle() const { return Title; }
+std::string Book::getAuthor() const { return Author; }
+std::string Book::getPublisher() const { return Publisher; }
+int Book::getPublishingYear() const { return PublishingYear; }
+std::string Book::getCategory() const { return Category; }
+std::string Book::getRemarks() const { return Remarks; }
+
+// Setters
+void Book::setISBN(const std::string &value) { ISBN = value; }
+void Book::setTitle(const std::string &value) { Title = value; }
+void Book::setAuthor(const std::string &value) { Author = value; }
+void Book::setPublisher(const std::string &value) { Publisher = value; }
+void Book::setPublishingYear(int year) { PublishingYear = year; }
+void Book::setCategory(const std::string &value) { Category = value; }
+void Book::setRemarks(const std::string &value) { Remarks = value; }
+
+
+==================== 文件: model/bookcopy.h ====================
+#ifndef BOOKCOPY_H
+#define BOOKCOPY_H
+#include <string>
+#include "location.h"
+
+enum bookstatus{available,borrowed,cancelled};
+class BookCopy
+{
+private:
+    std::string ISBN;
+    std::string libCode;
+    Location bookLocation;
+    bookstatus status;
+
+public:
+    BookCopy(const std::string &isbn = "", const std::string &libCode = "", const Location &location = Location(), const bookstatus &status = available);
+
+    // Getters
+    std::string getISBN() const;
+    std::string getLibCode() const;
+    Location getBookLocation() const;
+    bookstatus getStatus() const;
+
+    // Setters
+    void setISBN(const std::string &value);
+    void setLibCode(const std::string &value);
+    void setBookLocation(const Location &loc);
+    void setStatus(const bookstatus &sta);
+};
+
+#endif // BOOKCOPY_H
+
+
+==================== 文件: model/bookcopy.cpp ====================
+#include "bookcopy.h"
+
+BookCopy::BookCopy(const std::string &isbn, const std::string &libCode, const Location &location, const bookstatus &status)
+    : ISBN(isbn), libCode(libCode), bookLocation(location), status(status)
+{
+}
+
+// Getters
+std::string BookCopy::getISBN() const { return ISBN; }
+std::string BookCopy::getLibCode() const { return libCode; }
+Location BookCopy::getBookLocation() const { return bookLocation; }
+bookstatus BookCopy::getStatus() const { return status; }
+
+// Setters
+void BookCopy::setISBN(const std::string &value) { ISBN = value; }
+void BookCopy::setLibCode(const std::string &value) { libCode = value; }
+void BookCopy::setBookLocation(const Location &loc) { bookLocation = loc; }
+void BookCopy::setStatus(const bookstatus &sta) { status = sta; }
+
+
+==================== 文件: model/loan.h ======================
+#ifndef LOAN_H
+#define LOAN_H
+#include <string>
+#include "date.h"
+
+class Loan
+{
+private:
+    std::string id;
+    std::string libCode;
+    std::string ISBN;
+    std::string userId;
+    Date loanDate;//借书
+    Date dueDate;//到期
+    Date returnDate;//还书
+    bool isReturned; // 判断是否已归还
+
+public:
+    Loan(std::string id, std::string libCode, std::string ISBN, std::string userId,
+         Date loanDate, Date dueDate, Date returnDate, bool isReturned = false);
+
+    // Getters
+    std::string getId() const;
+    std::string getLibCode() const;
+    std::string getUserId() const;
+    std::string getISBN() const;
+    Date getLoanDate() const;
+    Date getDueDate() const;
+    Date getReturnDate() const;
+    bool getIsReturned() const;
+
+    // Setters
+    void setId(const std::string &value);
+    void setLibCode(const std::string &value);
+    void setUserId(const std::string &value);
+    void setISBN(const std::string &value);
+    void setLoanDate(const Date &value);
+    void setDueDate(const Date &value);
+    void setReturnDate(const Date &value);
+    void setIsReturned(bool value);
+
+    // 时间相关方法
+    bool isOverdue() const;       // 是否逾期（未归还且当前日期超过应还日期）
+    int getOverdueDays() const;   // 逾期天数（未逾期或已归还返回0）
+};
+
+#endif // LOAN_H
+
+
+==================== 文件: model/loan.cpp ====================
+#include "loan.h"
+
+Loan::Loan(std::string id, std::string libCode, std::string ISBN, std::string userId,
+           Date loanDate, Date dueDate, Date returnDate, bool isReturned):
+    id(id), libCode(libCode), ISBN(ISBN), userId(userId),
+    loanDate(loanDate), dueDate(dueDate), returnDate(returnDate), isReturned(isReturned)
+{
+}
+
+// Getters
+std::string Loan::getId() const { return id; }
+std::string Loan::getLibCode() const { return libCode; }
+std::string Loan::getUserId() const { return userId; }
+std::string Loan::getISBN() const { return ISBN; }
+Date Loan::getLoanDate() const { return loanDate; }
+Date Loan::getDueDate() const { return dueDate; }
+Date Loan::getReturnDate() const { return returnDate; }
+bool Loan::getIsReturned() const { return isReturned; }
+
+// Setters
+void Loan::setId(const std::string &value) { id = value; }
+void Loan::setLibCode(const std::string &value) { libCode = value; }
+void Loan::setUserId(const std::string &value) { userId = value; }
+void Loan::setISBN(const std::string &value) { ISBN = value; }
+void Loan::setLoanDate(const Date &value) { loanDate = value; }
+void Loan::setDueDate(const Date &value) { dueDate = value; }
+void Loan::setReturnDate(const Date &value) { returnDate = value; }
+void Loan::setIsReturned(bool value) { isReturned = value; }
+
+// 时间相关方法
+bool Loan::isOverdue() const
+{
+    return !isReturned && Date::today() > dueDate;
+}
+
+int Loan::getOverdueDays() const
+{
+    if (!isOverdue()) return 0;
+    return Date::today() - dueDate;
+}
+
+
+==================== 文件: dao/bookdao.h =====================
+#ifndef BOOKDAO_H
+#define BOOKDAO_H
+#include <string>
+#include <list>
+#include <vector>
+#include "model/book.h"
+class BookDao {
+public:
+    // 单例实现
+    static BookDao& getInstance();
+    BookDao(const BookDao&) = delete;
+    BookDao& operator=(const BookDao&) = delete;
+    BookDao(BookDao&&) = delete;
+    BookDao& operator=(BookDao&&) = delete;
+
+    // 文件更新
+    std::vector<Book> loadBooksFromFile(const std::string& filename);
+    bool saveBooksToFile(const std::string& filename, const std::vector<Book>& books) const;
+
+private:
+    BookDao() = default;
+
+    // 序列化辅助函数
+    std::string bookToString(const Book& book) const;
+    Book stringToBook(const std::string& bookStr) const;
+};
+#endif // BOOKDAO_H
+
+/*
+图书文件设计格式：
+每行一个图书信息，字段之间用|分隔
+ISBN|Title|Author|Publisher|PublishingYear|Category|Remarks
+978-7-121-12345-6|C++ Primer|Lippman|电子工业出版社|2020|编程|畅销书
+*/
+
+
+==================== 文件: dao/bookdao.cpp ====================
+#include "bookdao.h"
+
+#include <algorithm>
+#include <fstream>
+#include <sstream>
+
+BookDao& BookDao::getInstance()
+{
+	static BookDao instance;
+	return instance;
+}
+
+std::vector<Book> BookDao::loadBooksFromFile(const std::string& filename)
+{
+	std::vector<Book> books;
+
+	std::ifstream file(filename);
+	if (!file.is_open()) {
+		return books;
+	}
+
+	std::string line;
+	while (std::getline(file, line)) {
+		if (line.empty()) {
+			continue;
+		}
+		books.push_back(stringToBook(line));
+	}
+	return books;
+}
+
+bool BookDao::saveBooksToFile(const std::string& filename, const std::vector<Book>& books) const
+{
+	std::ofstream file(filename, std::ios::trunc);
+	if (!file.is_open()) {
+		return false;
+	}
+
+	for (const auto& book : books) {
+		file << bookToString(book) << '\n';
+	}
+	return true;
+}
+
+
+
+std::string BookDao::bookToString(const Book& book) const
+{
+	std::ostringstream stream;
+	stream << book.getISBN() << '|'
+		   << book.getTitle() << '|'
+		   << book.getAuthor() << '|'
+		   << book.getPublisher() << '|'
+		   << book.getPublishingYear() << '|'
+		   << book.getCategory() << '|';
+
+	stream << book.getRemarks();
+	return stream.str();
+}
+
+Book BookDao::stringToBook(const std::string& bookStr) const
+{
+	std::vector<std::string> fields;
+    std::stringstream bookStream(bookStr);
+    std::string field;
+    while (std::getline(bookStream,field,'|')){
+        fields.push_back(field);
+    }
+    if (fields.size() < 7) {
+		return Book("", "", "", "", 0, "", "");
+	}
+    
+    Book book(fields[0], fields[1], fields[2], fields[3], std::stoi(fields[4]), fields[5], fields[6]);
+
+    return book;
+}
+
+
+==================== 文件: dao/bookcopydao.h ====================
+#ifndef BOOKCOPYDAO_H
+#define BOOKCOPYDAO_H
+#include <string>
+#include <list>
+#include <vector>
+#include "model/bookcopy.h"
+
+class BookCopyDao
+{
+public:
+    // 单例实现
+    static BookCopyDao& getInstance();
+    BookCopyDao(const BookCopyDao&) = delete;
+    BookCopyDao& operator=(const BookCopyDao&) = delete;
+    BookCopyDao(BookCopyDao&&) = delete;
+    BookCopyDao& operator=(BookCopyDao&&) = delete;
+
+    // 文件更新
+    std::vector<BookCopy> loadBookCopiesFromFile(const std::string& filename);
+    bool saveBookCopiesToFile(const std::string& filename, const std::vector<BookCopy>& bookCopies) const;
+
+
+private:
+    std::string bookCopyToString(const BookCopy& bookcopy) const;
+    BookCopy stringToBookCopy (const std::string& bookcopystr) const;
+    BookCopyDao();
+};
+
+#endif // BOOKCOPYDAO_H
+
+/*图书纸本副本文件设计格式：
+ISBN|libCode|bookLocation|status
+978-7-121-12345-6|CP001|北馆-3-4-1-2|available
+*/
+
+
+==================== 文件: dao/bookcopydao.cpp ====================
+#include "bookcopydao.h"
+#include <algorithm>
+#include <fstream>
+#include <sstream>
+
+BookCopyDao::BookCopyDao() {}
+
+BookCopyDao& BookCopyDao::getInstance()
+{
+    static BookCopyDao instance;
+    return instance;
+}
+
+std::string BookCopyDao::bookCopyToString(const BookCopy& bookcopy) const{
+    std::ostringstream stream;
+    stream << bookcopy.getISBN() << '|'
+           << bookcopy.getLibCode() << '|'
+           << bookcopy.getBookLocation().toString() << '|';
+    switch (bookcopy.getStatus()) {
+        case available:  stream << "available";  break;
+        case borrowed:   stream << "borrowed";   break;
+        case cancelled:  stream << "cancelled";  break;
+        default:         stream << "available";  break;
+    }
+    return stream.str();
+}
+
+BookCopy BookCopyDao::stringToBookCopy(const std::string& bookcopystr) const{
+    std::istringstream stream(bookcopystr);
+    std::string field;
+    std::vector<std::string> fields;
+    while(std::getline(stream,field,'|')){
+        fields.push_back(field);
+    }
+    BookCopy bookcopy;
+    if(fields.size() == 4){
+        bookcopy.setISBN(fields[0]);
+        bookcopy.setLibCode(fields[1]);
+        std::istringstream locStream(fields[2]);
+        std::string locField;
+        Location loc;
+        std::getline(locStream,locField,'-');
+        loc.setLib(locField);
+        std::getline(locStream,locField,'-');
+        loc.setFloor(std::stoi(locField));
+        std::getline(locStream,locField,'-');
+        loc.setRow(std::stoi(locField));
+        std::getline(locStream,locField,'-');
+        loc.setUnit(std::stoi(locField));
+        std::getline(locStream,locField,'-');
+        loc.setLevel(std::stoi(locField));
+        bookcopy.setBookLocation(loc);
+        
+        switch (fields[3][0]){
+            case 'a':
+                bookcopy.setStatus(available);
+                break;
+            case 'b':
+                bookcopy.setStatus(borrowed);
+                break;
+            case 'c':
+                bookcopy.setStatus(cancelled);
+                break;
+            default:
+                bookcopy.setStatus(available);
+        }
+    }
+    return bookcopy;
+}
+
+std::vector<BookCopy> BookCopyDao::loadBookCopiesFromFile(const std::string& filename)
+{
+    std::vector<BookCopy> bookCopies;
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        return bookCopies;
+    }
+
+    std::string line;
+    while (std::getline(file,line)){
+        if (line.empty()){
+            continue;
+        }
+        bookCopies.push_back(stringToBookCopy(line));
+    }
+    return bookCopies;
+}
+
+
+bool BookCopyDao::saveBookCopiesToFile(const std::string& filename, const std::vector<BookCopy>& bookCopies) const {
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        return false;
+    }
+
+    for (const auto& bookcopy : bookCopies) {
+        file << bookCopyToString(bookcopy) << std::endl;
+    }
+
+    return true;
+}
+
+
+==================== 文件: dao/loandao.h =====================
+#ifndef LOANDAO_H
+#define LOANDAO_H
+#include <string>
+#include <vector>
+#include "model/loan.h"
+class LoanDao
+{
+public:
+    // 单例实现
+    static LoanDao& getInstance();
+    LoanDao(const LoanDao&) = delete;
+    LoanDao& operator=(const LoanDao&) = delete;
+    LoanDao(LoanDao&&) = delete;
+    LoanDao& operator=(LoanDao&&) = delete;
+
+    // 文件更新
+    std::vector<Loan> loadLoansFromFile(const std::string& filename);
+    bool saveLoansToFile(const std::string& filename, const std::vector<Loan>& loans) const;
+
+private:
+    LoanDao();
+
+    // 序列化辅助函数
+    std::string loanToString(const Loan& loan) const;
+    Loan stringToLoan(const std::string& loanStr) const;
+};
+
+#endif // LOANDAO_H
+
+/*
+借阅记录文件设计格式：
+每行一个借阅信息，字段之间用|分隔
+id|libCode|ISBN|userId|loanDate|dueDate|returnDate|isReturned
+20260600001|LIB001|978-7-121-12345-6|p001|2023-06-01|2023-06-15|2023-06-10|1
+*/
+
+
+==================== 文件: dao/loandao.cpp ====================
+#include "loandao.h"
+#include <algorithm>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <vector>
+
+LoanDao::LoanDao() {}
+
+LoanDao& LoanDao::getInstance()
+{
+    static LoanDao instance;
+    return instance;
+}
+
+std::string LoanDao::loanToString(const Loan& loan) const
+{
+    std::ostringstream stream;
+    stream << loan.getId() << '|'
+           << loan.getLibCode() << '|'
+           << loan.getISBN() << '|'
+           << loan.getUserId() << '|'
+           << loan.getLoanDate() << '|'
+           << loan.getDueDate() << '|'
+           << loan.getReturnDate() << '|'
+           << (loan.getIsReturned() ? '1' : '0');
+    return stream.str();
+}
+
+Loan LoanDao::stringToLoan(const std::string& loanStr) const
+{
+    std::istringstream stream(loanStr);
+    std::string field;
+    std::vector<std::string> fields;
+    while (std::getline(stream, field, '|')) {
+        fields.push_back(field);
+    }
+    if (fields.size() < 8) {
+        return Loan("", "", "", "", Date(0, 0, 0), Date(0, 0, 0), Date(0, 0, 0), false);
+    }
+    return Loan(fields[0], fields[1], fields[2], fields[3],
+                Date::fromString(fields[4]), Date::fromString(fields[5]),
+                Date::fromString(fields[6]), fields[7] == "1");
+}
+
+std::vector<Loan> LoanDao::loadLoansFromFile(const std::string& filename)
+{
+    std::vector<Loan> loans;
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        return loans;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        if (line.empty()) {
+            continue;
+        }
+        loans.push_back(stringToLoan(line));
+    }
+    return loans;
+}
+
+bool LoanDao::saveLoansToFile(const std::string& filename, const std::vector<Loan>& loans) const
+{
+    std::ofstream file(filename, std::ios::trunc);
+    if (!file.is_open()) {
+        return false;
+    }
+    for (const auto& loan : loans) {
+        file << loanToString(loan) << '\n';
+    }
+    return true;
+}
+
+
+==================== 文件: dao/userdao.h =====================
+#ifndef USERDAO_H
+#define USERDAO_H
+#include <string>
+#include <vector>
+#include "model/user.h"
+
+class UserDao
+{
+public:
+    // 单例实现
+    static UserDao& getInstance();
+    UserDao(const UserDao&) = delete;
+    UserDao& operator=(const UserDao&) = delete;
+    UserDao(UserDao&&) = delete;
+    UserDao& operator=(UserDao&&) = delete;
+
+    // 文件更新
+    std::vector<User*> loadUsersFromFile(const std::string& filename);
+    bool saveUsersToFile(const std::string& filename, const std::vector<User*>& users) const;
+
+private:
+    UserDao() = default;
+
+    // 序列化辅助函数
+    std::string userToString(User* user) const;
+    User* stringToUser(const std::string& userStr) const;
+};
+
+#endif // USERDAO_H
+
+/*
+用户文件设计格式：
+每行一个用户信息，字段之间用|分隔，第一个字段为用户类型
+Admin|id|username|phone|email|password
+Patron|id|username|phone|email|password|borrowLimit
+其中password为已加密的密文
+Admin|admin|admin|12345678901|admin@library.com|<encrypted>
+Patron|p001|张三|13800138000|zhangsan@example.com|<encrypted>|5
+*/
+
+
+==================== 文件: dao/userdao.cpp ====================
+#include "userdao.h"
+#include "model/admin.h"
+#include "model/patron.h"
+#include <algorithm>
+#include <fstream>
+#include <sstream>
+
+UserDao& UserDao::getInstance()
+{
+    static UserDao instance;
+    return instance;
+}
+
+std::string UserDao::userToString(User* user) const
+{
+    std::ostringstream stream;
+    // 通过 dynamic_cast 判断用户类型
+    if (dynamic_cast<Admin*>(user)) {
+        stream << "Admin|"
+               << user->getId() << '|'
+               << user->getUsername() << '|'
+               << user->getPhone() << '|'
+               << user->getEmail() << '|'
+               << user->getPassword();
+    } else if (dynamic_cast<Patron*>(user)) {
+        Patron* patron = dynamic_cast<Patron*>(user);
+        stream << "Patron|"
+               << patron->getId() << '|'
+               << patron->getUsername() << '|'
+               << patron->getPhone() << '|'
+               << patron->getEmail() << '|'
+               << patron->getPassword() << '|'
+               << patron->getBorrowLimit();
+    }
+    return stream.str();
+}
+
+User* UserDao::stringToUser(const std::string& userStr) const
+{
+    std::istringstream stream(userStr);
+    std::string field;
+    std::vector<std::string> fields;
+    while (std::getline(stream, field, '|')) {
+        fields.push_back(field);
+    }
+    if (fields.empty()) return nullptr;
+
+    if (fields[0] == "Admin" && fields.size() >= 6) {
+        return new Admin(fields[1], fields[2], fields[3], fields[4], fields[5]);
+    } else if (fields[0] == "Patron" && fields.size() >= 7) {
+        return new Patron(fields[1], fields[2], fields[3], fields[4],
+                          fields[5], std::stoi(fields[6]));
+    }
+    return nullptr;
+}
+
+std::vector<User*> UserDao::loadUsersFromFile(const std::string& filename)
+{
+    std::vector<User*> users;
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        return users;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        if (line.empty()) {
+            continue;
+        }
+        User* user = stringToUser(line);
+        if (user) {
+            users.push_back(user);
+        }
+    }
+    return users;
+}
+
+bool UserDao::saveUsersToFile(const std::string& filename, const std::vector<User*>& users) const
+{
+    std::ofstream file(filename, std::ios::trunc);
+    if (!file.is_open()) {
+        return false;
+    }
+
+    for (User* user : users) {
+        file << userToString(user) << '\n';
+    }
+    return true;
+}
+
+
+==================== 文件: services/timeservice.h ====================
+#ifndef TIMESERVICE_H
+#define TIMESERVICE_H
+#include "model/date.h"
+
+class TimeService
+{
+public:
+    // 单例实现
+    static TimeService& getInstance();
+    TimeService(const TimeService&) = delete;
+    TimeService& operator=(const TimeService&) = delete;
+    TimeService(TimeService&&) = delete;
+    TimeService& operator=(TimeService&&) = delete;
+
+    // 借阅规则常量
+    static constexpr int DEFAULT_BORROW_DAYS = 30; // 默认借阅期 30 天
+    static constexpr int RENEW_DAYS = 15;           // 续期 15 天
+
+    // 业务日期计算（结合借阅规则常量，纯日期运算由 Date 运算符完成）
+    Date calculateDueDate(const Date& loanDate) const;            // 计算应还日期 = 借书日期 + 30天
+    Date calculateRenewedDueDate(const Date& currentDueDate) const; // 续期后应还日期 = 当前应还日期 + 15天
+
+private:
+    TimeService();
+};
+
+#endif // TIMESERVICE_H
+
+
+==================== 文件: services/timeservice.cpp ====================
+#include "timeservice.h"
+
+TimeService::TimeService()
+{
+}
+
+TimeService& TimeService::getInstance()
+{
+    static TimeService instance;
+    return instance;
+}
+
+Date TimeService::calculateDueDate(const Date& loanDate) const
+{
+    return loanDate + DEFAULT_BORROW_DAYS;
+}
+
+Date TimeService::calculateRenewedDueDate(const Date& currentDueDate) const
+{
+    return currentDueDate + RENEW_DAYS;
+}
+
+
+==================== 文件: services/bookservice.h ====================
+#ifndef BOOKSERVICE_H
+#define BOOKSERVICE_H
+#include <string>
+#include <list>
+#include <vector>
+#include "model/book.h"
+#include "dao/bookdao.h"
+
+/*searchQuery用于封装搜索条件，借鉴了清华大学图书馆水木搜索的设计。本系统搜索条件为：
+字段1 判断1 内容1 逻辑 字段2 判断2 内容2
+字段包括ISBN、标题、作者，判断包括等于、包含、前段相同，逻辑包括与、或。*/
+struct searchQuery{
+    enum class Field { Empty, ISBN, Title, Author };
+    enum class Condition { Equals, Contains, StartsWith };
+    enum class Logic { And, Or };
+    Field field1;
+    Condition condition1;
+    std::string value1;
+    Logic logic;
+    Field field2;
+    Condition condition2;
+    std::string value2;
+};
+
+class BookService
+{
+public:
+    static BookService& getInstance();
+    BookService(const BookService&) = delete;
+    BookService& operator=(const BookService&) = delete;
+    BookService(BookService&&) = delete;
+    BookService& operator=(BookService&&) = delete;
+
+    // 强制存写
+    bool readBooksFromFile();
+    bool writeBooksToFile() const;
+
+    // 图书管理
+    std::vector<Book> getAllBooks();
+    bool addBook(const Book& book);
+    bool removeBook(const std::string& isbn);
+    bool updateBook(const std::string& isbn, const Book& book);
+
+    // 图书搜索
+    std::vector<const Book*> searchBooks(const searchQuery& query) const;
+    std::string getBookTitleByISBN(const std::string& isbn) const;
+    Book getBookByISBN(const std::string& isbn) const;
+    bool isBookValid(const std::string& isbn) const;
+
+    // 数据主存
+    std::vector<Book> books;
+private:
+    BookService();
+};
+
+#endif // BOOKSERVICE_H
+
+
+==================== 文件: services/bookservice.cpp ====================
+#include "bookservice.h"
+#include "bookcopyservice.h"
+#include "loanservice.h"
+#include <algorithm>
+
+BookService& BookService::getInstance()
+{
+	static BookService instance;
+	return instance;
+}
+
+BookService::BookService()
+{
+	readBooksFromFile();
+}
+bool BookService::readBooksFromFile()
+{
+    books = BookDao::getInstance().loadBooksFromFile("data/books.txt");
+    return !books.empty();
+}
+
+bool BookService::writeBooksToFile() const
+{
+    return BookDao::getInstance().saveBooksToFile("data/books.txt", books);
+}
+
+std::vector<Book> BookService::getAllBooks()
+{
+    return books;
+}
+
+bool BookService::addBook(const Book& book)
+{
+	auto it = std::find_if(books.begin(), books.end(),
+    [&](const Book& b) { return b.getISBN() == book.getISBN(); });
+
+    if (it == books.end()) {
+        books.push_back(book);
+        return true;
+    }
+    return false;
+}
+
+bool BookService::removeBook(const std::string& isbn)
+{
+	auto it = std::find_if(books.begin(), books.end(),
+    [&](const Book& b) { return b.getISBN() == isbn; });
+
+    if (it == books.end()) {
+        return false;
+    }
+    // 级联处理：注销该ISBN的所有图书副本（副本注销时会自动处理借阅记录）
+    std::string errMsg;
+    bookCopyService::getInstance().cancelAllBookCopiesByISBN(isbn, errMsg);
+    books.erase(it);
+    writeBooksToFile();
+    return true;
+}
+
+bool BookService::updateBook(const std::string& isbn, const Book& book)
+{
+	auto it = std::find_if(books.begin(), books.end(), [&](const Book& item) {
+		return item.getISBN() == isbn;
+	});
+
+	Book updatedBook = book;
+	updatedBook.setISBN(isbn);
+
+	if (it != books.end()) {
+		*it = updatedBook;
+		return true;
+	}
+	return false;
+}
+
+std::vector<const Book*> BookService::searchBooks(const searchQuery& query) const
+{
+    std::vector<const Book*> result;
+    std::vector<bool> flag1, flag2;
+    switch(query.field1){
+        case searchQuery::Field::Empty:
+            for (size_t i = 0; i < books.size(); ++i) {
+                flag1.push_back(true);
+            }
+            break;
+        case searchQuery::Field::ISBN:
+            switch(query.condition1){
+                case searchQuery::Condition::Equals:
+                    for (const auto& book : books){
+                        if(book.getISBN()==query.value1) flag1.push_back(true);
+                        else flag1.push_back(false);
+                    }
+                break;
+                case searchQuery::Condition::Contains:
+                    for (const auto& book : books){
+                        if(book.getISBN().find(query.value1)!=std::string::npos) flag1.push_back(true);
+                        else flag1.push_back(false);
+                    }
+                break;
+                case searchQuery::Condition::StartsWith:
+                    for (const auto& book : books){
+                        if(book.getISBN().rfind(query.value1, 0) == 0) flag1.push_back(true);//最后一次出现是在开头
+                        else flag1.push_back(false);
+                    }
+                break;
+            }
+        break;
+        case searchQuery::Field::Title:
+            switch(query.condition1){
+                case searchQuery::Condition::Equals:
+                    for (const auto& book : books){
+                        if(book.getTitle()==query.value1) flag1.push_back(true);
+                        else flag1.push_back(false);
+                    }
+                break;
+                case searchQuery::Condition::Contains:
+                    for (const auto& book : books){
+                        if(book.getTitle().find(query.value1)!=std::string::npos) flag1.push_back(true);
+                        else flag1.push_back(false);
+                    }
+                break;
+                case searchQuery::Condition::StartsWith:
+                    for (const auto& book : books){
+                        if(book.getTitle().rfind(query.value1, 0) == 0) flag1.push_back(true);
+                        else flag1.push_back(false);
+                    }
+                break;
+            }break;
+        case searchQuery::Field::Author:
+            switch(query.condition1){
+                case searchQuery::Condition::Equals:
+                    for (const auto& book : books){
+                        if(book.getAuthor()==query.value1) flag1.push_back(true);
+                        else flag1.push_back(false);
+                    }
+                break;
+                case searchQuery::Condition::Contains:
+                    for (const auto& book : books){
+                        if(book.getAuthor().find(query.value1)!=std::string::npos) flag1.push_back(true);
+                        else flag1.push_back(false);
+                    }
+                break;
+                case searchQuery::Condition::StartsWith:
+                    for (const auto& book : books){
+                        if(book.getAuthor().rfind(query.value1, 0) == 0) flag1.push_back(true);
+                        else flag1.push_back(false);
+                    }
+                    break;
+            }
+        break;
+    }
+            
+    switch(query.field2){
+        case searchQuery::Field::Empty:
+            for (size_t i = 0; i < books.size(); ++i) {
+                flag2.push_back(true);
+            }
+            break;
+        case searchQuery::Field::ISBN:
+            switch(query.condition2){
+                case searchQuery::Condition::Equals:
+                    for (const auto& book : books){
+                        if(book.getISBN()==query.value2) flag2.push_back(true);
+                        else flag2.push_back(false);
+                    }
+                break;
+                case searchQuery::Condition::Contains:
+                    for (const auto& book : books){
+                        if(book.getISBN().find(query.value2)!=std::string::npos) flag2.push_back(true);
+                        else flag2.push_back(false);
+                    }
+                break;
+                case searchQuery::Condition::StartsWith:
+                    for (const auto& book : books){
+                        if(book.getISBN().rfind(query.value2, 0) == 0) flag2.push_back(true);//最后一次出现是在开头
+                        else flag2.push_back(false);
+                    }
+                break;
+            }
+        break;
+        case searchQuery::Field::Title:
+            switch(query.condition2){
+                case searchQuery::Condition::Equals:
+                    for (const auto& book : books){
+                        if(book.getTitle()==query.value2) flag2.push_back(true);
+                        else flag2.push_back(false);
+                    }
+                break;
+                case searchQuery::Condition::Contains:
+                    for (const auto& book : books){
+                        if(book.getTitle().find(query.value2)!=std::string::npos) flag2.push_back(true);
+                        else flag2.push_back(false);
+                    }
+                break;
+                case searchQuery::Condition::StartsWith:
+                    for (const auto& book : books){
+                        if(book.getTitle().rfind(query.value2, 0) == 0) flag2.push_back(true);
+                        else flag2.push_back(false);
+                    }
+                break;
+            }break;
+        case searchQuery::Field::Author:
+            switch(query.condition2){
+                case searchQuery::Condition::Equals:
+                    for (const auto& book : books){
+                        if(book.getAuthor()==query.value2) flag2.push_back(true);
+                        else flag2.push_back(false);
+                    }
+                break;
+                case searchQuery::Condition::Contains:
+                    for (const auto& book : books){
+                        if(book.getAuthor().find(query.value2)!=std::string::npos) flag2.push_back(true);
+                        else flag2.push_back(false);
+                    }
+                break;
+                case searchQuery::Condition::StartsWith:
+                    for (const auto& book : books){
+                        if(book.getAuthor().rfind(query.value2, 0) == 0) flag2.push_back(true);
+                        else flag2.push_back(false);
+                    }
+                    break;
+            }
+        break;
+
+}
+
+    switch(query.logic){
+        case searchQuery::Logic::And:
+            for(size_t i=0;i<books.size();i++){
+                if(flag1[i] && flag2[i]) result.push_back(&books[i]);
+            }
+        break;
+        case searchQuery::Logic::Or:
+            for(size_t i=0;i<books.size();i++){
+                if(flag1[i] || flag2[i]) result.push_back(&books[i]);
+            }
+        break;
+    }
+    return result;
+}
+
+std::string BookService::getBookTitleByISBN(const std::string& isbn) const {
+    auto it = std::find_if(books.begin(), books.end(),
+                           [&](const Book& b) { return b.getISBN() == isbn; });
+    if (it != books.end()) {
+        return it->getTitle();
+    }
+    return ""; // 如果未找到，返回空字符串
+}
+
+Book BookService::getBookByISBN(const std::string& isbn) const {
+    auto it = std::find_if(books.begin(), books.end(),
+                           [&](const Book& b) { return b.getISBN() == isbn; });
+    if (it != books.end()) {
+        return *it;
+    }
+    return Book(); // 如果未找到，返回默认构造的Book对象
+}
+
+bool BookService::isBookValid(const std::string& isbn) const {
+    auto it = std::find_if(books.begin(), books.end(),
+                           [&](const Book& b) { return b.getISBN() == isbn; });
+    return it != books.end();
+}
+
+
+==================== 文件: services/bookcopyservice.h ====================
+#ifndef BOOKCOPYSERVICE_H
+#define BOOKCOPYSERVICE_H
+#include <string>
+#include <list>
+#include <vector>
+#include "model/bookcopy.h"
+
+class bookCopyService
+{
+public:
+    static bookCopyService& getInstance();
+    bookCopyService(const bookCopyService&) = delete;
+    bookCopyService& operator=(const bookCopyService&) = delete;
+    bookCopyService(bookCopyService&&) = delete;
+    bookCopyService& operator=(bookCopyService&&) = delete;
+
+    bool readBookCopiesFromFile();
+    bool writeBookCopiesToFile() const;
+
+    //现在管理后有自动更新文件了！
+    bool addBookCopy(const BookCopy& bookcopy);
+    bool cancelBookCopy(const std::string& isbn, const std::string& libCode);
+    bool removeBookCopy(const std::string& isbn, const std::string& libCode);
+    bool updateBookCopy(const std::string& isbn, const std::string& libCode, const BookCopy& bookcopy);
+    bool cancelAllBookCopiesByISBN(const std::string& isbn, std::string& errorMessage);
+
+    std::vector<BookCopy> getAllBookCopies() const;
+    std::vector<BookCopy> getBookCopiesByISBN(const std::string& isbn) const;
+    BookCopy* getBookCopyByLibCode(const std::string& libCode) const;
+    std::vector<BookCopy> getBookCopiesByLocation(const std::string& lib = "", const short floor = 0, const short row = 0,
+         const short unit = 0, const short level = 0) const;
+    bool isLibCodeAvailable(const std::string& libCode) const;
+
+    std::vector<BookCopy> bookCopies;
+private:
+    bookCopyService();
+};
+
+#endif // BOOKCOPYSERVICE_H
+
+
+==================== 文件: services/bookcopyservice.cpp ====================
+#include "bookcopyservice.h"
+#include "dao/bookcopydao.h"
+#include "loanservice.h"
+#include <algorithm>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <string>
+#include <vector>
+
+
+bookCopyService::bookCopyService()
+{
+    readBookCopiesFromFile();
+}
+
+bookCopyService& bookCopyService::getInstance()
+{
+    static bookCopyService instance;
+    return instance;
+}
+
+bool bookCopyService::readBookCopiesFromFile()
+{
+    BookCopyDao& dao = BookCopyDao::getInstance();
+    bookCopies = dao.loadBookCopiesFromFile("data/bookcopies.txt");
+    return !bookCopies.empty();
+}
+bool bookCopyService::writeBookCopiesToFile() const
+{
+    BookCopyDao& dao = BookCopyDao::getInstance();
+    return dao.saveBookCopiesToFile("data/bookcopies.txt", bookCopies);
+}
+
+bool bookCopyService::addBookCopy(const BookCopy& bookcopy)
+{
+    bookCopies.push_back(bookcopy);
+    return true;
+}
+bool bookCopyService::cancelBookCopy(const std::string& isbn, const std::string& libCode)
+{
+    auto it = std::find_if(bookCopies.begin(), bookCopies.end(),
+                            [&](const BookCopy& bc) { return bc.getISBN() == isbn && bc.getLibCode() == libCode; });
+    if (it != bookCopies.end()) {
+        // 若副本正在被借出，先将对应借阅记录标记为已返还
+        if (it->getStatus() == borrowed) {
+            std::string errMsg;
+            loanService::getInstance().returnBookByLibCode(libCode, errMsg);
+        }
+        it->setStatus(cancelled);
+        writeBookCopiesToFile(); // 自动更新文件
+        return true;
+    }
+    return false;
+}
+bool bookCopyService::removeBookCopy(const std::string& isbn, const std::string& libCode)
+{
+    // 先处理被借出副本的借阅记录
+    for (const auto& bc : bookCopies) {
+        if (bc.getISBN() == isbn && bc.getLibCode() == libCode && bc.getStatus() == borrowed) {
+            std::string errMsg;
+            loanService::getInstance().returnBookByLibCode(libCode, errMsg);
+        }
+    }
+    auto it = std::remove_if(bookCopies.begin(), bookCopies.end(),
+                             [&](const BookCopy& bc) { return bc.getISBN() == isbn && bc.getLibCode() == libCode; });
+    if (it != bookCopies.end()) {
+        bookCopies.erase(it, bookCopies.end());
+        writeBookCopiesToFile(); // 自动更新文件
+        return true;
+    }
+    return false;
+}
+bool bookCopyService::cancelAllBookCopiesByISBN(const std::string& isbn, std::string& errorMessage)
+{
+    bool found = false;
+    for (auto& bc : bookCopies) {
+        if (bc.getISBN() == isbn) {
+            // 若副本正在被借出，先将对应借阅记录标记为已返还
+            if (bc.getStatus() == borrowed) {
+                std::string errMsg;
+                loanService::getInstance().returnBookByLibCode(bc.getLibCode(), errMsg);
+            }
+            bc.setStatus(cancelled);
+            found = true;
+        }
+    }
+    if (found) {
+        writeBookCopiesToFile();
+    } else {
+        errorMessage = "未找到该ISBN对应的图书副本";
+    }
+    return found;
+}
+bool bookCopyService::updateBookCopy(const std::string& isbn, const std::string& libCode, const BookCopy& bookcopy)
+{
+    auto it = std::find_if(bookCopies.begin(), bookCopies.end(),
+                            [&](const BookCopy& bc) { return bc.getISBN() == isbn && bc.getLibCode() == libCode; });
+    if (it != bookCopies.end()) {
+        *it = bookcopy;
+        writeBookCopiesToFile(); // 自动更新文件
+        return true;
+    }
+    return false;
+}
+
+std::vector<BookCopy> bookCopyService::getAllBookCopies() const
+{
+    return bookCopies;
+}
+std::vector<BookCopy> bookCopyService::getBookCopiesByISBN(const std::string& isbn) const
+{
+    std::vector<BookCopy> result;
+    for(auto & bc : bookCopies){
+        if(bc.getISBN() == isbn){
+            result.push_back(bc);
+        }
+    }
+    return result;
+}
+BookCopy* bookCopyService::getBookCopyByLibCode(const std::string& libCode) const
+{
+    for(const auto& bc : bookCopies){
+        if(bc.getLibCode() == libCode){
+            return const_cast<BookCopy*>(&bc);
+        }
+    }
+    return nullptr;
+}
+std::vector<BookCopy> bookCopyService::getBookCopiesByLocation(const std::string& lib, const short floor, const short row,
+     const short unit, const short level) const
+{
+    std::vector<BookCopy> result;
+    for(auto & bc : bookCopies){
+        Location loc = bc.getBookLocation();
+        if((lib.empty() || loc.getLib() == lib) &&
+           (floor == 0 || loc.getFloor() == floor) &&
+           (row == 0 || loc.getRow() == row) &&
+           (unit == 0 || loc.getUnit() == unit) &&
+           (level == 0 || loc.getLevel() == level)){
+            result.push_back(bc);
+        }
+    }//对应项为0表示不限制该项
+    return result;
+}
+bool bookCopyService::isLibCodeAvailable(const std::string& libCode) const
+{
+    for (const auto& bc : bookCopies) {
+        if (bc.getLibCode() == libCode) {
+            return false; // 如果找到了相同的馆藏号，返回false
+        }
+    }
+    return true; // 没有找到相同的馆藏号，返回true
+}
+
+
+==================== 文件: services/loanservice.h ====================
+#ifndef LOANSERVICE_H
+#define LOANSERVICE_H
+#include <string>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include "bookservice.h"
+#include "userservice.h"
+#include "bookcopyservice.h"
+#include "timeservice.h"
+#include "dao/loandao.h"
+#include "model/patron.h"
+#include "model/loan.h"
+
+class loanService
+{
+public:
+    // 单例实现
+    static loanService& getInstance();
+    loanService(const loanService&) = delete;
+    loanService& operator=(const loanService&) = delete;
+    loanService(loanService&&) = delete;
+    loanService& operator=(loanService&&) = delete;
+
+    // 强制存写
+    bool readLoansFromFile();
+    bool writeLoansToFile() const;
+
+    // 借阅服务
+    bool borrowBook(const std::string& userId, const std::string& ISBN, const std::string& libCode, std::string& errorMessage);
+    bool returnBook(const std::string& userId, const std::string& ISBN, const std::string& libCode, std::string& errorMessage);
+    bool renewBook(const std::string& userId, const std::string& ISBN, const std::string& libCode, std::string& errorMessage);
+
+    // 批量归还（用于副本注销/删除、图书删除时的级联处理）
+    bool returnBookByLibCode(const std::string& libCode, std::string& errorMessage);
+    bool returnBooksByISBN(const std::string& ISBN, std::string& errorMessage);
+
+    // 借阅记录查询
+    std::vector<Loan> getBorrowingBooksByUser(const std::string& userId);
+    std::vector<Loan> getBorrowHistoryByUser(const std::string& userId);
+    std::vector<Loan> getBorrowHistoryByISBN(const std::string& ISBN);
+    std::vector<Loan> getBorrowHistoryByLibCode(const std::string& libCode);
+    std::vector<Loan> getAllCurrentBorrowing();
+
+    //统计信息
+    int getTotalBorrowedBooks() const;//总借阅量
+    int getTotalBorrowingBooks() const;//当前出借数
+    std::map<std::string, int> getMostBorrowedBooks(int topN) const;//最受欢迎图书
+    std::map<std::string, int> getMostActiveUsers(int topN) const;//最活跃用户
+    std::map<std::string, int> getTotalBorrowVSMonth() const;//每月借阅量
+    std::map<std::string, int> getUserBorrowVSMonth(const std::string& userId) const;//每月用户借阅量
+    
+    // 数据主存
+    std::vector<Loan> loans;
+
+
+private:
+    loanService();
+};
+
+#endif // LOANSERVICE_H
+
+
+==================== 文件: services/loanservice.cpp ====================
+#include "loanservice.h"
+
+
+loanService::loanService()
+{
+    readLoansFromFile();
+}
+
+loanService& loanService::getInstance(){
+    static loanService instance;
+    return instance;
+}
+
+bool loanService::readLoansFromFile() {
+    loans = LoanDao::getInstance().loadLoansFromFile("data/loans.txt");
+    return !loans.empty();
+}
+
+bool loanService::writeLoansToFile() const {
+    return LoanDao::getInstance().saveLoansToFile("data/loans.txt", loans);
+}
+
+bool loanService::borrowBook(const std::string& userId, const std::string& ISBN, const std::string& libCode, std::string& errorMessage) {
+    //检查
+    //1.书的信息和用户的信息对不对？
+    if (!UserService::getInstance().getUserById(userId)) {
+        errorMessage = "用户不存在";
+        return false;
+    }
+    if (!BookService::getInstance().isBookValid(ISBN)) {
+        errorMessage = "图书信息不存在";
+        return false;
+    }
+    if (!bookCopyService::getInstance().getBookCopyByLibCode(libCode)) {
+        errorMessage = "图书副本不存在";
+        return false;
+    }
+    
+    //2.该书是否被借阅？
+    BookCopy* targetBookCopy = bookCopyService::getInstance().getBookCopyByLibCode(libCode);
+    if (targetBookCopy->getStatus() != available) {
+        errorMessage = "图书副本已被借阅或不可用";
+        return false;
+    }
+   
+    //3.该用户的在借数量达到上限没有？
+
+    Patron* targetUser = dynamic_cast<Patron*>(UserService::getInstance().getUserById(userId));
+    if (!targetUser) {
+        errorMessage = "用户不是借阅者";
+        return false;
+    }
+    if (getBorrowingBooksByUser(userId).size() >= targetUser->getBorrowLimit()) {
+        errorMessage = "用户已达到借阅上限";
+        return false;
+    }
+    //4.该用户是否有未归还的逾期书籍？
+    for (const auto& loan : loans) {
+        if (loan.getUserId() == userId && !loan.getIsReturned()) {
+            if (loan.isOverdue()) {
+                errorMessage = "用户有未归还的逾期书籍";
+                return false;
+            }
+        }
+    }
+    //操作
+    //1.更改图书状态
+    targetBookCopy->setStatus(borrowed);
+    //2.添加借阅记录
+    std::string loanId = "LN" + std::to_string(loans.size() + 1); 
+    Date loanDate = Date::today();
+    Loan newLoan(loanId, libCode, ISBN, userId, loanDate, TimeService::getInstance().calculateDueDate(loanDate), Date(), false);
+    loans.push_back(newLoan);
+    writeLoansToFile();
+    return true; 
+}
+
+bool loanService::renewBook(const std::string& userId, const std::string& ISBN, const std::string& libCode, std::string& errorMessage) {
+    // 检查用户是否存在
+    User* user = UserService::getInstance().getUserById(userId);
+    if (!user) {
+        errorMessage = "用户不存在";
+        return false;
+    }
+
+    // 检查图书副本是否存在
+    BookCopy* bookCopy = bookCopyService::getInstance().getBookCopyByLibCode(libCode);
+    if (!bookCopy) {
+        errorMessage = "图书副本不存在";
+        return false;
+    }
+
+    // 查找对应的借阅记录
+    auto it = std::find_if(loans.begin(), loans.end(), [&](const Loan& loan) {
+        return loan.getUserId() == userId && loan.getISBN() == ISBN && loan.getLibCode() == libCode && !loan.getIsReturned();
+    });
+
+    if (it == loans.end()) {
+        errorMessage = "未找到对应的借阅记录";
+        return false;
+    }
+
+    // 检查是否逾期
+    if (it->isOverdue()) {
+        errorMessage = "图书已逾期，无法续借";
+        return false;
+    }
+
+    for (const auto& loan : loans) {
+        if (loan.getUserId() == userId && !loan.getIsReturned()) {
+            if (loan.isOverdue()) {
+                errorMessage = "用户有未归还的逾期书籍";
+                return false;
+            }
+        }
+    }
+
+    // 续借操作
+    Date newDueDate = TimeService::getInstance().calculateRenewedDueDate(it->getDueDate());
+    it->setDueDate(newDueDate);
+    writeLoansToFile();
+    return true;
+}
+
+bool loanService::returnBook(const std::string& userId, const std::string& ISBN, const std::string& libCode, std::string& errorMessage) {
+    // 检查用户是否存在
+    User* user = UserService::getInstance().getUserById(userId);
+    if (!user) {
+        errorMessage = "用户不存在";
+        return false;
+    }
+
+    // 检查图书副本是否存在
+    BookCopy* bookCopy = bookCopyService::getInstance().getBookCopyByLibCode(libCode);
+    if (!bookCopy) {
+        errorMessage = "图书副本不存在";
+        return false;
+    }
+
+    // 查找对应的借阅记录
+    auto it = std::find_if(loans.begin(), loans.end(), [&](const Loan& loan) {
+        return loan.getUserId() == userId && loan.getISBN() == ISBN && loan.getLibCode() == libCode && !loan.getIsReturned();
+    });
+
+    if (it == loans.end()) {
+        errorMessage = "未找到对应的借阅记录";
+        return false;
+    }
+
+    // 归还操作
+    it->setIsReturned(true);
+    it->setReturnDate(Date::today());
+    bookCopy->setStatus(available);
+
+    writeLoansToFile();
+    return true;
+}
+
+bool loanService::returnBookByLibCode(const std::string& libCode, std::string& errorMessage) {
+    bool found = false;
+    for (auto& loan : loans) {
+        if (loan.getLibCode() == libCode && !loan.getIsReturned()) {
+            loan.setIsReturned(true);
+            loan.setReturnDate(Date::today());
+            found = true;
+        }
+    }
+    if (found) {
+        writeLoansToFile();
+    } else {
+        errorMessage = "未找到该馆藏号对应的未归还借阅记录";
+    }
+    return found;
+}
+
+bool loanService::returnBooksByISBN(const std::string& ISBN, std::string& errorMessage) {
+    bool found = false;
+    for (auto& loan : loans) {
+        if (loan.getISBN() == ISBN && !loan.getIsReturned()) {
+            loan.setIsReturned(true);
+            loan.setReturnDate(Date::today());
+            found = true;
+        }
+    }
+    if (found) {
+        writeLoansToFile();
+    } else {
+        errorMessage = "未找到该ISBN对应的未归还借阅记录";
+    }
+    return found;
+}
+
+std::vector<Loan> loanService::getBorrowingBooksByUser(const std::string& userId) {
+    std::vector<Loan> borrowingLoans;
+    for (const auto& loan : loans) {
+        if (loan.getUserId() == userId && !loan.getIsReturned()) {
+            borrowingLoans.push_back(loan);
+        }
+    }
+    return borrowingLoans;
+}
+
+std::vector<Loan> loanService::getBorrowHistoryByUser(const std::string& userId) {
+    std::vector<Loan> borrowHistory;
+    for (const auto& loan : loans) {
+        if (loan.getUserId() == userId) {
+            borrowHistory.push_back(loan);
+        }
+    }
+    return borrowHistory;
+}
+
+std::vector<Loan> loanService::getBorrowHistoryByISBN(const std::string& ISBN) {
+    std::vector<Loan> borrowHistory;
+    for (const auto& loan : loans) {
+        if (loan.getISBN() == ISBN) {
+            borrowHistory.push_back(loan);
+        }
+    }
+    return borrowHistory;
+}
+
+std::vector<Loan> loanService::getBorrowHistoryByLibCode(const std::string& libCode) {
+    std::vector<Loan> borrowHistory;
+    for (const auto& loan : loans) {
+        if (loan.getLibCode() == libCode) {
+            borrowHistory.push_back(loan);
+        }
+    }
+    return borrowHistory;
+}
+
+std::vector<Loan> loanService::getAllCurrentBorrowing() {
+    std::vector<Loan> currentBorrowing;
+    for (const auto& loan : loans) {
+        if (!loan.getIsReturned()) {
+            currentBorrowing.push_back(loan);
+        }
+    }
+    return currentBorrowing;
+}
+
+int loanService::getTotalBorrowedBooks() const {
+    return static_cast<int>(loans.size());
+}
+
+int loanService::getTotalBorrowingBooks() const {
+    return static_cast<int>(std::count_if(loans.begin(), loans.end(), [](const Loan& loan) {
+        return !loan.getIsReturned();
+    }));
+}
+
+std::map<std::string, int> loanService::getMostBorrowedBooks(int topN) const {
+    std::map<std::string, int> bookCount;
+    for (const auto& loan : loans) {
+        if (!loan.getIsReturned()) {
+            bookCount[loan.getISBN()]++;
+        }
+    }
+    return bookCount;
+}
+
+std::map<std::string, int> loanService::getMostActiveUsers(int topN) const{
+    std::map<std::string, int> userCount;
+    for (const auto& loan : loans) {
+        if (!loan.getIsReturned()) {
+            userCount[loan.getUserId()]++;
+        }
+    }
+    return userCount;
+}
+
+std::map<std::string, int> loanService::getTotalBorrowVSMonth() const{
+    std::map<std::string, int> monthCount;
+    for (const auto& loan : loans) {
+        monthCount[loan.getLoanDate().toYearMonthString()]++;
+    }
+    return monthCount;
+}
+
+std::map<std::string, int> loanService::getUserBorrowVSMonth(const std::string& userId) const{
+    std::map<std::string, int> monthCount;
+    for (const auto& loan : loans) {
+        if (loan.getUserId() == userId) {
+            monthCount[loan.getLoanDate().toYearMonthString()]++;
+        }
+    }
+    return monthCount;
+}
+
+
+==================== 文件: services/userservice.h ====================
+#ifndef USERSERVICE_H
+#define USERSERVICE_H
+#include <string>
+#include <vector>
+#include "model/user.h"
+#include "dao/userdao.h"
+
+/*密码加密约定：
+明文：add和update函数的形参。
+加密：add和update函数内部。加密方法：以用户ID为密钥的异或加密。
+密文：构造函数的形参，文件的存储，主存的数据。
+*/
+class UserService
+{
+public:
+    static UserService& getInstance();
+    UserService(const UserService&) = delete;
+    UserService& operator=(const UserService&) = delete;
+    UserService(UserService&&) = delete;
+    UserService& operator=(UserService&&) = delete;
+
+    // 强制存写
+    bool readUsersFromFile();
+    bool writeUsersToFile() const;
+
+    // 用户管理
+    std::vector<User*> getAllUsers() const;
+    bool addPatron(const std::string& id, const std::string& username, const std::string& phone,
+                   const std::string& email, const std::string& plainPassword, int borrowLimit = 5);
+    bool addAdmin(const std::string& id, const std::string& username, const std::string& phone,
+                  const std::string& email, const std::string& plainPassword);
+    bool removeUser(const std::string& id, std::string& errorMessage);
+    bool updatePatron(const std::string& id, const std::string& username, const std::string& phone,
+                      const std::string& email, int borrowLimit = 5);
+    bool updatePatronPassword(const std::string& id, const std::string& plainPassword);
+    bool updateAdmin(const std::string& id, const std::string& username, const std::string& phone,
+                     const std::string& email);
+    bool updateAdminPassword(const std::string& id, const std::string& plainPassword);
+
+    // 用户查询
+
+    User* getUserById(const std::string& id) const;
+    User* getUserByUsername(const std::string& username) const;
+
+    // 用户验证
+    User* authenticate(const std::string& id, const std::string& password) const;
+    std::string encryptPassword(const std::string& password, const std::string& key) const;
+    std::string decryptPassword(const std::string& encryptedPassword, const std::string& key) const;
+    User* getCurrentUser() const;
+    
+    // 数据主存
+    std::vector<User*> users;
+    mutable User* currentUser = nullptr; // 当前登录用户
+private:
+    UserService();
+};
+
+#endif // USERSERVICE_H
+
+
+==================== 文件: services/userservice.cpp ====================
+#include "userservice.h"
+#include "model/admin.h"
+#include "model/patron.h"
+#include "loanservice.h"
+#include <algorithm>
+#include <cstdio>
+
+UserService& UserService::getInstance()
+{
+    static UserService instance;
+    return instance;
+}
+
+UserService::UserService()
+{
+    readUsersFromFile();
+}
+
+bool UserService::readUsersFromFile()
+{
+    // 释放旧数据
+    for (User* user : users) {
+        delete user;//因为users是基类
+    }
+    users.clear();
+
+    users = UserDao::getInstance().loadUsersFromFile("data/users.txt");
+    return !users.empty();
+}
+
+bool UserService::writeUsersToFile() const
+{
+    return UserDao::getInstance().saveUsersToFile("data/users.txt", users);
+}
+
+std::vector<User*> UserService::getAllUsers() const
+{
+    return users;
+}
+
+bool UserService::addPatron(const std::string& id, const std::string& username, const std::string& phone,
+                            const std::string& email, const std::string& plainPassword, int borrowLimit)
+{
+    if (getUserById(id)) {
+        return false; // ID 已存在
+    }
+    std::string encrypted = encryptPassword(plainPassword, id);
+    User* user = new Patron(id, username, phone, email, encrypted, borrowLimit);
+    users.push_back(user);
+    writeUsersToFile();
+    return true;
+}
+
+bool UserService::addAdmin(const std::string& id, const std::string& username, const std::string& phone,
+                           const std::string& email, const std::string& plainPassword)
+{
+    if (getUserById(id)) {
+        return false; // ID 已存在
+    }
+    std::string encrypted = encryptPassword(plainPassword, id);
+    User* user = new Admin(id, username, phone, email, encrypted);
+    users.push_back(user);
+    writeUsersToFile();
+    return true;
+}
+
+bool UserService::removeUser(const std::string& id, std::string& errorMessage)
+{
+    auto it = std::find_if(users.begin(), users.end(),
+    [&](User* u) { return u->getId() == id; });
+
+    if (it == users.end()) {
+        errorMessage = "未找到ID为 " + id + " 的用户";
+        return false;
+    }
+    // 检查该用户是否有未归还的图书，有则禁止删除
+    if (!loanService::getInstance().getBorrowingBooksByUser(id).empty()) {
+        errorMessage = "该用户有未归还的图书，无法注销/删除";
+        return false;
+    }
+    delete *it;
+    users.erase(it);
+    writeUsersToFile(); // 自动更新文件
+    return true;
+}
+
+bool UserService::updatePatron(const std::string& id, const std::string& username, const std::string& phone,
+                               const std::string& email, int borrowLimit)
+{
+    auto it = std::find_if(users.begin(), users.end(), [&](User* u) {
+        return u->getId() == id;
+    });
+
+    if (it == users.end()) {
+        return false;
+    }
+    // 若被更新的是当前登录用户，delete 后 currentUser 会悬空，需同步更新
+    bool isCurrentUser = (currentUser == *it);
+    std::string password = (*it)->getPassword();
+    delete *it;
+    *it = new Patron(id, username, phone, email, password, borrowLimit);
+    if (isCurrentUser) {
+        currentUser = *it;
+    }
+    writeUsersToFile();
+    return true;
+}
+
+bool UserService::updatePatronPassword(const std::string& id, const std::string& plainPassword)
+{
+    auto it = std::find_if(users.begin(), users.end(), [&](User* u) {
+        return u->getId() == id;
+    });
+
+    if (it == users.end()) {
+        return false;
+    }
+    std::string encrypted = encryptPassword(plainPassword, id);
+    (*it)->setPassword(encrypted);
+    writeUsersToFile();
+    return true;
+}
+
+bool UserService::updateAdmin(const std::string& id, const std::string& username, const std::string& phone,
+                              const std::string& email)
+{
+    auto it = std::find_if(users.begin(), users.end(), [&](User* u) {
+        return u->getId() == id;
+    });
+
+    if (it == users.end()) {
+        return false;
+    }
+    // 若被更新的是当前登录用户，delete 后 currentUser 会悬空，需同步更新
+    bool isCurrentUser = (currentUser == *it);
+    std::string password = (*it)->getPassword();
+    delete *it;
+    *it = new Admin(id, username, phone, email, password);
+    if (isCurrentUser) {
+        currentUser = *it;
+    }
+    writeUsersToFile();
+    return true;
+}
+
+bool UserService::updateAdminPassword(const std::string& id, const std::string& plainPassword)
+{
+    auto it = std::find_if(users.begin(), users.end(), [&](User* u) {
+        return u->getId() == id;
+    });
+
+    if (it == users.end()) {
+        return false;
+    }
+    std::string encrypted = encryptPassword(plainPassword, id);
+    (*it)->setPassword(encrypted);
+    writeUsersToFile();
+    return true;
+}
+
+User* UserService::getUserById(const std::string& id) const
+{
+    auto it = std::find_if(users.begin(), users.end(),
+    [&](User* u) { return u->getId() == id; });
+
+    if (it != users.end()) {
+        return *it;
+    }
+    return nullptr;
+}
+
+User* UserService::getUserByUsername(const std::string& username) const
+{
+    auto it = std::find_if(users.begin(), users.end(),
+    [&](User* u) { return u->getUsername() == username; });
+
+    if (it != users.end()) {
+        return *it;
+    }
+    return nullptr;
+}
+
+std::string UserService::encryptPassword(const std::string& password, const std::string& key) const
+{
+    // 这里采用了异或加密，key是用户的 id，保证每个用户的密码加密方式不同。
+    // 然后为了防止.txt打不开，将结果转换为十六进制字符串存储。
+    std::string hex;
+    hex.reserve(password.length() * 2);
+    for (size_t i = 0; i < password.length(); ++i) {
+        unsigned char xored = static_cast<unsigned char>(password[i]) ^ static_cast<unsigned char>(key[i % key.length()]);
+        char buf[3];
+        std::snprintf(buf, sizeof(buf), "%02x", xored);
+        hex += buf;
+    }
+    return hex;
+}
+
+std::string UserService::decryptPassword(const std::string& encryptedPassword, const std::string& key) const
+{
+    // 从十六进制字符串还原 XOR 结果，再异或解密
+    std::string decrypted;
+    decrypted.reserve(encryptedPassword.length() / 2);
+    for (size_t i = 0; i + 1 < encryptedPassword.length(); i += 2) {
+        unsigned char xored = static_cast<unsigned char>(std::stoi(encryptedPassword.substr(i, 2), nullptr, 16));
+        decrypted += static_cast<char>(xored ^ static_cast<unsigned char>(key[(i / 2) % key.length()]));
+    }
+    return decrypted;
+}
+
+User* UserService::authenticate(const std::string& id, const std::string& password) const
+{
+    User* user = getUserById(id);
+    if (user && encryptPassword(password, user->getId()) == user->getPassword()) {
+        currentUser = user;
+        return user;
+    }//先查找用户名，再比对加密后的密码对不对。加密密钥是用户id.
+    return nullptr;
+}
+
+User* UserService::getCurrentUser() const
+{
+    return currentUser;
+}
+
+
+==================== 文件: console/menu_base.h ====================
+#ifndef CONSOLE_MENU_BASE_H
+#define CONSOLE_MENU_BASE_H
+
+#include <string>
+#include <vector>
+
+// 菜单工具基类：提供通用的控制台输入输出辅助函数
+class MenuBase
+{
+public:
+    virtual ~MenuBase() = default;
+
+    // 显示标题和编号选项，返回用户选择的编号（min..max）
+    static int displayMenu(const std::string &title, const std::vector<std::string> &options);
+
+    // 读取一行文本（去除首尾空白）
+    static std::string readLine(const std::string &prompt);
+
+    // 读取整数（带提示和范围校验）
+    static int readInt(const std::string &prompt);
+
+    // 按回车继续
+    static void pause();
+
+    // 清屏
+    static void clearScreen();
+
+    // 打印分隔线
+    static void printSeparator(char ch = '-', int count = 60);
+};
+
+#endif // CONSOLE_MENU_BASE_H
+
+
+==================== 文件: console/menu_base.cpp ====================
+#include "menu_base.h"
+#include <iostream>
+#include <limits>
+#include <algorithm>
+#include <sstream>
+
+#ifdef _WIN32
+#include <cstdlib>
+#else
+#include <unistd.h>
+#endif
+
+int MenuBase::displayMenu(const std::string &title, const std::vector<std::string> &options)
+{
+    clearScreen();
+    printSeparator('=');
+    std::cout << "  " << title << std::endl;
+    printSeparator('=');
+    for (size_t i = 0; i < options.size(); ++i) {
+        std::cout << "  " << (i + 1) << ". " << options[i] << std::endl;
+    }
+    printSeparator('-');
+
+    int choice = 0;
+    while (true) {
+        std::cout << "请选择操作: ";
+        std::string line;
+        if (!std::getline(std::cin, line)) {
+            // EOF
+            return 0;
+        }
+        std::istringstream iss(line);
+        if (iss >> choice && choice >= 1 && choice <= static_cast<int>(options.size())) {
+            return choice;
+        }
+        std::cout << "输入无效，请重新输入。" << std::endl;
+    }
+}
+
+std::string MenuBase::readLine(const std::string &prompt)
+{
+    std::cout << prompt;
+    std::string line;
+    if (!std::getline(std::cin, line)) {
+        return "";
+    }
+    // 去除首尾空白
+    size_t start = line.find_first_not_of(" \t\r\n");
+    if (start == std::string::npos)
+        return "";
+    size_t end = line.find_last_not_of(" \t\r\n");
+    return line.substr(start, end - start + 1);
+}
+
+int MenuBase::readInt(const std::string &prompt)
+{
+    while (true) {
+        std::string line = readLine(prompt);
+        if (line.empty())
+            return 0;
+        std::istringstream iss(line);
+        int val;
+        if (iss >> val) {
+            return val;
+        }
+        std::cout << "输入无效，请输入数字。" << std::endl;
+    }
+}
+
+void MenuBase::pause()
+{
+    std::cout << "\n按回车键继续...";
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+void MenuBase::clearScreen()
+{
+#ifdef _WIN32
+    std::system("cls");
+#else
+    std::system("clear");
+#endif
+}
+
+void MenuBase::printSeparator(char ch, int count)
+{
+    std::string sep(count, ch);
+    std::cout << sep << std::endl;
+}
+
+
+==================== 文件: console/app.h =====================
+#ifndef CONSOLE_APP_H
+#define CONSOLE_APP_H
+
+#include <string>
+#include "about_menu.h"
+
+// 主应用控制器：管理登录流程和角色菜单分发
+class App
+{
+public:
+    // 启动应用主循环
+    void run();
+
+private:
+    // 登录流程，返回 true 表示成功登录，false 表示退出
+    bool loginFlow();
+
+    // 显示登录菜单
+    int showLoginMenu();
+
+    // 登录操作
+    bool doLogin();
+
+    // 注册操作（调用 UserService 添加新用户）
+    void doRegister();
+
+    // 显示关于信息
+    void About();
+};
+
+#endif // CONSOLE_APP_H
+
+
+==================== 文件: console/app.cpp ====================
+#include "app.h"
+#include "menu_base.h"
+#include "admin_menu.h"
+#include "user_menu.h"
+#include "services/userservice.h"
+#include "model/admin.h"
+#include "model/patron.h"
+#include <iostream>
+#include <sstream>
+
+void App::run()
+{
+    while (true) {
+        if (!loginFlow()) {
+            break;
+        }
+        // 根据角色分发菜单
+        User *user = UserService::getInstance().currentUser;
+        if (!user) {
+            std::cout << "登录状态异常，请重新登录。" << std::endl;
+            continue;
+        }
+
+        if (dynamic_cast<Admin *>(user)) {
+            AdminMenu menu;
+            menu.show();
+        } else if (dynamic_cast<Patron *>(user)) {
+            UserMenu menu;
+            menu.show();
+        }
+
+        // 退出菜单后清除当前用户
+        UserService::getInstance().currentUser = nullptr;
+    }
+    std::cout << "感谢使用图书管理系统，再见！" << std::endl;
+}
+
+bool App::loginFlow()
+{
+    while (true) {
+        int choice = showLoginMenu();
+        switch (choice) {
+            case 1: // 登录
+                if (doLogin()) {
+                    return true;
+                }
+                break;
+            case 2: // 注册
+                doRegister();
+                break;
+            case 3: // 关于
+                About();
+                break;
+            case 0: // 退出
+                return false;
+        }
+    }
+}
+
+int App::showLoginMenu()
+{
+    MenuBase::clearScreen();
+    MenuBase::printSeparator('=');
+    std::cout << "  图书管理系统 - 登录" << std::endl;
+    MenuBase::printSeparator('=');
+    std::cout << "  1. 登录" << std::endl;
+    std::cout << "  2. 注册新用户" << std::endl;
+    std::cout << "  3. 关于" << std::endl;
+    std::cout << "  0. 退出系统" << std::endl;
+    MenuBase::printSeparator('-');
+
+    while (true) {
+        std::string line;
+        std::cout << "请选择操作: ";
+        if (!std::getline(std::cin, line)) {
+            return 0;
+        }
+        int choice = 0;
+        std::istringstream iss(line);
+        if (iss >> choice && choice >= 0 && choice <= 3) {
+            return choice;
+        }
+        std::cout << "输入无效，请重新输入。" << std::endl;
+    }
+}
+
+bool App::doLogin()
+{
+    std::cout << "\n--- 登录 ---" << std::endl;
+    std::string id = MenuBase::readLine("请输入用户id: ");
+    std::string password = MenuBase::readLine("请输入密码: ");
+
+    User *user = UserService::getInstance().authenticate(id, password);
+    if (user) {
+        UserService::getInstance().currentUser = user;
+        std::cout << "登录成功！欢迎，" << user->getUsername() << "。" << std::endl;
+        MenuBase::pause();
+        return true;
+    } else {
+        std::cout << "用户id或密码错误，登录失败。" << std::endl;
+        MenuBase::pause();
+        return false;
+    }
+}
+
+void App::doRegister()
+{
+    std::cout << "\n--- 注册新用户 ---" << std::endl;
+    std::string id = MenuBase::readLine("请输入用户ID: ");
+    std::string username = MenuBase::readLine("请输入用户名: ");
+    std::string phone = MenuBase::readLine("请输入电话: ");
+    std::string email = MenuBase::readLine("请输入邮箱: ");
+    std::string password = MenuBase::readLine("请输入密码: ");
+
+    if (id.empty() || username.empty() || password.empty()) {
+        std::cout << "用户ID、用户名和密码不能为空！" << std::endl;
+        MenuBase::pause();
+        return;
+    }
+
+    if (UserService::getInstance().getUserById(id)) {
+        std::cout << "该用户ID已存在，注册失败。" << std::endl;
+        MenuBase::pause();
+        return;
+    }
+
+    if (UserService::getInstance().addPatron(id, username, phone, email, password)) {
+        std::cout << "注册成功！请登录使用系统。" << std::endl;
+    } else {
+        std::cout << "注册失败，请重试。" << std::endl;
+    }
+    MenuBase::pause();
+}
+
+void App::About()
+{
+    AboutMenu aboutMenu;
+    aboutMenu.show();
+}
+
+
+==================== 文件: console/admin_menu.h ====================
+#ifndef CONSOLE_ADMIN_MENU_H
+#define CONSOLE_ADMIN_MENU_H
+
+#include "menu_base.h"
+#include "console/admin_submenu/user_monitor_menu.h"
+#include "console/admin_submenu/book_monitor_menu.h"
+#include "console/admin_submenu/bookcopy_monitor_menu.h"
+#include "console/admin_submenu/loan_monitor_menu.h"
+
+// 管理员菜单：调度各监控子菜单
+class AdminMenu : public MenuBase
+{
+public:
+    void show();
+};
+
+#endif // CONSOLE_ADMIN_MENU_H
+
+
+==================== 文件: console/admin_menu.cpp ====================
+#include "admin_menu.h"
+#include <iostream>
+
+void AdminMenu::show()
+{
+    std::vector<std::string> options = {
+        "用户监控",
+        "图书监控",
+        "图书副本监控",
+        "借阅监控",
+        "退出登录"
+    };
+
+    while (true) {
+        int choice = displayMenu("管理员系统", options);
+        switch (choice) {
+            case 1: UserMonitorMenu().show(); break;
+            case 2: BookMonitorMenu().show(); break;
+            case 3: BookCopyMonitorMenu().show(); break;
+            case 4: LoanMonitorMenu().show(); break;
+            case 5: return;
+            default: std::cout << "无效的选择，请重新输入。" << std::endl; break;
+        }
+    }
+}
+
+
+==================== 文件: console/user_menu.h ====================
+#ifndef CONSOLE_USER_MENU_H
+#define CONSOLE_USER_MENU_H
+
+#include "menu_base.h"
+#include <vector>
+#include "model/book.h"
+#include "services/bookservice.h"
+#include "console/user_submenu/search_info_menu.h"
+#include "console/user_submenu/loan_menu.h"
+#include "console/user_submenu/personal_info_menu.h"
+
+// 普通用户菜单：图书搜索、显示、文件读取
+class UserMenu : public MenuBase
+{
+public:
+    void show();
+
+private:
+
+};
+
+#endif // CONSOLE_USER_MENU_H
+
+
+==================== 文件: console/user_menu.cpp ====================
+#include "user_menu.h"
+#include "services/bookservice.h"
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+
+void UserMenu::show()
+{
+    std::vector<std::string> options = {
+        "图书查找和搜索",
+        "图书借还",
+        "个人信息管理",
+        "退出登录"
+    };
+
+    while (true) {
+        int choice = displayMenu("用户系统", options);
+        switch (choice) {
+            case 1: SearchInfoMenu().show(); break;
+            case 2: LoanMenu().show(); break;
+            case 3: PersonalInfoMenu().show(); break;
+            case 4: return; // 退出登录，返回上级菜单
+            default: std::cout << "无效的选择，请重新输入。" << std::endl;break;
+        }
+        
+    }
+}
+
+
+==================== 文件: console/about_menu.h ====================
+#ifndef CONSOLE_ABOUT_MENU_H
+#define CONSOLE_ABOUT_MENU_H
+
+#include "menu_base.h"
+#include <iostream>
+#include <windows.h>
+
+class AboutMenu : public MenuBase
+{
+public:
+    void show();
+};
+
+#endif // CONSOLE_ABOUT_MENU_H
+
+
+==================== 文件: console/about_menu.cpp ====================
+#include "about_menu.h"
+
+void AboutMenu::show()
+{   
+    std::string title = "关于";
+    std::vector<std::string> options = {
+        "图书管理系统",
+        "无52 丁一博",
+        "清华大学电子工程系 计算机程序设计基础大作业",
+        "返回上级菜单"
+    };
+    while (true){
+        int choice = displayMenu(title, options);
+        switch (choice) {
+            case 1:
+                std::cout << "大模型正在准备为您回答..." << std::endl;
+                Sleep(3000);
+                std::cout << R"( # 图书管理系统简介
+
+                这是一个 **C++ 图书管理系统**，是**清华大学电子工程系计算机程序设计基础大作业**（作者：无52 丁一博）。
+
+                ## 系统架构
+
+                按**分层架构**设计，分为三层：
+
+                ### 1. 模型层 (model)
+                核心数据实体：
+                - `Book` / `BookCopy` — 图书及副本
+                - `User` / `Admin` / `Patron` — 用户、管理员、借阅者
+                - `Loan` — 借阅记录
+                - `Date` / `Location` — 日期与位置
+
+                ### 2. 数据访问层 (dao)
+                负责文件数据持久化：
+                - `bookdao` / `bookcopydao` / `userdao` / `loandao`
+                - 数据存储于 data 目录下的文本文件（`books.txt`、`users.txt`、`loans.txt`、`bookcopies.txt`）
+
+                ### 3. 业务服务层 (services)
+                封装核心业务逻辑：
+                - `BookService` / `BookCopyService` — 图书管理
+                - `UserService` — 用户管理
+                - `LoanService` — 借还书
+                - `TimeService` — 时间相关
+
+                ### 4. 控制台界面 (console)
+                - **主菜单**: `app.cpp` — 程序入口，区分用户/管理员
+                - **用户菜单**: `user_menu.cpp` → `search_info_menu`、`loan_menu`、`personal_info_menu`
+                - **管理员菜单**: `admin_menu.cpp` → `book_monitor_menu`、`bookcopy_monitor_menu`、`loan_monitor_menu`、`user_monitor_menu`
+                - **关于**: `about_menu.cpp`
+
+                ## 构建方式
+
+                使用 **CMake** 构建，支持 Visual Studio 和 MinGW 编译器。)" << std::endl;
+                break;
+            case 2:
+                std::cout << R"(关注小呆谢谢喵！
+    Github:https://github.com/Danieltoraji
+    公众号：钉小呆
+                    )" << std::endl;
+                break;
+            case 3:
+                std::cout << "不知课改后还有没有图书管理系统这个作业？" << std::endl;
+                break;
+            case 4:
+                return; // 返回上级菜单
+            default:
+                std::cout << "无效的选择，请重新输入。" << std::endl;
+                break;
+        }
+    pause();
+    }
+    
+}
+
+
+==================== 文件: console/admin_submenu/user_monitor_menu.h ====================
+#ifndef USER_MONITOR_MENU_H
+#define USER_MONITOR_MENU_H
+
+#include "../menu_base.h"
+#include "services/userservice.h"
+#include "model/user.h"
+#include "model/patron.h"
+#include "model/admin.h"
+#include <vector>
+#include <iostream>
+#include <iomanip>
+
+// 用户监控菜单：查看、搜索、增删改用户，文件读写
+class UserMonitorMenu : public MenuBase
+{
+public:
+    void show();
+
+private:
+    // 菜单操作
+    void displayAllUsers();
+    void searchById();
+    void searchByUsername();
+    void addPatron();
+    void addAdmin();
+    void updateUserInfo();
+    void updatePassword();
+    void removeUser();
+    void readFromFile();
+    void saveToFile();
+
+    // 辅助：打印用户列表
+    void printUsers(const std::vector<User*> &users);
+};
+
+#endif // USER_MONITOR_MENU_H
+
+
+==================== 文件: console/admin_submenu/user_monitor_menu.cpp ====================
+#include "user_monitor_menu.h"
+
+void UserMonitorMenu::show()
+{
+    std::vector<std::string> options = {
+        "查看所有用户",
+        "按ID查询用户",
+        "按用户名查询用户",
+        "添加读者",
+        "添加管理员",
+        "修改用户信息",
+        "修改用户密码",
+        "删除用户",
+        "从文件读取用户",
+        "保存用户到文件",
+        "返回上级菜单"
+    };
+
+    while (true) {
+        int choice = displayMenu("用户监控", options);
+        switch (choice) {
+            case 1: displayAllUsers(); break;
+            case 2: searchById(); break;
+            case 3: searchByUsername(); break;
+            case 4: addPatron(); break;
+            case 5: addAdmin(); break;
+            case 6: updateUserInfo(); break;
+            case 7: updatePassword(); break;
+            case 8: removeUser(); break;
+            case 9: readFromFile(); break;
+            case 10: saveToFile(); break;
+            case 11: return;
+            default: std::cout << "无效的选择，请重新输入。" << std::endl; break;
+        }
+    }
+}
+
+void UserMonitorMenu::displayAllUsers()
+{
+    std::cout << "\n=== 查看所有用户 ===" << std::endl;
+    printUsers(UserService::getInstance().getAllUsers());
+    pause();
+}
+
+void UserMonitorMenu::searchById()
+{
+    std::cout << "\n=== 按ID查询用户 ===" << std::endl;
+    std::string id = readLine("请输入用户ID: ");
+    User* user = UserService::getInstance().getUserById(id);
+    if (user) {
+        printUsers({user});
+    } else {
+        std::cout << "未找到ID为 " << id << " 的用户。" << std::endl;
+    }
+    pause();
+}
+
+void UserMonitorMenu::searchByUsername()
+{
+    std::cout << "\n=== 按用户名查询用户 ===" << std::endl;
+    std::string username = readLine("请输入用户名: ");
+    User* user = UserService::getInstance().getUserByUsername(username);
+    if (user) {
+        printUsers({user});
+    } else {
+        std::cout << "未找到用户名为 " << username << " 的用户。" << std::endl;
+    }
+    pause();
+}
+
+void UserMonitorMenu::addPatron()
+{
+    std::cout << "\n=== 添加读者 ===" << std::endl;
+    std::string id = readLine("请输入读者ID: ");
+    if (UserService::getInstance().getUserById(id)) {
+        std::cout << "ID已存在，请重新输入。" << std::endl;
+        pause();
+        return;
+    }
+    std::string username = readLine("请输入用户名: ");
+    std::string phone = readLine("请输入电话: ");
+    std::string email = readLine("请输入邮箱: ");
+    std::string password = readLine("请输入密码: ");
+    int borrowLimit = readInt("请输入借阅上限（默认5）: ");
+    UserService::getInstance().addPatron(id, username, phone, email, password, borrowLimit);
+    std::cout << "读者添加成功。" << std::endl;
+    pause();
+}
+
+void UserMonitorMenu::addAdmin()
+{
+    std::cout << "\n=== 添加管理员 ===" << std::endl;
+    std::string id = readLine("请输入管理员ID: ");
+    if (UserService::getInstance().getUserById(id)) {
+        std::cout << "ID已存在，请重新输入。" << std::endl;
+        pause();
+        return;
+    }
+    std::string username = readLine("请输入用户名: ");
+    std::string phone = readLine("请输入电话: ");
+    std::string email = readLine("请输入邮箱: ");
+    std::string password = readLine("请输入密码: ");
+    UserService::getInstance().addAdmin(id, username, phone, email, password);
+    std::cout << "管理员添加成功。" << std::endl;
+    pause();
+}
+
+void UserMonitorMenu::updateUserInfo()
+{
+    std::cout << "\n=== 修改用户信息 ===" << std::endl;
+    std::string id = readLine("请输入要修改的用户ID: ");
+    User* user = UserService::getInstance().getUserById(id);
+    if (!user) {
+        std::cout << "未找到ID为 " << id << " 的用户。" << std::endl;
+        pause();
+        return;
+    } else if (dynamic_cast<Patron*>(user)) {
+        std::cout << "请输入新的用户信息。留空表示不变。" << std::endl;
+        std::string username = readLine("请输入新的用户名: ");
+        username = username.empty() ? user->getUsername() : username;
+        std::string phone = readLine("请输入新的电话: ");
+        phone = phone.empty() ? user->getPhone() : phone;
+        std::string email = readLine("请输入新的邮箱: ");
+        email = email.empty() ? user->getEmail() : email;
+        int borrowLimit = readInt("请输入新的借阅上限: ");
+        borrowLimit = (borrowLimit == 0) ? dynamic_cast<Patron*>(user)->getBorrowLimit() : borrowLimit;
+        UserService::getInstance().updatePatron(id, username, phone, email, borrowLimit);
+        std::cout << "读者信息修改成功。" << std::endl;
+    } else if (dynamic_cast<Admin*>(user)) {
+        std::cout << "请输入新的用户信息。留空表示不变。" << std::endl;
+        std::string username = readLine("请输入新的用户名: ");
+        username = username.empty() ? user->getUsername() : username;
+        std::string phone = readLine("请输入新的电话: ");
+        phone = phone.empty() ? user->getPhone() : phone;
+        std::string email = readLine("请输入新的邮箱: ");
+        email = email.empty() ? user->getEmail() : email;
+        UserService::getInstance().updateAdmin(id, username, phone, email);
+        std::cout << "管理员信息修改成功。" << std::endl;
+    }
+      else {
+        std::cout << "未知用户类型，无法修改。" << std::endl;
+    }
+    pause();
+}
+
+void UserMonitorMenu::updatePassword()
+{
+    std::cout << "\n=== 修改用户密码 ===" << std::endl;
+    std::string id = readLine("请输入要修改的用户ID: ");
+    User* user = UserService::getInstance().getUserById(id);
+    if (!user) {
+        std::cout << "未找到ID为 " << id << " 的用户。" << std::endl;
+        pause();
+        return;
+    }
+    std::string newPassword = readLine("请输入新密码: ");
+    if (dynamic_cast<Patron*>(user)) {
+        std::string confirmation = readLine("您正在免认证修改读者密码。请确保您得到了该读者的授权。输入'y'确认: ");
+        if (confirmation != "y" && confirmation != "Y") {
+            std::cout << "操作已取消。" << std::endl;
+            pause();
+            return;
+        }
+        UserService::getInstance().updatePatronPassword(id, newPassword);
+        std::cout << "修改成功。" << std::endl;
+    } else if (dynamic_cast<Admin*>(user)) {
+        std::string originalPassword = readLine("修改管理员密码需要验证。请输入原密码: ");
+        if (UserService::getInstance().encryptPassword(originalPassword, id) != user->getPassword()) {
+            std::cout << "原密码错误，无法修改。" << std::endl;
+            pause();
+            return;
+        }
+        else {
+            UserService::getInstance().updateAdminPassword(id, newPassword);
+            std::cout << "修改成功。" << std::endl;
+        }
+    }   
+    else {
+        std::cout << "未知用户类型，无法修改密码。" << std::endl;
+        pause();
+        return;
+    }
+    std::cout << "密码修改成功。" << std::endl;
+    pause();
+}
+
+void UserMonitorMenu::removeUser()
+{
+    std::cout << "\n=== 删除用户 ===" << std::endl;
+    std::string id = readLine("请输入要删除的用户ID: ");
+    if (!UserService::getInstance().getUserById(id)) {
+        std::cout << "未找到ID为 " << id << " 的用户。" << std::endl;
+        pause();
+        return;
+    }
+    std::string confirmation = readLine("确认删除用户 " + id + " 吗？(y/n): ");
+    if (confirmation != "y" && confirmation != "Y") {
+        std::cout << "操作已取消。" << std::endl;
+        pause();
+        return;
+    }
+    if (UserService::getInstance().getCurrentUser() && UserService::getInstance().getCurrentUser()->getId() == id) {
+        std::cout << "你不能删除你自己。否则可能会导致再无管理员账户。" << std::endl;
+        pause();
+        return;
+    }
+    std::string errorMessage;
+    if (UserService::getInstance().removeUser(id, errorMessage)) {
+        std::cout << "用户删除成功。" << std::endl;
+    } else {
+        std::cout << "用户删除失败：" << errorMessage << std::endl;
+    }
+    pause();
+}
+
+void UserMonitorMenu::readFromFile()
+{
+    std::cout << "\n=== 从文件读取用户 ===" << std::endl;
+    UserService::getInstance().readUsersFromFile();
+    std::cout << "用户已从文件读取。" << std::endl;
+    pause();
+}
+
+void UserMonitorMenu::saveToFile()
+{
+    std::cout << "\n=== 保存用户到文件 ===" << std::endl;
+    UserService::getInstance().writeUsersToFile();
+    std::cout << "用户已保存到文件。" << std::endl;
+    pause();
+}
+
+void UserMonitorMenu::printUsers(const std::vector<User*> &users)
+{
+    std::cout<< std::left << std::setw(10) << "类型" 
+             << std::setw(15) << "ID" 
+             << std::setw(20) << "用户名" 
+             << std::setw(15) << "电话" 
+             << std::setw(30) << "邮箱" 
+             << std::setw(10) << "借阅上限" 
+             << std::endl;
+    for (const User* user : users) {
+        if (user) {
+            std::string type = dynamic_cast<const Patron*>(user) ? "读者" : "管理员";
+            std::string borrowLimit = dynamic_cast<const Patron*>(user) ? std::to_string(dynamic_cast<const Patron*>(user)->getBorrowLimit()) : "-";
+            std::cout << std::left << std::setw(10) << type
+                      << std::setw(15) << user->getId()
+                      << std::setw(20) << user->getUsername()
+                      << std::setw(15) << user->getPhone()
+                      << std::setw(30) << user->getEmail()
+                      << std::setw(10) << borrowLimit
+                      << std::endl;
+        }
+    }
+}
+
+
+==================== 文件: console/admin_submenu/book_monitor_menu.h ====================
+#ifndef BOOK_MONITOR_MENU_H
+#define BOOK_MONITOR_MENU_H
+
+#include "../menu_base.h"
+#include <vector>
+#include "model/book.h"
+#include "services/bookservice.h"
+#include "services/bookcopyservice.h"
+
+// 图书监控菜单：搜索、显示、增删改图书，文件读写
+class BookMonitorMenu : public MenuBase
+{
+public:
+    void show();
+
+private:
+    // 菜单操作
+    void searchBooks();
+    void displayAllBooks();
+    void searchByISBN();
+    void addBook();
+    void updateBook();
+    void deleteBook();
+    void readFromFile();
+    void saveToFile();
+
+    // 辅助：构造搜索条件
+    void buildSearchQuery(searchQuery &query);
+
+    // 辅助：打印图书列表
+    void printBooks(const std::vector<Book> &books);
+};
+
+#endif // BOOK_MONITOR_MENU_H
+
+
+==================== 文件: console/admin_submenu/book_monitor_menu.cpp ====================
+#include "book_monitor_menu.h"
+#include "services/bookservice.h"
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+
+void BookMonitorMenu::show()
+{
+    std::vector<std::string> options = {
+        "搜索图书",
+        "显示所有图书",
+        "按ISBN查询图书",
+        "添加图书",
+        "修改图书",
+        "删除图书",
+        "从文件读取图书",
+        "保存图书到文件",
+        "返回上级菜单"
+    };
+
+    while (true) {
+        int choice = displayMenu("图书监控", options);
+        switch (choice) {
+            case 1: searchBooks(); break;
+            case 2: displayAllBooks(); break;
+            case 3: searchByISBN(); break;
+            case 4: addBook(); break;
+            case 5: updateBook(); break;
+            case 6: deleteBook(); break;
+            case 7: readFromFile(); break;
+            case 8: saveToFile(); break;
+            case 9: return;
+            default: std::cout << "无效的选择，请重新输入。" << std::endl; break;
+        }
+    }
+}
+
+void BookMonitorMenu::buildSearchQuery(searchQuery &query)
+{
+    // 字段1
+    std::cout << "\n--- 搜索条件1 ---" << std::endl;
+    std::cout << "  1. ISBN" << std::endl;
+    std::cout << "  2. 标题" << std::endl;
+    std::cout << "  3. 作者" << std::endl;
+    std::cout << "  0. 跳过（不设条件1）" << std::endl;
+    int f1 = readInt("请选择搜索字段: ");
+    switch (f1) {
+        case 1:  query.field1 = searchQuery::Field::ISBN;   break;
+        case 2:  query.field1 = searchQuery::Field::Title;  break;
+        case 3:  query.field1 = searchQuery::Field::Author; break;
+        default: query.field1 = searchQuery::Field::Empty;  break;
+    }
+
+    if (query.field1 != searchQuery::Field::Empty) {
+        std::cout << "  1. 等于" << std::endl;
+        std::cout << "  2. 包含" << std::endl;
+        std::cout << "  3. 开头匹配" << std::endl;
+        int c1 = readInt("请选择匹配方式: ");
+        switch (c1) {
+            case 2:  query.condition1 = searchQuery::Condition::Contains;   break;
+            case 3:  query.condition1 = searchQuery::Condition::StartsWith; break;
+            default: query.condition1 = searchQuery::Condition::Equals;     break;
+        }
+        query.value1 = readLine("请输入搜索内容: ");
+    }
+
+    // 字段2
+    std::cout << "\n--- 搜索条件2 ---" << std::endl;
+    std::cout << "  1. ISBN" << std::endl;
+    std::cout << "  2. 标题" << std::endl;
+    std::cout << "  3. 作者" << std::endl;
+    std::cout << "  0. 跳过（不设条件2）" << std::endl;
+    int f2 = readInt("请选择搜索字段: ");
+    switch (f2) {
+        case 1:  query.field2 = searchQuery::Field::ISBN;   break;
+        case 2:  query.field2 = searchQuery::Field::Title;  break;
+        case 3:  query.field2 = searchQuery::Field::Author; break;
+        default: query.field2 = searchQuery::Field::Empty;  break;
+    }
+
+    if (query.field2 != searchQuery::Field::Empty) {
+        std::cout << "  1. 与（AND）" << std::endl;
+        std::cout << "  2. 或（OR）" << std::endl;
+        int logic = readInt("请选择逻辑关系: ");
+        query.logic = (logic == 2) ? searchQuery::Logic::Or : searchQuery::Logic::And;
+
+        std::cout << "  1. 等于" << std::endl;
+        std::cout << "  2. 包含" << std::endl;
+        std::cout << "  3. 开头匹配" << std::endl;
+        int c2 = readInt("请选择匹配方式: ");
+        switch (c2) {
+            case 2:  query.condition2 = searchQuery::Condition::Contains;   break;
+            case 3:  query.condition2 = searchQuery::Condition::StartsWith; break;
+            default: query.condition2 = searchQuery::Condition::Equals;     break;
+        }
+        query.value2 = readLine("请输入搜索内容: ");
+    }
+}
+
+void BookMonitorMenu::printBooks(const std::vector<Book> &books)
+{
+    if (books.empty()) {
+        std::cout << "没有找到图书。" << std::endl;
+        return;
+    }
+
+    printSeparator('=');
+    std::cout << std::left
+              << std::setw(15) << "ISBN"
+              << std::setw(25) << "标题"
+              << std::setw(15) << "作者"
+              << std::setw(20) << "出版社"
+              << std::setw(8)  << "年份"
+              << std::setw(12) << "分类"
+              << std::setw(20) << "副本列表"
+              << "备注" << std::endl;
+    printSeparator('-');
+
+    for (const auto &b : books) {
+        std::string copiesStr;
+        auto copies = bookCopyService::getInstance().getBookCopiesByISBN(b.getISBN());
+        for (auto it = copies.begin(); it != copies.end(); ++it) {
+            if (it != copies.begin())
+                copiesStr += ", ";
+            copiesStr += it->getLibCode();
+        }
+
+        std::cout << std::left
+                  << std::setw(15) << b.getISBN()
+                  << std::setw(25) << b.getTitle()
+                  << std::setw(15) << b.getAuthor()
+                  << std::setw(20) << b.getPublisher()
+                  << std::setw(8)  << b.getPublishingYear()
+                  << std::setw(12) << b.getCategory()
+                  << std::setw(20) << copiesStr
+                  << b.getRemarks() << std::endl;
+    }
+    printSeparator('=');
+    std::cout << "共 " << books.size() << " 本图书。" << std::endl;
+}
+
+void BookMonitorMenu::searchBooks()
+{
+    std::cout << "\n=== 搜索图书 ===" << std::endl;
+    searchQuery query;
+    query.field1 = searchQuery::Field::Empty;
+    query.condition1 = searchQuery::Condition::Equals;
+    query.logic = searchQuery::Logic::And;
+    query.field2 = searchQuery::Field::Empty;
+    query.condition2 = searchQuery::Condition::Equals;
+
+    buildSearchQuery(query);
+
+    auto results = BookService::getInstance().searchBooks(query);
+    std::vector<Book> books;
+    books.reserve(results.size());
+    for (const Book *b : results) {
+        if (b)
+            books.push_back(*b);
+    }
+    printBooks(books);
+    pause();
+}
+
+void BookMonitorMenu::displayAllBooks()
+{
+    std::cout << "\n=== 所有图书 ===" << std::endl;
+    printBooks(BookService::getInstance().getAllBooks());
+    pause();
+}
+
+void BookMonitorMenu::searchByISBN()
+{
+    std::cout << "\n=== 按ISBN查询图书 ===" << std::endl;
+    std::string isbn = readLine("请输入ISBN: ");
+    Book book = BookService::getInstance().getBookByISBN(isbn);
+    if (book.getISBN().empty()) {
+        std::cout << "未找到该ISBN的图书。" << std::endl;
+    } else {
+        printBooks({book});
+    }
+    pause();
+}
+
+void BookMonitorMenu::addBook()
+{
+    std::cout << "\n=== 添加图书 ===" << std::endl;
+    std::string isbn = readLine("请输入ISBN: ");
+    std::string title = readLine("请输入书名: ");
+    std::string author = readLine("请输入作者(可选): ");
+    std::string publisher = readLine("请输入出版社(可选): ");
+    int year = readInt("请输入出版年份(可选): ");
+    std::string category = readLine("请输入分类(可选): ");
+    std::string remarks = readLine("请输入备注(可选): ");
+
+    if (isbn.empty()) {
+        std::cout << "ISBN 不能为空！" << std::endl;
+        pause();
+        return;
+    }
+    if (title.empty()) {
+        std::cout << "书名不能为空！" << std::endl;
+        pause();
+        return;
+    }
+
+    Book book(isbn, title, author, publisher, year, category, remarks);
+
+    if (BookService::getInstance().addBook(book)) {
+        BookService::getInstance().writeBooksToFile();
+        std::cout << "图书添加成功！" << std::endl;
+    } else {
+        std::cout << "该 ISBN 已存在，添加失败！" << std::endl;
+    }
+    pause();
+}
+
+void BookMonitorMenu::updateBook()
+{
+    std::cout << "\n=== 修改图书 ===" << std::endl;
+    std::string isbn = readLine("请输入要修改的图书的ISBN: ");
+    if (isbn.empty()) {
+        std::cout << "ISBN 不能为空！" << std::endl;
+        pause();
+        return;
+    }
+    Book existingBook = BookService::getInstance().getBookByISBN(isbn);
+    if (existingBook.getISBN().empty()) {
+        std::cout << "该 ISBN 不存在，修改失败！" << std::endl;
+        pause();
+        return;
+    }
+    std::string title = readLine("请输入新的书名（留空代表不修改）: ");
+    title = title.empty() ? existingBook.getTitle() : title;
+    std::string author = readLine("请输入新的作者（留空代表不修改）: ");
+    author = author.empty() ? existingBook.getAuthor() : author;
+    std::string publisher = readLine("请输入新的出版社（留空代表不修改）: ");
+    publisher = publisher.empty() ? existingBook.getPublisher() : publisher;
+    int year = readInt("请输入新的出版年份（留空代表不修改）: ");
+    year = (year == 0) ? existingBook.getPublishingYear() : year;
+    std::string category = readLine("请输入新的分类（留空代表不修改）: ");
+    category = category.empty() ? existingBook.getCategory() : category;
+    std::string remarks = readLine("请输入新的备注（留空代表不修改）: ");
+    remarks = remarks.empty() ? existingBook.getRemarks() : remarks;
+
+    Book book(isbn, title, author, publisher, year, category, remarks);
+    if (BookService::getInstance().updateBook(isbn, book)) {
+        BookService::getInstance().writeBooksToFile();
+        std::cout << "图书修改成功！" << std::endl;
+    } else {
+        std::cout << "该 ISBN 不存在，修改失败！" << std::endl;
+    }
+    pause();
+}
+
+void BookMonitorMenu::deleteBook()
+{
+    std::cout << "\n=== 删除图书 ===" << std::endl;
+    std::string isbn = readLine("请输入要删除的ISBN: ");
+    if (isbn.empty()) {
+        std::cout << "ISBN 不能为空！" << std::endl;
+        pause();
+        return;
+    }
+    Book existingBook = BookService::getInstance().getBookByISBN(isbn);
+    std::cout << "您确定要删除图书: " << existingBook.getTitle() << " (ISBN: " << isbn << ") 吗？这将会注销所有的副本。" << std::endl;
+    std::string confirmation = readLine("输入 'yes' 确认删除");
+    if (confirmation != "yes") {
+        std::cout << "删除操作已取消。" << std::endl;
+        pause();
+        return;
+    }
+    if (BookService::getInstance().removeBook(isbn)) {
+        std::cout << "图书删除成功！" << std::endl;
+        std::cout << "该图书的所有副本已注销，相关借阅记录已标记为已归还。" << std::endl;
+    } else {
+        std::cout << "该 ISBN 不存在，删除失败！" << std::endl;
+    }
+    pause();
+}
+
+void BookMonitorMenu::readFromFile()
+{
+    std::cout << "\n=== 从文件读取图书 ===" << std::endl;
+    if (BookService::getInstance().readBooksFromFile()) {
+        std::cout << "成功从文件读取图书信息！" << std::endl;
+    } else {
+        std::cout << "从文件读取图书信息失败！请检查文件是否为空。" << std::endl;
+    }
+    pause();
+}
+
+void BookMonitorMenu::saveToFile()
+{
+    std::cout << "\n=== 保存图书到文件 ===" << std::endl;
+    if (BookService::getInstance().writeBooksToFile()) {
+        std::cout << "成功将图书信息保存到文件！" << std::endl;
+    } else {
+        std::cout << "将图书信息保存到文件失败！" << std::endl;
+    }
+    pause();
+}
+
+
+==================== 文件: console/admin_submenu/bookcopy_monitor_menu.h ====================
+#ifndef BOOKCOPY_MONITOR_MENU_H
+#define BOOKCOPY_MONITOR_MENU_H
+
+#include "../menu_base.h"
+#include <vector>
+#include "model/bookcopy.h"
+#include "services/bookservice.h"
+#include "services/bookcopyservice.h"
+
+// 图书副本监控菜单：查看、搜索、增删改副本，文件读写
+class BookCopyMonitorMenu : public MenuBase
+{
+public:
+    void show();
+
+private:
+    // 菜单操作
+    void displayAllBookCopies();
+    void searchByISBN();
+    void searchByLibCode();
+    void searchByLocation();
+    void addBookCopy();
+    void updateBookCopy();
+    void cancelBookCopy();
+    void removeBookCopy();
+    void readFromFile();
+    void saveToFile();
+
+    // 辅助：打印副本列表
+    void printBookCopies(const std::vector<BookCopy> &copies);
+};
+
+#endif // BOOKCOPY_MONITOR_MENU_H
+
+
+==================== 文件: console/admin_submenu/bookcopy_monitor_menu.cpp ====================
+#include "bookcopy_monitor_menu.h"
+#include "services/bookcopyservice.h"
+#include <iostream>
+#include <iomanip>
+
+void BookCopyMonitorMenu::show()
+{
+    std::vector<std::string> options = {
+        "查看所有副本",
+        "按ISBN查询副本",
+        "按馆藏号查询副本",
+        "按位置查询副本（查看本馆书架）",
+        "添加副本",
+        "修改副本",
+        "注销副本",
+        "删除副本（不建议使用）",
+        "从文件读取副本",
+        "保存副本到文件",
+        "返回上级菜单"
+    };
+
+    while (true) {
+        int choice = displayMenu("图书副本监控", options);
+        switch (choice) {
+            case 1: displayAllBookCopies(); break;
+            case 2: searchByISBN(); break;
+            case 3: searchByLibCode(); break;
+            case 4: searchByLocation(); break;
+            case 5: addBookCopy(); break;
+            case 6: updateBookCopy(); break;
+            case 7: cancelBookCopy(); break;
+            case 8: removeBookCopy(); break;
+            case 9: readFromFile(); break;
+            case 10: saveToFile(); break;
+            case 11: return;
+            default: std::cout << "无效的选择，请重新输入。" << std::endl; break;
+        }
+    }
+}
+
+void BookCopyMonitorMenu::displayAllBookCopies()
+{
+    std::cout << "\n=== 查看所有副本 ===" << std::endl;
+    std::vector<BookCopy> copies = bookCopyService::getInstance().getAllBookCopies();
+    printBookCopies(copies);
+    pause();
+}
+
+void BookCopyMonitorMenu::searchByISBN()
+{
+    std::cout << "\n=== 按ISBN查询副本 ===" << std::endl;
+    std::string isbn = readLine("请输入图书ISBN: ");
+    auto copies = bookCopyService::getInstance().getBookCopiesByISBN(isbn);
+    if (copies.empty()) {
+        std::cout << "没有找到该ISBN的图书副本。" << std::endl;
+    } else {
+        std::cout << "书名: " << BookService::getInstance().getBookTitleByISBN(isbn) << std::endl;
+        std::cout << "找到 " << copies.size() << " 个副本：" << std::endl;
+        for (const auto &copy : copies) {
+            std::string statusStr;
+            switch (copy.getStatus()) {
+                case available:  statusStr = "可用";  break;
+                case borrowed:   statusStr = "借阅中";   break;
+                case cancelled:  statusStr = "已注销";  break;
+                default:         statusStr = "未知";    break;
+            }
+            std::cout << "副本编号: " << copy.getLibCode() 
+                      << ", 位置: " << copy.getBookLocation() 
+                      << ", 状态: " << statusStr 
+                      << std::endl;
+        }
+    }
+    pause();
+}
+
+void BookCopyMonitorMenu::searchByLibCode()
+{
+    std::cout << "\n=== 按馆藏号查询副本 ===" << std::endl;
+    std::string libCode = readLine("请输入馆藏号: ");
+    BookCopy* copy = bookCopyService::getInstance().getBookCopyByLibCode(libCode);
+    if (!copy) {
+        std::cout << "没有找到该馆藏号的图书副本。" << std::endl;
+    } else {
+        printBookCopies({*copy});
+    }
+}
+
+void BookCopyMonitorMenu::searchByLocation()
+{
+    std::cout << "\n=== 按位置查询副本 ===" << std::endl;
+    std::cout << "任一项不输入则代表不指定该项以及后续项" << std::endl;
+    std::string lib = "";
+    short floor = 0;
+    short row = 0;
+    short unit = 0;
+    short level = 0;
+    lib = readLine("请输入图书馆代码: ");
+    if (!lib.empty()) {
+        floor = readInt("请输入楼层号: ");
+        if (floor){
+            row = readInt("请输入书架号: ");
+            if (row){
+                unit = readInt("请输入单元号: ");
+                if (unit){
+                    level = readInt("请输入层号: ");
+                }
+            }
+        }
+    }
+    auto copies = bookCopyService::getInstance().getBookCopiesByLocation(lib, floor, row, unit, level);
+    printSeparator('=');
+    std::cout << "找到 " << copies.size() << " 个副本：" << std::endl;
+    printBookCopies(copies);
+    pause();
+}
+
+void BookCopyMonitorMenu::addBookCopy()
+{
+    std::cout << "\n=== 添加副本 ===" << std::endl;
+    std::string isbn = readLine("请输入图书ISBN: ");
+    if(!BookService::getInstance().isBookValid(isbn)) {
+        std::cout << "图书ISBN无效，请先添加图书信息。" << std::endl;
+        pause();
+        return;
+    }
+    std::string libCode = readLine("请输入馆藏号: ");
+    if (!bookCopyService::getInstance().isLibCodeAvailable(libCode)) {
+        std::cout << "馆藏号已存在，请重新输入。" << std::endl;
+        pause();
+        return;
+    }
+    std::string lib = readLine("请输入图书馆代码: ");
+    short floor = readInt("请输入楼层号: ");
+    short row = readInt("请输入书架号: ");
+    short unit = readInt("请输入单元号: ");
+    short level = readInt("请输入层号: ");
+
+    Location loc(lib, floor, row, unit, level);
+    if (bookCopyService::getInstance().addBookCopy(BookCopy(isbn, libCode, loc))) {
+        std::cout << "副本添加成功。" << std::endl;
+    } else {
+        std::cout << "副本添加失败。" << std::endl;
+    }
+    pause();
+}
+
+void BookCopyMonitorMenu::updateBookCopy()
+{
+    std::cout << "\n=== 修改副本 ===" << std::endl;
+    std::string isbn = readLine("请输入图书ISBN: ");
+    if (!BookService::getInstance().isBookValid(isbn)) {
+        std::cout << "图书ISBN无效，请先添加图书信息。" << std::endl;
+        pause();
+        return;
+    }
+    std::string libCode = readLine("请输入要修改的副本的馆藏号: ");
+    if (!bookCopyService::getInstance().getBookCopyByLibCode(libCode)) {
+        std::cout << "馆藏号不存在，请重新输入。" << std::endl;
+        pause();
+        return;
+    }
+    std::cout << "请输入新的副本信息。注意只能修改地点信息。留空表示不变。" << std::endl;
+    std::string lib = readLine("请输入新的图书馆代码: ");
+    lib = lib.empty() ? bookCopyService::getInstance().getBookCopyByLibCode(libCode)->getBookLocation().getLib() : lib;
+    short floor = readInt("请输入新的楼层号: ");
+    floor = (floor == 0) ? bookCopyService::getInstance().getBookCopyByLibCode(libCode)->getBookLocation().getFloor() : floor;
+    short row = readInt("请输入新的书架号: ");
+    row = (row == 0) ? bookCopyService::getInstance().getBookCopyByLibCode(libCode)->getBookLocation().getRow() : row;
+    short unit = readInt("请输入新的单元号: ");
+    unit = (unit == 0) ? bookCopyService::getInstance().getBookCopyByLibCode(libCode)->getBookLocation().getUnit() : unit;
+    short level = readInt("请输入新的层号: ");
+    level = (level == 0) ? bookCopyService::getInstance().getBookCopyByLibCode(libCode)->getBookLocation().getLevel() : level;
+    Location loc(lib, floor, row, unit, level);
+    bookCopyService::getInstance().updateBookCopy(isbn, libCode, BookCopy(isbn, libCode, loc));
+    std::cout << "副本修改成功。" << std::endl;
+    pause();
+}
+
+void BookCopyMonitorMenu::cancelBookCopy()
+{
+    std::cout << "\n=== 注销副本 ===" << std::endl;
+    std::string isbn = readLine("请输入图书ISBN: ");
+    if (!BookService::getInstance().isBookValid(isbn)) {
+        std::cout << "图书ISBN无效，请先添加图书信息。" << std::endl;
+        pause();
+        return;
+    }
+    std::string libCode = readLine("请输入要注销的副本的馆藏号: ");
+    if (!bookCopyService::getInstance().getBookCopyByLibCode(libCode)) {
+        std::cout << "馆藏号不存在，请重新输入。" << std::endl;
+        pause();
+        return;
+    }
+    bookCopyService::getInstance().cancelBookCopy(isbn, libCode);
+    std::cout << "副本已注销。" << std::endl;
+    pause();
+}
+
+void BookCopyMonitorMenu::removeBookCopy()
+{
+    std::cout << "\n=== 删除副本 ===" << std::endl;
+    std::string confirmation = readLine("不建议删除副本，因为可能会影响借阅等功能。建议使用注销副本功能。请确认是否继续删除？(y/n): ");
+    if (confirmation != "y" && confirmation != "Y") {
+        std::cout << "操作已取消。" << std::endl;
+        pause();
+        return;
+    }
+    std::string isbn = readLine("请输入图书ISBN: ");
+    if (!BookService::getInstance().isBookValid(isbn)) {
+        std::cout << "图书ISBN无效，请先添加图书信息。" << std::endl;
+        pause();
+        return;
+    }
+    std::string libCode = readLine("请输入要删除的副本的馆藏号: ");
+    if (!bookCopyService::getInstance().isLibCodeAvailable(libCode)) {
+        std::cout << "馆藏号不存在，请重新输入。" << std::endl;
+        pause();
+        return;
+    }
+    if (bookCopyService::getInstance().removeBookCopy(isbn, libCode)) {
+        std::cout << "副本删除成功。" << std::endl;
+    } else {
+        std::cout << "副本删除失败。" << std::endl;
+    }
+    pause();
+}
+
+void BookCopyMonitorMenu::readFromFile()
+{
+    std::cout << "\n=== 从文件读取副本 ===" << std::endl;
+    bookCopyService::getInstance().readBookCopiesFromFile();
+    std::cout << "副本已从文件读取。" << std::endl;
+    pause();
+}
+
+void BookCopyMonitorMenu::saveToFile()
+{
+    std::cout << "\n=== 保存副本到文件 ===" << std::endl;
+    bookCopyService::getInstance().writeBookCopiesToFile();
+    std::cout << "副本已保存到文件。" << std::endl;
+    pause();
+}
+
+void BookCopyMonitorMenu::printBookCopies(const std::vector<BookCopy> &copies)
+{
+    std::cout<< std::left << std::setw(20) << "ISBN"
+              << std::setw(30) << "书名"
+              << std::setw(15) << "馆藏号"
+              << std::setw(20) << "位置"
+              << std::setw(10) << "状态" << std::endl;
+    std::string statusStr;
+    for (const auto &copy : copies) {
+        switch (copy.getStatus()) {
+            case available:  statusStr = "可用";  break;
+            case borrowed:   statusStr = "借阅中";   break;
+            case cancelled:  statusStr = "已注销";  break;
+            default:         statusStr = "未知";    break;
+        }
+        std::cout << std::left << std::setw(20) << copy.getISBN()
+                  << std::setw(30) << BookService::getInstance().getBookTitleByISBN(copy.getISBN())
+                  << std::setw(15) << copy.getLibCode()
+                  << std::setw(20) << copy.getBookLocation()
+                  << std::setw(10) << statusStr << std::endl;
+    }
+}
+
+
+==================== 文件: console/admin_submenu/loan_monitor_menu.h ====================
+#ifndef LOAN_MONITOR_MENU_H
+#define LOAN_MONITOR_MENU_H
+
+#include "../menu_base.h"
+#include "model/loan.h"
+#include "services/loanservice.h"
+#include "services/bookservice.h"
+#include "services/userservice.h"
+#include "services/bookcopyservice.h"
+#include <vector>
+#include <iostream>
+#include <iomanip>
+
+
+// 借阅监控菜单：查看、搜索借阅记录，统计分析，文件读写
+class LoanMonitorMenu : public MenuBase
+{
+public:
+    void show();
+
+private:
+    // 菜单操作
+    void displayAllLoans();
+    void searchByUser();
+    void searchByISBN();
+    void searchByLibCode();
+    void displayAllCurrentBorrowing();
+    void displayUserCurrentBorrowing();
+    void displayStatistics();
+    void displayMostBorrowed();
+    void displayMostActiveUsers();
+    void displayMonthlyStats();
+    void readFromFile();
+    void saveToFile();
+
+    // 辅助：打印借阅记录列表
+    void printLoans(const std::vector<Loan> &loans);
+};
+
+#endif // LOAN_MONITOR_MENU_H
+
+
+==================== 文件: console/admin_submenu/loan_monitor_menu.cpp ====================
+#include "loan_monitor_menu.h"
+
+
+void LoanMonitorMenu::show()
+{
+    std::vector<std::string> options = {
+        "查看所有借阅记录",
+        "按用户查询借阅历史",
+        "按ISBN查询借阅历史",
+        "按馆藏号查询借阅历史",
+        "查看所有在借图书",
+        "查看特定用户的当前借阅",
+        "借阅统计概览",
+        "最受欢迎图书排行",
+        "最活跃用户排行",
+        "每月借阅量统计",
+        "从文件读取借阅记录",
+        "保存借阅记录到文件",
+        "返回上级菜单"
+    };
+
+    while (true) {
+        int choice = displayMenu("借阅监控", options);
+        switch (choice) {
+            case 1: displayAllLoans(); break;
+            case 2: searchByUser(); break;
+            case 3: searchByISBN(); break;
+            case 4: searchByLibCode(); break;
+            case 5: displayAllCurrentBorrowing(); break;
+            case 6: displayUserCurrentBorrowing(); break;
+            case 7: displayStatistics(); break;
+            case 8: displayMostBorrowed(); break;
+            case 9: displayMostActiveUsers(); break;
+            case 10: displayMonthlyStats(); break;
+            case 11: readFromFile(); break;
+            case 12: saveToFile(); break;
+            case 13: return;
+            default: std::cout << "无效的选择，请重新输入。" << std::endl; break;
+        }
+    }
+}
+
+void LoanMonitorMenu::displayAllLoans()
+{
+    std::cout << "\n=== 查看所有借阅记录 ===" << std::endl;
+    printLoans(loanService::getInstance().loans);
+    pause();
+}
+
+void LoanMonitorMenu::searchByUser()
+{
+    std::cout << "\n=== 按用户查询借阅历史 ===" << std::endl;
+    std::string userId = readLine("请输入用户ID: ");
+    auto loans = loanService::getInstance().getBorrowHistoryByUser(userId);
+    if (loans.empty()) {
+        std::cout << "该用户没有借阅历史记录。" << std::endl;
+    } else {
+        printLoans(loans);
+    }
+    pause();
+}
+
+void LoanMonitorMenu::searchByISBN()
+{
+    std::cout << "\n=== 按ISBN查询借阅历史 ===" << std::endl;
+    std::string ISBN = readLine("请输入图书ISBN: ");
+    auto loans = loanService::getInstance().getBorrowHistoryByISBN(ISBN);
+    if (loans.empty()) {
+        std::cout << "该图书没有借阅历史记录。" << std::endl;
+    } else {
+        printLoans(loans);
+    }
+    pause();
+}
+
+void LoanMonitorMenu::searchByLibCode()
+{
+    std::cout << "\n=== 按馆藏号查询借阅历史 ===" << std::endl;
+    std::string libCode = readLine("请输入图书馆藏号: ");
+    auto loans = loanService::getInstance().getBorrowHistoryByLibCode(libCode);
+    if (loans.empty()) {
+        std::cout << "该馆藏号没有借阅历史记录。" << std::endl;
+    } else {
+        printLoans(loans);
+    }
+    pause();
+}
+
+void LoanMonitorMenu::displayAllCurrentBorrowing()
+{
+    std::cout << "\n=== 查看所有在借图书 ===" << std::endl;
+    auto loans = loanService::getInstance().getAllCurrentBorrowing();
+    if (loans.empty()) {
+        std::cout << "当前没有在借图书。" << std::endl;
+    } else {
+        printLoans(loans);
+    }
+    pause();
+}
+
+void LoanMonitorMenu::displayUserCurrentBorrowing()
+{
+    std::cout << "\n=== 查看特定用户的当前借阅 ===" << std::endl;
+    std::string userId = readLine("请输入用户ID: ");
+    auto loans = loanService::getInstance().getBorrowingBooksByUser(userId);
+    if (loans.empty()) {
+        std::cout << "该用户没有当前借阅记录。" << std::endl;
+    } else {
+        printLoans(loans);
+    }
+    pause();
+}
+
+void LoanMonitorMenu::displayStatistics()
+{
+    std::cout << "\n=== 借阅统计概览 ===" << std::endl;
+    std::cout << "当前在借图书数量: " << loanService::getInstance().getTotalBorrowingBooks() << std::endl;
+    std::cout << "总借阅量: " << loanService::getInstance().getTotalBorrowedBooks() << std::endl;
+    pause();
+}
+
+void LoanMonitorMenu::displayMostBorrowed()
+{
+    std::cout << "\n=== 最受欢迎图书排行 ===" << std::endl;
+    std::cout << std::left << std::setw(20) << "ISBN" << std::setw(20) << "书名" << std::setw(20) << "借阅次数" << std::endl;
+    for (const auto& entry : loanService::getInstance().getMostBorrowedBooks(10)) {
+        std::cout << std::left << std::setw(20) << entry.first << std::setw(20) << BookService::getInstance().getBookTitleByISBN(entry.first) << std::setw(20) << entry.second << std::endl;
+    }
+    pause();
+}
+
+void LoanMonitorMenu::displayMostActiveUsers()
+{
+    std::cout << "\n=== 最活跃用户排行 ===" << std::endl;
+    std::cout << std::left << std::setw(20) << "用户ID" << std::setw(20) << "借阅次数" << std::endl;
+    for (const auto& entry : loanService::getInstance().getMostActiveUsers(10)) {
+        std::cout << std::left << std::setw(20) << entry.first << std::setw(20) << entry.second << std::endl;
+    }
+    pause();
+}
+
+void LoanMonitorMenu::displayMonthlyStats()
+{
+    std::cout << "\n=== 每月借阅量统计 ===" << std::endl;
+    std::cout << std::left << std::setw(20) << "月份" << std::setw(20) << "借阅量" << std::endl;
+    for (const auto& entry : loanService::getInstance().getTotalBorrowVSMonth()) {
+        std::cout << std::left << std::setw(20) << entry.first << std::setw(20) << entry.second << std::endl;
+    }
+    pause();
+}
+
+void LoanMonitorMenu::readFromFile()
+{
+    std::cout << "\n=== 从文件读取借阅记录 ===" << std::endl;
+    loanService::getInstance().readLoansFromFile();
+    std::cout << "借阅记录已从文件读取。" << std::endl;
+    pause();
+}
+
+void LoanMonitorMenu::saveToFile()
+{
+    std::cout << "\n=== 保存借阅记录到文件 ===" << std::endl;
+    loanService::getInstance().writeLoansToFile();
+    std::cout << "借阅记录已保存到文件。" << std::endl;
+    pause();
+}
+
+void LoanMonitorMenu::printLoans(const std::vector<Loan> &loans)
+{
+    std::cout << std::left << std::setw(15) << "借阅ID"
+              << std::setw(10) << "馆藏号"
+              << std::setw(20) << "书名"
+              << std::setw(15) << "用户ID"
+              << std::setw(12) << "借阅日期"
+              << std::setw(12) << "到期日期"
+              << std::setw(12) << "归还日期"
+              << std::setw(10) << "状态" << std::endl;
+    for (const auto &loan : loans) {
+        std::cout << std::left << std::setw(15) << loan.getId()
+                  << std::setw(10) << loan.getLibCode()
+                  << std::setw(20) << BookService::getInstance().getBookTitleByISBN(loan.getISBN())
+                  << std::setw(15) << loan.getUserId()
+                  << std::setw(12) << loan.getLoanDate().toString()
+                  << std::setw(12) << loan.getDueDate().toString()
+                  << std::setw(12) << (loan.getIsReturned() ? loan.getReturnDate().toString() : "未归还")
+                  << std::setw(10) << (loan.getIsReturned() ? "已归还" : (loan.isOverdue() ? "逾期" : "借阅中"))
+                  << std::endl;
+    }
+}
+
+
+==================== 文件: console/user_submenu/search_info_menu.h ====================
+#ifndef SEARCH_INFO_MENU_H
+#define SEARCH_INFO_MENU_H
+#include "../menu_base.h"
+#include "model/book.h"
+#include "model/bookcopy.h"
+#include "services/bookservice.h"
+#include "services/bookcopyservice.h"
+#include "model/location.h"
+#include <iostream>
+#include <vector>
+#include <string>
+#include <iomanip>
+class SearchInfoMenu : public MenuBase
+{
+public:
+    void show();
+private:
+    void displayAllBooks();
+    void displayAllBookCopies();
+    void searchBooks();
+    void searchCopies();
+    void viewShelves();
+
+    void buildSearchQuery(searchQuery &query);
+    void printBooks(const std::vector<Book> &books);
+    void printBookCopies(const std::vector<BookCopy> &bookCopies);
+};
+
+#endif // SEARCH_INFO_MENU_H
+
+
+==================== 文件: console/user_submenu/search_info_menu.cpp ====================
+#include "search_info_menu.h"
+
+
+void SearchInfoMenu::show()
+{
+    std::vector<std::string> options = {
+        "显示所有图书",
+        "搜索馆藏图书",
+        "显示所有图书副本",
+        "搜索图书副本",
+        "查看本馆书架",
+        "返回上级菜单"
+    };
+
+    while (true) {
+        int choice = displayMenu("搜索图书", options);
+        switch (choice) {
+            case 1: displayAllBooks(); break;
+            case 2: searchBooks(); break;
+            case 3: displayAllBookCopies(); break;
+            case 4: searchCopies(); break;
+            case 5: viewShelves(); break;
+            case 6: return; // 返回上级菜单
+            default: std::cout << "无效的选择，请重新输入。" << std::endl;break;
+        }
+    }
+}
+
+//功能函数
+void SearchInfoMenu::displayAllBooks(){
+    std::cout << "\n=== 显示所有图书 ===" << std::endl;
+    auto books = BookService::getInstance().getAllBooks();
+    printBooks(books);
+    pause();
+}
+
+void SearchInfoMenu::displayAllBookCopies(){
+    std::cout << "\n=== 显示所有图书副本 ===" << std::endl;
+    auto copies = bookCopyService::getInstance().getAllBookCopies();
+    printBookCopies(copies);
+    pause();
+}
+
+void SearchInfoMenu::searchBooks()
+{
+    std::cout << "\n=== 搜索图书 ===" << std::endl;
+    searchQuery query;
+    buildSearchQuery(query);
+
+    auto results = BookService::getInstance().searchBooks(query);
+    std::vector<Book> books;
+    books.reserve(results.size());
+    for (const Book *b : results) {
+        if (b)
+            books.push_back(*b);
+    }
+    printBooks(books);
+    pause();
+}
+
+void SearchInfoMenu::searchCopies()
+{
+    std::cout << "\n=== 搜索图书副本 ===" << std::endl;
+    std::string isbn = readLine("请输入图书ISBN: ");
+    auto copies = bookCopyService::getInstance().getBookCopiesByISBN(isbn);
+    if (copies.empty()) {
+        std::cout << "没有找到该ISBN的图书副本。" << std::endl;
+    } else {
+        std::cout << "书名: " << BookService::getInstance().getBookTitleByISBN(isbn) << std::endl;
+        std::cout << "找到 " << copies.size() << " 个副本：" << std::endl;
+        for (const auto &copy : copies) {
+            std::string statusStr;
+            switch (copy.getStatus()) {
+                case available:  statusStr = "可用";  break;
+                case borrowed:   statusStr = "借阅中";   break;
+                case cancelled:  statusStr = "已注销";  break;
+                default:         statusStr = "未知";    break;
+            }
+            std::cout << "副本编号: " << copy.getLibCode() 
+                      << ", 位置: " << copy.getBookLocation() 
+                      << ", 状态: " << statusStr 
+                      << std::endl;
+        }
+    }
+    pause();
+}
+
+void SearchInfoMenu::viewShelves()
+{
+    std::cout << "\n=== 查看本馆书架 ===" << std::endl;
+    std::cout << "任一项不输入则代表不指定该项以及后续项" << std::endl;
+    std::string lib = "";
+    short floor = 0;
+    short row = 0;
+    short unit = 0;
+    short level = 0;
+    lib = readLine("请输入图书馆代码: ");
+    if (!lib.empty()) {
+        floor = readInt("请输入楼层号: ");
+        if (floor){
+            row = readInt("请输入书架号: ");
+            if (row){
+                unit = readInt("请输入单元号: ");
+                if (unit){
+                    level = readInt("请输入层号: ");
+                }
+            }
+        }
+    }
+    auto copies = bookCopyService::getInstance().getBookCopiesByLocation(lib, floor, row, unit, level);
+    printSeparator('=');
+    std::cout << "找到 " << copies.size() << " 个副本：" << std::endl;
+    printBookCopies(copies);
+    pause();
+}
+
+//辅助函数
+void SearchInfoMenu::buildSearchQuery(searchQuery &query)
+{
+    // 字段1
+    std::cout << "\n--- 搜索条件1 ---" << std::endl;
+    std::cout << "  1. ISBN" << std::endl;
+    std::cout << "  2. 标题" << std::endl;
+    std::cout << "  3. 作者" << std::endl;
+    std::cout << "  0. 跳过（不设条件1）" << std::endl;
+    int f1 = readInt("请选择搜索字段: ");
+    switch (f1) {
+        case 1:  query.field1 = searchQuery::Field::ISBN;   break;
+        case 2:  query.field1 = searchQuery::Field::Title;  break;
+        case 3:  query.field1 = searchQuery::Field::Author; break;
+        default: query.field1 = searchQuery::Field::Empty;  break;
+    }
+
+    if (query.field1 != searchQuery::Field::Empty) {
+        std::cout << "  1. 等于" << std::endl;
+        std::cout << "  2. 包含" << std::endl;
+        std::cout << "  3. 开头匹配" << std::endl;
+        int c1 = readInt("请选择匹配方式: ");
+        switch (c1) {
+            case 2:  query.condition1 = searchQuery::Condition::Contains;   break;
+            case 3:  query.condition1 = searchQuery::Condition::StartsWith; break;
+            default: query.condition1 = searchQuery::Condition::Equals;     break;
+        }
+        query.value1 = readLine("请输入搜索内容: ");
+    }
+
+    // 字段2
+    std::cout << "\n--- 搜索条件2 ---" << std::endl;
+    std::cout << "  1. ISBN" << std::endl;
+    std::cout << "  2. 标题" << std::endl;
+    std::cout << "  3. 作者" << std::endl;
+    std::cout << "  0. 跳过（不设条件2）" << std::endl;
+    int f2 = readInt("请选择搜索字段: ");
+    switch (f2) {
+        case 1:  query.field2 = searchQuery::Field::ISBN;   break;
+        case 2:  query.field2 = searchQuery::Field::Title;  break;
+        case 3:  query.field2 = searchQuery::Field::Author; break;
+        default: query.field2 = searchQuery::Field::Empty;  break;
+    }
+
+    if (query.field2 != searchQuery::Field::Empty) {
+        std::cout << "  1. 与（AND）" << std::endl;
+        std::cout << "  2. 或（OR）" << std::endl;
+        int logic = readInt("请选择逻辑关系: ");
+        query.logic = (logic == 2) ? searchQuery::Logic::Or : searchQuery::Logic::And;
+
+        std::cout << "  1. 等于" << std::endl;
+        std::cout << "  2. 包含" << std::endl;
+        std::cout << "  3. 开头匹配" << std::endl;
+        int c2 = readInt("请选择匹配方式: ");
+        switch (c2) {
+            case 2:  query.condition2 = searchQuery::Condition::Contains;   break;
+            case 3:  query.condition2 = searchQuery::Condition::StartsWith; break;
+            default: query.condition2 = searchQuery::Condition::Equals;     break;
+        }
+        query.value2 = readLine("请输入搜索内容: ");
+    }
+    else {
+        query.logic = searchQuery::Logic::And; // 默认逻辑关系为 AND
+    }
+}
+
+void SearchInfoMenu::printBooks(const std::vector<Book> &books)
+{
+    if (books.empty()) {
+        std::cout << "没有找到图书。" << std::endl;
+        return;
+    }
+
+    printSeparator('=');
+    std::cout << std::left
+              << std::setw(18) << "ISBN"
+              << std::setw(25) << "标题"
+              << std::setw(15) << "作者"
+              << std::setw(20) << "出版社"
+              << std::setw(8)  << "年份"
+              << std::setw(12) << "分类"
+              << std::setw(20) << "副本列表"
+              << "备注" << std::endl;
+    printSeparator('-');
+
+    for (const auto &b : books) {
+        std::string copiesStr;
+        auto copies = bookCopyService::getInstance().getBookCopiesByISBN(b.getISBN());
+        for (auto it = copies.begin(); it != copies.end(); ++it) {
+            if (it != copies.begin())
+                copiesStr += ", ";
+            copiesStr += it->getLibCode();
+        }
+
+        std::cout << std::left
+                  << std::setw(18) << b.getISBN()
+                  << std::setw(25) << b.getTitle()
+                  << std::setw(15) << b.getAuthor()
+                  << std::setw(20) << b.getPublisher()
+                  << std::setw(8)  << b.getPublishingYear()
+                  << std::setw(12) << b.getCategory()
+                  << std::setw(20) << copiesStr
+                  << b.getRemarks() << std::endl;
+    }
+    printSeparator('=');
+    std::cout << "共 " << books.size() << " 本图书。" << std::endl;
+}
+
+void SearchInfoMenu::printBookCopies(const std::vector<BookCopy> &bookCopies)
+{
+    if (bookCopies.empty()) {
+        std::cout << "没有找到图书副本。" << std::endl;
+        return;
+    }
+
+    printSeparator('=');
+    std::cout << std::left
+              << std::setw(18) << "ISBN"
+              << std::setw(12) << "副本编号"
+              << std::setw(10) << "位置"
+              << "状态" << std::endl;
+    printSeparator('-');
+
+    for (const auto &copy : bookCopies) {
+        std::string statusStr;
+        switch (copy.getStatus()) {
+            case available:  statusStr = "可用";  break;
+            case borrowed:   statusStr = "借阅中";   break;
+            case cancelled:  statusStr = "已注销";  break;
+            default:         statusStr = "未知";    break;
+        }
+        std::cout << std::left
+                  << std::setw(18) << copy.getISBN()
+                  << std::setw(12) << copy.getLibCode()
+                  << std::setw(10) << copy.getBookLocation()
+                  << statusStr << std::endl;
+    }
+    printSeparator('=');
+    std::cout << "共 " << bookCopies.size() << " 个副本。" << std::endl;
+}
+
+
+==================== 文件: console/user_submenu/loan_menu.h ====================
+#ifndef LOAN_MENU_H
+#define LOAN_MENU_H
+#include "../menu_base.h"
+#include "services/loanservice.h"
+#include "services/bookservice.h"
+#include "services/bookcopyservice.h"
+#include "services/userservice.h"
+#include <string>
+#include <vector>
+#include <iostream>
+#include <iomanip>
+#include <map>
+
+class LoanMenu : public MenuBase
+{
+public:
+    void show();
+private:
+    void displayRecommendations();
+    void borrowBook();
+    void renewBook();
+    void returnBook();
+    void displayCurrentLoans();
+    void displayUserLoanHistory();
+    void displayBookLoanHistory();
+
+    void printLoans(const std::vector<Loan>& loans);
+};
+
+#endif // LOAN_MENU_H
+
+
+==================== 文件: console/user_submenu/loan_menu.cpp ====================
+#include "loan_menu.h"
+
+void LoanMenu::show() {
+    std::vector<std::string> options = {
+        "显示推荐信息",
+        "借阅图书",
+        "续借图书",
+        "归还图书",
+        "查看当前借阅",
+        "查看借阅历史",
+        "查看图书借阅历史",
+        "返回上级菜单"
+    };
+
+    while (true) {
+        int choice = displayMenu("借阅管理", options);
+        switch (choice) {
+            case 1: displayRecommendations(); break;
+            case 2: borrowBook(); break;
+            case 3: renewBook(); break;
+            case 4: returnBook(); break;
+            case 5: displayCurrentLoans(); break;
+            case 6: displayUserLoanHistory(); break;
+            case 7: displayBookLoanHistory(); break;
+            case 8: return; // 返回上级菜单
+            default: std::cout << "无效的选择，请重新输入。" << std::endl;break;
+        }
+    }
+}
+
+void LoanMenu::displayRecommendations() {
+    std::cout << "\n=== 显示推荐信息 ===" << std::endl;
+    std::cout << "本馆总借阅量: " << loanService::getInstance().getTotalBorrowedBooks() << std::endl;
+    std::cout << "当前总出借数: " << loanService::getInstance().getTotalBorrowingBooks() << std::endl;
+
+    int topN = readInt("请输入要显示的前N名（最受欢迎图书和最活跃用户）: ");
+    auto mostBorrowedBooks = loanService::getInstance().getMostBorrowedBooks(topN);
+    auto mostActiveUsers = loanService::getInstance().getMostActiveUsers(topN);
+
+    std::cout << "\n--- 最受欢迎图书 ---" << std::endl;
+    for (const auto& pair : mostBorrowedBooks) {
+        std::string title = BookService::getInstance().getBookTitleByISBN(pair.first);
+        std::cout << "ISBN: " << pair.first << ", 标题: " << title << ", 借阅次数: " << pair.second << std::endl;
+    }
+
+    std::cout << "\n--- 最活跃用户 ---" << std::endl;
+    for (const auto& pair : mostActiveUsers) {
+        std::cout << "用户ID: " << pair.first << ", 借阅次数: " << pair.second << std::endl;
+    }
+
+    std::cout << "\n--- 每月借阅量 ---" << std::endl;
+    auto totalBorrowVSMonth = loanService::getInstance().getTotalBorrowVSMonth();
+    for (const auto& pair : totalBorrowVSMonth) {
+        std::cout << "月份: " << pair.first << ", 借阅量: " << pair.second << std::endl;
+    }
+
+    User* user = UserService::getInstance().getCurrentUser();
+    if (user) {
+        std::cout << "\n--- 用户 " << user->getUsername() << " 的每月借阅量 ---" << std::endl;
+        auto userBorrowVSMonth = loanService::getInstance().getUserBorrowVSMonth(user->getId());
+        for (const auto& pair : userBorrowVSMonth) {
+            std::cout << "月份: " << pair.first << ", 借阅量: " << pair.second << std::endl;
+        }
+    } else {
+        std::cout << "\n未登录用户，无法显示个人每月借阅量。" << std::endl;
+    }
+
+    pause();
+}
+
+void LoanMenu::borrowBook() {
+    std::cout << "\n=== 借阅图书 ===" << std::endl;
+    std::string libCode = readLine("请输入图书副本编号: ");
+
+    User* user = UserService::getInstance().getCurrentUser();
+    if (!user) {
+        std::cout << "未登录用户，无法借阅图书。" << std::endl;
+        pause();
+        return;
+    }
+    std::string userId = user ? user->getId() : "";
+    BookCopy* copy = bookCopyService::getInstance().getBookCopyByLibCode(libCode);
+    std::string ISBN = copy ? copy->getISBN() : "";
+    std::string errorMessage;
+
+    std::cout <<"您是"<< user->getUsername() << "，ID: " << userId << std::endl;
+    std::cout <<"您要借阅的图书副本编号是: " << libCode << "，对应ISBN: " << ISBN << std::endl;
+    std::cout <<"书名为: " << BookService::getInstance().getBookTitleByISBN(ISBN) << std::endl;
+    std::cout <<"请确认是否继续借阅？(y/n): ";
+    std::string confirm = readLine("");
+    if (confirm != "y" && confirm != "Y") {
+        std::cout << "借阅操作已取消。" << std::endl;
+        pause();
+        return;
+    }
+
+    if (loanService::getInstance().borrowBook(userId, ISBN, libCode, errorMessage)) {
+        std::cout << "借阅成功！" << std::endl;
+    } else {
+        std::cout << "借阅失败: " << errorMessage << std::endl;
+    }
+    pause();
+}
+
+void LoanMenu::renewBook() {
+    std::cout << "\n=== 续借图书 ===" << std::endl;
+    displayCurrentLoans();
+    std::string libCode = readLine("请输入图书副本编号: ");
+
+    User* user = UserService::getInstance().getCurrentUser();
+    if (!user) {
+        std::cout << "未登录用户，无法续借图书。" << std::endl;
+        pause();
+        return;
+    }
+    std::string userId = user->getId();
+    BookCopy* copy = bookCopyService::getInstance().getBookCopyByLibCode(libCode);
+    std::string ISBN = copy ? copy->getISBN() : "";
+    std::string errorMessage;
+
+    std::cout << "书名为: " << BookService::getInstance().getBookTitleByISBN(ISBN) << std::endl;
+
+    if (loanService::getInstance().renewBook(userId, ISBN, libCode, errorMessage)) {
+        std::cout << "续借成功！" << std::endl;
+    } else {
+        std::cout << "续借失败: " << errorMessage << std::endl;
+    }
+    pause();
+}
+
+void LoanMenu::returnBook() {
+    std::cout << "\n=== 归还图书 ===" << std::endl;
+    displayCurrentLoans();
+    std::string libCode = readLine("请输入图书副本编号: ");
+
+    User* user = UserService::getInstance().getCurrentUser();
+    if (!user) {
+        std::cout << "未登录用户，无法归还图书。" << std::endl;
+        pause();
+        return;
+    }
+    std::string userId = user->getId();
+    BookCopy* copy = bookCopyService::getInstance().getBookCopyByLibCode(libCode);
+    std::string ISBN = copy ? copy->getISBN() : "";
+    std::string errorMessage;
+
+    std::cout << "书名为: " << BookService::getInstance().getBookTitleByISBN(ISBN) << std::endl;
+
+    if (loanService::getInstance().returnBook(userId, ISBN, libCode, errorMessage)) {
+        std::cout << "归还成功！" << std::endl;
+    } else {
+        std::cout << "归还失败: " << errorMessage << std::endl;
+    }
+    pause();
+}
+
+void LoanMenu::displayCurrentLoans() {
+    std::cout << "\n=== 当前借阅 ===" << std::endl;
+    User* user = UserService::getInstance().getCurrentUser();
+    if (!user) {
+        std::cout << "未登录用户，无法查看当前借阅。" << std::endl;
+        pause();
+        return;
+    }
+    std::string userId = user->getId();
+    auto loans = loanService::getInstance().getBorrowingBooksByUser(userId);
+    if (loans.empty()) {
+        std::cout << "您当前没有借阅的图书。" << std::endl;
+    } else {
+        printLoans(loans);
+    }
+    pause();
+}
+
+void LoanMenu::displayUserLoanHistory() {
+    std::cout << "\n=== 借阅历史 ===" << std::endl;
+    User* user = UserService::getInstance().getCurrentUser();
+    if (!user) {
+        std::cout << "未登录用户，无法查看借阅历史。" << std::endl;
+        pause();
+        return;
+    }
+    std::string userId = user->getId();
+    auto loans = loanService::getInstance().getBorrowHistoryByUser(userId);
+    if (loans.empty()) {
+        std::cout << "您没有借阅历史记录。" << std::endl;
+    } else {
+        printLoans(loans);
+    }
+    pause();
+}
+
+void LoanMenu::displayBookLoanHistory() {
+    std::cout << "\n=== 图书借阅历史 ===" << std::endl;
+    std::string ISBN = readLine("请输入图书ISBN: ");
+    std::cout << "书名: " << BookService::getInstance().getBookTitleByISBN(ISBN) << std::endl;
+    auto loans = loanService::getInstance().getBorrowHistoryByISBN(ISBN);
+    if (loans.empty()) {
+        std::cout << "该图书没有借阅历史记录。" << std::endl;
+    } else {
+        printLoans(loans);
+    }
+    pause();
+}
+
+void LoanMenu::printLoans(const std::vector<Loan>& loans) {
+    printSeparator('=');
+    std::cout << std::left
+              << std::setw(10) << "借阅ID"
+              << std::setw(15) << "副本编号"
+              << std::setw(18) << "ISBN"
+              << std::setw(25) << "书名"
+              << std::setw(20) << "借阅日期"
+              << std::setw(20) << "到期日期"
+              << std::setw(20) << "归还日期"
+              << std::setw(10) << "状态" 
+              << std::endl;
+    printSeparator('-');
+
+    for (const auto& loan : loans) {
+        std::string status = loan.getIsReturned() ? "已归还" : (loan.isOverdue() ? "逾期" : "借阅中");
+        std::string title = BookService::getInstance().getBookTitleByISBN(loan.getISBN());
+        std::cout << std::left
+                  << std::setw(10) << loan.getId()
+                  << std::setw(15) << loan.getLibCode()
+                  << std::setw(18) << loan.getISBN()
+                  << std::setw(25) << title
+                  << std::setw(20) << loan.getLoanDate().toString()
+                  << std::setw(20) << loan.getDueDate().toString()
+                  << std::setw(20) << (loan.getIsReturned() ? loan.getReturnDate().toString() : "-")
+                  << std::setw(10) << status
+                  << std::endl;
+    }
+    printSeparator('=');
+}
+
+
+==================== 文件: console/user_submenu/personal_info_menu.h ====================
+#ifndef PERSONAL_INFO_MENU_H
+#define PERSONAL_INFO_MENU_H
+#include "../menu_base.h"
+#include "services/userservice.h"
+#include "services/loanservice.h"
+#include "model/patron.h"
+#include <string>
+#include <vector>
+#include <iostream>
+
+class PersonalInfoMenu : public MenuBase
+{
+
+public:
+    void show();
+private:
+    void displayPersonalInfo();
+    void updatePersonalInfo();
+    void changePassword();
+    void deleteAccount();
+};
+
+#endif // PERSONAL_INFO_MENU_H
+
+
+==================== 文件: console/user_submenu/personal_info_menu.cpp ====================
+#include "personal_info_menu.h"
+
+void PersonalInfoMenu::show() {
+    std::vector<std::string> options = {
+        "显示个人信息",
+        "修改个人信息",
+        "修改密码",
+        "注销账户",
+        "返回上级菜单"
+    };
+
+    while (true) {
+        int choice = displayMenu("个人信息管理", options);
+        switch (choice) {
+            case 1: displayPersonalInfo(); break;
+            case 2: updatePersonalInfo(); break;
+            case 3: changePassword(); break;
+            case 4: deleteAccount(); break;
+            case 5: return; // 返回上级菜单
+            default: std::cout << "无效的选择，请重新输入。" << std::endl;break;
+        }
+    }
+}
+
+void PersonalInfoMenu::displayPersonalInfo() {
+    User* user = UserService::getInstance().getCurrentUser();
+    if (!user) {
+        std::cout << "未登录用户，无法显示个人信息。" << std::endl;
+        pause();
+        return;
+    }
+
+    std::cout << "\n=== 个人信息 ===" << std::endl;
+    std::cout << "用户ID: " << user->getId() << std::endl;
+    std::cout << "用户名: " << user->getUsername() << std::endl;
+    std::cout << "电话: " << user->getPhone() << std::endl;
+    std::cout << "邮箱: " << user->getEmail() << std::endl;
+
+    if (Patron* patron = dynamic_cast<Patron*>(user)) {
+        std::cout << "借阅上限: " << patron->getBorrowLimit() << std::endl;
+        std::cout << "当前借阅数: " << loanService::getInstance().getBorrowingBooksByUser(user->getId()).size() << std::endl;
+    }
+
+    pause();
+}
+
+void PersonalInfoMenu::updatePersonalInfo() {
+    User* user = UserService::getInstance().getCurrentUser();
+    if (!user) {
+        std::cout << "未登录用户，无法修改个人信息。" << std::endl;
+        pause();
+        return;
+    }
+
+    std::cout << "\n=== 修改个人信息 ===" << std::endl;
+    std::string newUsername = readLine("请输入新的用户名（留空表示不修改）: ");
+    std::string newPhone = readLine("请输入新的电话（留空表示不修改）: ");
+    std::string newEmail = readLine("请输入新的邮箱（留空表示不修改）: ");
+
+    if (!newUsername.empty()) user->setUsername(newUsername);
+    if (!newPhone.empty()) user->setPhone(newPhone);
+    if (!newEmail.empty()) user->setEmail(newEmail);
+
+    if (UserService::getInstance().updatePatron(user->getId(), user->getUsername(), user->getPhone(),
+                                                user->getEmail())) {
+        std::cout << "个人信息更新成功！" << std::endl;
+    } else {
+        std::cout << "个人信息更新失败！" << std::endl;
+    }
+    pause();
+}
+
+void PersonalInfoMenu::changePassword() {
+    User* user = UserService::getInstance().getCurrentUser();
+    if (!user) {
+        std::cout << "未登录用户，无法修改密码。" << std::endl;
+        pause();
+        return;
+    }
+
+    std::cout << "\n=== 修改密码 ===" << std::endl;
+    std::string oldPassword = readLine("请输入旧密码: ");
+    if (user->getPassword() != UserService::getInstance().encryptPassword(oldPassword, user->getId())) {
+        std::cout << "旧密码不正确！" << std::endl;
+        pause();
+        return;
+    }
+
+    std::string newPassword = readLine("请输入新密码: ");
+    user->setPassword(UserService::getInstance().encryptPassword(newPassword, user->getId()));
+
+    if (UserService::getInstance().updatePatronPassword(user->getId(), newPassword)) {
+        std::cout << "密码修改成功！" << std::endl;
+    } else {
+        std::cout << "密码修改失败！" << std::endl;
+    }
+    pause();
+}
+
+void PersonalInfoMenu::deleteAccount() {
+    User* user = UserService::getInstance().getCurrentUser();
+    if (!user) {
+        std::cout << "未登录用户，无法注销账户。" << std::endl;
+        pause();
+        return;
+    }
+
+    std::cout << "\n=== 注销账户 ===" << std::endl;
+    std::string confirmation = readLine("我真求你了，此操作不可逆！(yes/no): ");
+    if (confirmation != "yes") {
+        std::cout << "账户注销已取消。" << std::endl;
+        pause();
+        return;
+    }
+    confirmation = readLine("您确定要注销账户吗？这是最后一次警告。此操作不可逆！(YES/NO): ");
+    if (confirmation == "YES") {
+        std::string errorMessage;
+        if (UserService::getInstance().removeUser(user->getId(), errorMessage)) {
+            std::cout << "账户已成功注销！" << std::endl;
+            // 退出登录
+            UserService::getInstance().currentUser = nullptr;
+        } else {
+            std::cout << "账户注销失败：" << errorMessage << std::endl;
+        }
+    } else {
+        std::cout << "账户注销已取消。" << std::endl;
+    }
+    pause();
+}
+
+
+==================== 文件: main.cpp ==========================
+#include "console/app.h"
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+int main()
+{
+#ifdef _WIN32
+    // 设置控制台为 UTF-8 编码，解决中文乱码
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+#endif
+
+    App app;
+    app.run();
+    return 0;
+}
+
+
+==================== 文件: CMakeLists.txt ====================
+cmake_minimum_required(VERSION 3.15)
+
+project(BookManagementSystem VERSION 1.0.0 LANGUAGES CXX)
+
+# C++17 标准
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# 输出目录统一到 build/bin
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+# 源文件列表
+set(SOURCES
+    main.cpp
+    console/app.cpp
+    console/menu_base.cpp
+    console/admin_menu.cpp
+    console/user_menu.cpp
+    model/book.cpp
+    model/bookcopy.cpp
+    model/user.cpp
+    model/admin.cpp
+    model/patron.cpp
+    model/loan.cpp
+    model/date.cpp
+    model/location.cpp
+    services/bookservice.cpp
+    services/bookcopyservice.cpp
+    services/loanservice.cpp
+    services/timeservice.cpp
+    services/userservice.cpp
+    dao/bookdao.cpp
+    dao/bookcopydao.cpp
+    dao/loandao.cpp
+    dao/userdao.cpp
+)
+
+# 可执行目标
+add_executable(BookManagementSystem ${SOURCES}
+    console/user_submenu/search_info_menu.cpp
+    console/user_submenu/loan_menu.cpp
+    console/user_submenu/personal_info_menu.cpp
+    console/admin_submenu/user_monitor_menu.cpp
+    console/admin_submenu/book_monitor_menu.cpp
+    console/admin_submenu/bookcopy_monitor_menu.cpp
+    console/admin_submenu/loan_monitor_menu.cpp
+    console/about_menu.cpp)
+
+# 包含目录
+target_include_directories(BookManagementSystem PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+# MSVC 编译选项：UTF-8 编码、精确头文件依赖追踪、加速增量构建
+if(MSVC)
+    target_compile_options(BookManagementSystem PRIVATE
+        /utf-8
+        /W3
+        /sourceDependencies  # 输出 JSON 格式的源文件依赖信息，CMake 4.4 据此做精确增量构建
+        /Zf                  # 并行 PDB 生成，加速增量构建
+    )
+endif()
+
+# Debug/Release 配置
+set(CMAKE_DEBUG_POSTFIX d)
+
+

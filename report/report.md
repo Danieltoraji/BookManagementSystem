@@ -47,7 +47,9 @@
 
 另有data文件夹负责存放数据，CMakeLists.txt负责编译配置，main.cpp负责入口。
 
-### 模块图
+### 类和模块设计
+
+#### 模块图
 
 下图展示系统的分层架构及各模块之间的调用/依赖关系。箭头方向表示"调用方 → 被调用方"，虚线表示对数据模型的使用。
 
@@ -160,7 +162,7 @@ graph TB
     User -.-> Patron
 ```
 
-### 类层次图
+#### 类层次图
 
 下图聚焦展示系统中的两个继承体系：菜单类层次和用户类层次。
 
@@ -279,7 +281,7 @@ classDiagram
 - 界面通用基类。几乎所有菜单类都继承自MenuBase类，MenuBase类提供了一些通用的界面方法，如显示菜单、读取输入、暂停、清屏等。一些繁琐的操作，比如说过滤一些不合法的输入、格式化输出等，都可以在基类中统一处理。这样可以避免重复代码，提高代码的可维护性。这一建议还是AI给出的，让我大为受益。
 - 服务类单例。应用了在程设小班辅导中学到的单例类，能够有效避免类重复初始化，以及更严重的比如数据主存错误等问题。同时可以将文件读写函数调用放在构造函数中调用。
 
-### UML类图
+#### UML类图
 
 下图展示系统完整的类图，包含各类的属性、方法以及类之间的关系（继承、组合、依赖、关联）。
 
@@ -645,7 +647,58 @@ vs code中的断点调试和copilot等功能为本次大作业的调试带来了
   - 我们有Book类和BookCopy类，前者对应抽象的图书，后者对应具体的图书。那么，如何通过BookCopy寻找到存储在Book中的书名、作者等信息？又如何通过一个Book就查找到它所有的副本？这是一个经典的一对多问题。在设计初期，我们采用的方案是：Book类中有成员std::vector\<BookCopy\> copies，读取它就可以获知副本信息。BookCopy中有成员std::string ISBN，通过它也能查询到相对应的图书信息。但这样做的弊端就是，如果两个信息对不上，比如copies里面没有但是ISBN确实是它，那就不好了。
   - 解决的方案是删除copies成员，在bookcopyservice中实现std::vector\<BookCopy\> getBookCopiesByISBN(const std::string& isbn) const;需要找副本直接到这里。
   - 同样带来了新的问题：本系统中的馆藏甚至不超过1000件，但实际的图书馆馆藏数量庞大（清华大学图书馆有625万件实体馆藏），经不起这样逐本遍历。这种情况又该怎么办呢？不知道。
+- 神秘空指针
+  - 请看以下代码：
+
+``` C++
+
+void LoanMenu::borrowBook() {
+    std::cout << "\n=== 借阅图书 ===" << std::endl;
+    std::string libCode = readLine("请输入图书副本编号: ");
+
+    User* user = UserService::getInstance().getCurrentUser();
+    std::string userId = user ? user->getId() : "";
+    BookCopy* copy = bookCopyService::getInstance().getBookCopyByLibCode(libCode);
+    std::string ISBN = copy ? copy->getISBN() : "";
+    std::string errorMessage;
+
+    std::cout <<"您是"<< user->getUsername() << "，ID: " << userId << std::endl;
+    std::cout <<"您要借阅的图书副本编号是: " << libCode << "，对应ISBN: " << ISBN << std::endl;
+    std::cout <<"书名为: " << BookService::getInstance().getBookTitleByISBN(ISBN) << std::endl;
+    std::cout <<"请确认是否继续借阅？(y/n): ";
+    std::string confirm = readLine("");
+    if (confirm != "y" && confirm != "Y") {
+        std::cout << "借阅操作已取消。" << std::endl;
+        pause();
+        return;
+    }
+
+    if (loanService::getInstance().borrowBook(userId, ISBN, libCode, errorMessage)) {
+        std::cout << "借阅成功！" << std::endl;
+    } else {
+        std::cout << "借阅失败: " << errorMessage << std::endl;
+    }
+    pause();
+}
+```
+
+- 当用户在注销自己后，currentUser就是nullptr了。此时进入借书页面，进行借书，就会对它进行解引用，导致程序崩溃。后来加入了判空就好了。
+- 关于空指针，过程中还出现了一处代码
+delete *it;
+writeUsersToFile();
+\*it = new Patron(id, username, phone, email,(\*it)->getPassword(), borrowLimit);
+可以说AI确实写不出这种释放完立刻解引用的抽象代码，人类无法取代AI的原因找到了（？）
+
+- 编译问题
+  - 由于本项目采用了CMake构建，而且初期创建项目用的是Qt（想着整个图形化界面，但是因为发现太过困难就放弃了），导致编译逻辑非常混乱，Qt、vsc、VS，这三个同时至多只能有一个能跑。放弃Qt之后，我把它改为了纯C++程序，删掉了所有的编译配置和构建产物。
+  - 我拜托AI写了cmakelists.txt，这样在vsc和vs上都可以有效地运行了。
 
 ## 5 结果分析
+
+### 未能解决的问题
+
+- 很多信息都是依靠主键进行查找的，比如说在查询记录时，会根据ISBN找图书信息，根据userId找用户信息。那么对于用户注销、删除等情况，找不到这件事会不会带来显示空白、乃至于程序崩溃等复杂问题？解决方案是什么？是在所有地方都加上指针判空（那信息缺失怎么办？），还是在注销时只标注特殊状态而不进行删除？（事实上在本系统中，图书副本就是推荐注销而非删除的）
+- 用户是读者还是管理员？在本系统中，这是由user.txt中的第一个字段决定的。也就是说，你注册一个普通账户，然后把第一个字段改一下，就可以提权了……难绷。然而似乎没有比较好的方案，除非我把文件改成二进制文件，或者把admin/patron也加密储存或作为加密密钥的一部分。
+- services中的各项服务会相互调用。比如说loanservice就引用了其余的所有service。那如果对于更加复杂的系统，如何避免“你引用我，我引用你”的复杂结构，以及可能的循环调用？
 
 ## 6 总结
