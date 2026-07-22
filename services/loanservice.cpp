@@ -1,13 +1,5 @@
 #include "loanservice.h"
-#include <algorithm>
-#include <map>
-#include <vector>
-#include "bookservice.h"
-#include "userservice.h"
-#include "bookcopyservice.h"
-#include "dao/loandao.h"
-#include "model/patron.h"
-#include "timeservice.h"
+
 
 loanService::loanService()
 {

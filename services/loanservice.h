@@ -3,6 +3,13 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <algorithm>
+#include "bookservice.h"
+#include "userservice.h"
+#include "bookcopyservice.h"
+#include "timeservice.h"
+#include "dao/loandao.h"
+#include "model/patron.h"
 #include "model/loan.h"
 
 class loanService
