@@ -31,4 +31,5 @@ private:
 每行一个图书信息，字段之间用|分隔
 ISBN|Title|Author|Publisher|PublishingYear|Category|Remarks
 978-7-121-12345-6|C++ Primer|Lippman|电子工业出版社|2020|编程|畅销书
+978-7-302-52690-2|C/C++程序设计教程|黄永峰、孙甲松|清华大学出版社|2019|编程|教材，清华大学电子工程系核心课
 */

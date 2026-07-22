@@ -22,6 +22,7 @@ set(SOURCES
     model/user.cpp
     model/admin.cpp
     model/patron.cpp
+    model/vippatron.cpp
     model/loan.cpp
     model/date.cpp
     model/location.cpp
