@@ -2971,6 +2971,8 @@ void App::run()
         UserService::getInstance().currentUser = nullptr;
     }
     std::cout << "感谢使用图书管理系统，再见！" << std::endl;
+    std::cout << "按回车键退出...";
+    std::cin.get();
 }
 
 bool App::loginFlow()
