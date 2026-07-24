@@ -408,8 +408,6 @@ int Date::operator-(const Date &other) const
 
 long Date::toJulianDay() const
 {
-    // 儼略日转换算法（Gregorian calendar）
-    // 参考: https://en.wikipedia.org/wiki/Julian_day#Converting_Gregorian_calendar_date_to_Julian_Day_Number
     long a = (14 - month) / 12;
     long y = year + 4800 - a;
     long m = month + 12 * a - 3;
